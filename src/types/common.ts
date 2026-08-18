@@ -64,14 +64,15 @@ export interface NavGroup {
   items: NavItem[]
 }
 
-/** User roles */
-export type UserRole = 'admin' | 'engineer' | 'accountant' | 'meter_reader'
+/** User roles — must match Spatie role names seeded in the backend (PermissionSeeder) */
+export type UserRole = 'admin' | 'engineer' | 'accountant' | 'reader'
 
-/** Authenticated user shape (placeholder) */
+/** Authenticated user shape — matches backend user_info */
 export interface AuthUser {
   id: number
   name: string
   email: string
   role: UserRole
+  permissions: string[]
   avatarUrl?: string
 }

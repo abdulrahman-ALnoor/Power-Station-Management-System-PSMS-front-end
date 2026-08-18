@@ -7,6 +7,9 @@ import { useState, useCallback, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/hooks/useAuth'
+import { loginRequest } from '@/services/auth.service'
+import type { ApiError } from '@/types/api'
+import type { UserRole } from '@/types/common'
 
 export interface LoginFormValues {
   username: string
@@ -88,27 +91,28 @@ export function useLoginForm(): UseLoginFormReturn {
       setErrors({})
 
       try {
-        // ── Backend integration point ───────────────────────
-        // When ready, replace this block with:
-        //   const result = await loginRequest({ email: values.username, password: values.password })
-        //   login(result.token, result.user)
-        //   navigate('/admin/dashboard')
-        //
-        // For now: simulate a short loading delay and
-        // call the auth context login with a placeholder token.
-        // This will be replaced in Step 2 backend integration.
-        await new Promise((resolve) => setTimeout(resolve, 800))
+        // ── Backend integration ─────────────────────────────
+        // The username field is used as the email — the login form only
+        // has one identity field, and the backend's /login expects email.
+        const result = await loginRequest({
+          email: values.username,
+          password: values.password,
+        })
 
-        login('placeholder-token', {
-          id: 1,
-          name: values.username,
-          email: `${values.username}@psms.com`,
-          role: 'admin',
+        login(result.token, {
+          id: result.user_info.id,
+          name: result.user_info.name,
+          email: result.user_info.email,
+          role: result.user_info.role as UserRole,
+          permissions: result.user_info.permissions,
         })
 
         navigate('/admin/dashboard')
-      } catch {
-        setErrors({ general: t('login.loginFailed') })
+      } catch (err) {
+        const apiError = err as ApiError
+        setErrors({
+          general: apiError.message || t('login.loginFailed'),
+        })
       } finally {
         setIsLoading(false)
       }
