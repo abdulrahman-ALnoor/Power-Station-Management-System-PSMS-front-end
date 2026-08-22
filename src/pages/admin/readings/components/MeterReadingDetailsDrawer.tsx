@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, Calendar, User, FileText, CheckCircle2, XCircle, Clock, Hash } from 'lucide-react'
 import { MeterReading } from '../types'
@@ -61,12 +60,12 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
 
   return (
     <>
-      <div 
+      <div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity"
         onClick={onClose}
       />
-      
-      <div 
+
+      <div
         className={`fixed top-0 ${isRTL ? 'left-0' : 'right-0'} bottom-0 w-full max-w-md bg-surface-white dark:bg-surface-container-low shadow-2xl z-50 flex flex-col transition-transform transform`}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
@@ -77,7 +76,7 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
               {t('details.title')} #{reading.id}
             </h2>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-surface-variant dark:hover:bg-surface-container transition-colors text-outline"
           >
@@ -86,7 +85,7 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8">
-          
+
           <div className="flex items-center justify-between">
             <div>
               <p className="text-label-sm font-bold text-outline dark:text-outline/70 mb-1">
@@ -95,6 +94,11 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
               <p className="font-title-lg font-black text-on-surface dark:text-on-dark">
                 {reading.meter?.meter_number || reading.meter_id}
               </p>
+              {reading.meter?.customerName && (
+                <p className="text-label-sm text-outline dark:text-outline/70 mt-1">
+                  {reading.meter.customerName}
+                </p>
+              )}
             </div>
             <div>
               {getStatusBadge(reading.status)}
@@ -133,7 +137,7 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
             </div>
             <div className="flex justify-between items-center py-3 border-b border-outline/10">
               <span className="text-label-md text-outline dark:text-outline/80 flex items-center gap-2"><Calendar size={16}/> {t('table.columns.readingDate')}</span>
-              <span className="font-medium text-on-surface dark:text-on-dark">{reading.reading_date}</span>
+              <span className="font-medium text-on-surface dark:text-on-dark" dir="ltr">{reading.reading_date}</span>
             </div>
           </div>
 
@@ -160,12 +164,8 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
               <Clock size={14} />
               {t('details.createdAt')}: {new Date(reading.created_at).toLocaleString()}
             </div>
-            <div className="flex items-center gap-2">
-              <Clock size={14} />
-              {t('details.updatedAt')}: {new Date(reading.updated_at).toLocaleString()}
-            </div>
           </div>
-          
+
         </div>
       </div>
     </>

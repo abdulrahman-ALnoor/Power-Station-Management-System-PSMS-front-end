@@ -37,25 +37,32 @@ export function MeterDetailsDrawer({ meter, isOpen, onClose }: MeterDetailsDrawe
     }
   }
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '-'
+    const d = new Date(dateString)
+    if (Number.isNaN(d.getTime())) return dateString
+    return d.toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')
+  }
+
   // Animation classes
   const drawerClasses = cn(
     "fixed top-0 h-full w-full sm:w-[480px] bg-surface-white dark:bg-surface-container z-[70] shadow-[-10px_0_30px_rgba(0,0,0,0.1)] transition-transform duration-300 flex flex-col",
     isRTL ? "right-0" : "left-0",
-    isOpen 
-      ? "translate-x-0" 
+    isOpen
+      ? "translate-x-0"
       : (isRTL ? "translate-x-full" : "-translate-x-full")
   )
 
   return (
     <>
-      <div 
+      <div
         className={cn(
           "fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0"
         )}
         onClick={onClose}
       />
-      
+
       <div className={drawerClasses} dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="p-6 border-b border-surface-container-high dark:border-border-muted flex justify-between items-center bg-primary text-surface-white dark:bg-surface-container-low dark:text-on-dark">
@@ -63,8 +70,8 @@ export function MeterDetailsDrawer({ meter, isOpen, onClose }: MeterDetailsDrawe
             <Zap size={24} />
             <h3 className="font-headline-md text-headline-md font-bold">{t('drawer.title')}</h3>
           </div>
-          <button 
-            className="p-2 hover:bg-white/10 dark:hover:bg-surface-container-high rounded-full transition-colors" 
+          <button
+            className="p-2 hover:bg-white/10 dark:hover:bg-surface-container-high rounded-full transition-colors"
             onClick={onClose}
             aria-label={t('drawer.close')}
           >
@@ -74,16 +81,24 @@ export function MeterDetailsDrawer({ meter, isOpen, onClose }: MeterDetailsDrawe
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-8 space-y-8">
-          
+
           {/* Header Identity */}
           <div className="flex items-center gap-4 bg-surface-container-low dark:bg-surface-container p-4 rounded-xl border border-surface-container-high dark:border-border-muted">
-            <div className="w-16 h-16 shrink-0 rounded-lg bg-primary-fixed dark:bg-primary flex items-center justify-center text-primary dark:text-on-dark">
-              <Zap size={32} />
-            </div>
+            {meter.qr_code_url ? (
+              <img
+                src={meter.qr_code_url}
+                alt={t('drawer.qrImage')}
+                className="w-16 h-16 shrink-0 rounded-lg bg-white object-contain border border-surface-container-high dark:border-border-muted"
+              />
+            ) : (
+              <div className="w-16 h-16 shrink-0 rounded-lg bg-primary-fixed dark:bg-primary flex items-center justify-center text-primary dark:text-on-dark">
+                <Zap size={32} />
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <h4 className="font-bold text-headline-md text-primary dark:text-on-dark truncate">{meter.meter_number}</h4>
               <p className="text-label-sm text-on-surface-variant dark:text-outline truncate flex items-center gap-1 mt-1">
-                <QrCode size={14} /> {meter.qr_code}
+                <QrCode size={14} /> {meter.qr_code || '-'}
               </p>
             </div>
             <div className="shrink-0">
@@ -101,7 +116,7 @@ export function MeterDetailsDrawer({ meter, isOpen, onClose }: MeterDetailsDrawe
             <div className="grid grid-cols-1 gap-4">
               <div className="p-3 bg-surface dark:bg-surface-container-lowest rounded-lg">
                 <label className="text-label-sm text-on-surface-variant dark:text-outline block mb-1">{t('table.customer')}</label>
-                <p className="font-semibold text-on-surface dark:text-on-dark truncate" title={meter.customerName}>{meter.customerName}</p>
+                <p className="font-semibold text-on-surface dark:text-on-dark truncate" title={meter.customerName || undefined}>{meter.customerName || '-'}</p>
               </div>
             </div>
           </div>
@@ -116,19 +131,25 @@ export function MeterDetailsDrawer({ meter, isOpen, onClose }: MeterDetailsDrawe
                 <label className="text-label-sm text-on-surface-variant dark:text-outline flex items-center gap-1 mb-1">
                   <Calendar size={14} /> {t('table.installationDate')}
                 </label>
-                <p className="font-semibold text-on-surface dark:text-on-dark">{meter.installation_date || '-'}</p>
+                <p className="font-semibold text-on-surface dark:text-on-dark">{formatDate(meter.installation_date)}</p>
               </div>
               <div className="p-3 bg-surface dark:bg-surface-container-lowest rounded-lg">
                 <label className="text-label-sm text-on-surface-variant dark:text-outline flex items-center gap-1 mb-1">
                   <User size={14} /> {t('table.installedBy')}
                 </label>
-                <p className="font-semibold text-on-surface dark:text-on-dark">{meter.installedByName || meter.installed_by || '-'}</p>
+                <p className="font-semibold text-on-surface dark:text-on-dark">{meter.installedByName || '-'}</p>
               </div>
               <div className="p-3 bg-surface dark:bg-surface-container-lowest rounded-lg col-span-2">
                 <label className="text-label-sm text-on-surface-variant dark:text-outline flex items-center gap-1 mb-1">
                   <MapPin size={14} /> {t('table.installationLocation')}
                 </label>
                 <p className="font-semibold text-on-surface dark:text-on-dark">{meter.installation_location || '-'}</p>
+              </div>
+              <div className="p-3 bg-surface dark:bg-surface-container-lowest rounded-lg col-span-2">
+                <label className="text-label-sm text-on-surface-variant dark:text-outline flex items-center gap-1 mb-1">
+                  <Calendar size={14} /> {t('drawer.createdAt')}
+                </label>
+                <p className="font-semibold text-on-surface dark:text-on-dark" dir="ltr">{formatDate(meter.created_at)}</p>
               </div>
             </div>
           </div>

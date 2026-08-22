@@ -1,14 +1,52 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CheckCircle2, Clock, XCircle, Gauge, Zap, DollarSign } from 'lucide-react'
-import { MeterReadingStatsData } from '../types'
+import { fetchReadingStats } from '@/services/meterReadings.service'
+import type { MeterReadingStatsData } from '../types'
 
-interface MeterReadingStatsProps {
-  stats: MeterReadingStatsData
+const EMPTY_STATS: MeterReadingStatsData = {
+  totalReadings: 0,
+  approvedReadings: 0,
+  pendingReadings: 0,
+  rejectedReadings: 0,
+  totalConsumption: 0,
+  totalReadingCost: 0,
 }
 
-export function MeterReadingStats({ stats }: MeterReadingStatsProps) {
+interface MeterReadingStatsProps {
+  refreshKey?: number
+}
+
+export function MeterReadingStats({ refreshKey }: MeterReadingStatsProps) {
   const { t } = useTranslation('readings')
+  const [stats, setStats] = useState<MeterReadingStatsData>(EMPTY_STATS)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setIsLoading(true)
+    setError(null)
+    fetchReadingStats()
+      .then((res) => {
+        if (cancelled) return
+        setStats({
+          totalReadings: res.total_readings,
+          approvedReadings: res.approved_readings,
+          pendingReadings: res.pending_readings,
+          rejectedReadings: res.rejected_readings,
+          totalConsumption: Number(res.total_consumption),
+          totalReadingCost: Number(res.expected_revenue),
+        })
+      })
+      .catch(() => {
+        if (!cancelled) setError(t('errors.statsFailed'))
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [refreshKey, t])
 
   const formatNumber = (val: number) => new Intl.NumberFormat('en-US').format(val)
   const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'YER' }).format(val)
@@ -64,6 +102,10 @@ export function MeterReadingStats({ stats }: MeterReadingStatsProps) {
     },
   ]
 
+  if (error) {
+    return <div className="p-4 rounded-xl bg-error/10 text-error text-sm">{error}</div>
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
       {statCards.map(card => (
@@ -78,7 +120,7 @@ export function MeterReadingStats({ stats }: MeterReadingStatsProps) {
           </div>
           <div className="mt-1">
             <h4 className="text-headline-sm font-black text-on-surface dark:text-on-dark break-words">
-              {card.value}
+              {isLoading ? '—' : card.value}
             </h4>
           </div>
         </div>

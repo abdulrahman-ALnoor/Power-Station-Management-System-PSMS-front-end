@@ -27,18 +27,26 @@ export default {
     }
   },
   toolbar: {
-    searchPlaceholder: 'Search by meter number or QR code...',
+    searchPlaceholder: 'Search by meter number...',
     status: 'Status',
     addMeter: 'Add Meter',
     refresh: 'Refresh'
   },
   table: {
+    id: '#',
     meterNumber: 'Meter Number',
+    customer: 'Customer',
     qrCode: 'QR Code',
     installationDate: 'Installation Date',
     installationLocation: 'Installation Location',
     status: 'Status',
-    installedBy: 'Installed By'
+    installedBy: 'Installed By',
+    createdBy: 'Created By',
+    createdAt: 'Created At',
+    actions: 'Actions',
+    view: 'View',
+    edit: 'Edit',
+    delete: 'Delete'
   },
   status: {
     active: 'Active',
@@ -50,11 +58,21 @@ export default {
     title: 'No meters registered yet',
     description: 'Please add new meters or adjust search filters to show desired results in this table.'
   },
+  loading: 'Loading...',
+  errors: {
+    loadFailed: 'Failed to load meters. Make sure the backend server is running.',
+    statsFailed: 'Failed to load meter statistics.',
+    deleteFailed: 'Failed to delete meter.',
+    saveFailed: 'Failed to save meter.',
+    loadDetailsFailed: 'Failed to load meter details.'
+  },
+  deleteConfirm: 'Are you sure you want to delete this meter?',
   pagination: {
     showing: 'Showing {{count}} of {{total}} meters'
   },
   modal: {
     addTitle: 'Add New Meter',
+    editTitle: 'Edit Meter',
     subtitle: 'Enter the meter information and installation details.',
     sectionMeter: 'Meter Information',
     sectionInstallation: 'Installation Information',
@@ -62,14 +80,16 @@ export default {
     meterNumber: 'Meter Number',
     qrCode: 'QR Code',
     searchCustomer: 'Customer',
-    searchCustomerPlaceholder: 'Search for customer...',
+    selectCustomerPlaceholder: 'Select a customer...',
     installationDate: 'Installation Date',
     installationLocation: 'Installation Location',
     installedBy: 'Installed By',
-    installedByPlaceholder: 'Search for employee...',
+    selectInstalledByPlaceholder: 'Select the responsible technician...',
     status: 'Meter Status',
     cancel: 'Cancel',
-    confirmAdd: 'Save Meter'
+    confirmAdd: 'Save Meter',
+    confirmEdit: 'Update Meter',
+    saving: 'Saving...'
   },
   drawer: {
     title: 'Meter Details',
@@ -84,7 +104,9 @@ export default {
     recentRequests: 'Recent Service Requests',
     noRequests: 'No Requests',
     printReport: 'Print Report',
-    viewInvoices: 'View Invoices'
+    viewInvoices: 'View Invoices',
+    createdAt: 'Created At',
+    qrImage: 'QR Code Image'
   },
   months: {
     1: 'Jan',

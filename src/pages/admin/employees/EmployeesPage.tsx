@@ -8,7 +8,7 @@ import { EmployeeTable } from './components/EmployeeTable'
 import { PermissionsOverview } from './components/PermissionsOverview'
 import { AddEmployeeModal } from './components/AddEmployeeModal'
 import { EmployeePreviewDrawer } from './components/EmployeePreviewDrawer'
-import { MOCK_EMPLOYEES } from './data/mockData'
+import { fetchEmployee, mapEmployee } from '@/services/employees.service'
 import { Employee } from './types'
 
 export default function EmployeesPage() {
@@ -18,17 +18,25 @@ export default function EmployeesPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
 
+  const [search, setSearch] = useState('')
+  const [role, setRole] = useState('')
+  const [status, setStatus] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
+
   const handleViewEmployee = (id: string) => {
-    const employee = MOCK_EMPLOYEES.find(e => e.id === id)
-    if (employee) {
-      setSelectedEmployee(employee)
-    }
+    fetchEmployee(id)
+      .then((raw) => setSelectedEmployee(mapEmployee(raw)))
+      .catch(() => setSelectedEmployee(null))
+  }
+
+  const handleEmployeeCreated = () => {
+    setIsAddModalOpen(false)
+    setRefreshKey((k) => k + 1)
   }
 
   return (
     <div className="space-y-6">
-      
-      {/* Page Header Area (matches Dashboard's layout) */}
+
       <div className="flex items-center gap-2">
         <nav className="flex items-center text-on-surface-variant font-label-sm text-label-sm ms-4">
           <span>{t('breadcrumbs.home')}</span>
@@ -44,33 +52,44 @@ export default function EmployeesPage() {
         </h1>
       </div>
 
-      {/* Main Content Sections */}
       <div className="space-y-6">
-        
-        {/* Top Stats */}
-        <EmployeeStats />
 
-        {/* Toolbar */}
-        <EmployeeToolbar onAddClick={() => setIsAddModalOpen(true)} />
+        <EmployeeStats key={`stats-${refreshKey}`} />
 
-        {/* Data Table */}
-        <EmployeeTable onViewClick={handleViewEmployee} />
+        <EmployeeToolbar
+          onAddClick={() => setIsAddModalOpen(true)}
+          search={search}
+          onSearchChange={setSearch}
+          role={role}
+          onRoleChange={setRole}
+          status={status}
+          onStatusChange={setStatus}
+          onRefresh={() => setRefreshKey((k) => k + 1)}
+        />
 
-        {/* Permissions Guide */}
+        <EmployeeTable
+          onViewClick={handleViewEmployee}
+          search={search}
+          role={role}
+          status={status}
+          refreshKey={refreshKey}
+          onDeleted={() => setRefreshKey((k) => k + 1)}
+        />
+
         <PermissionsOverview />
 
       </div>
 
-      {/* Modals & Drawers */}
-      <AddEmployeeModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+      <AddEmployeeModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onCreated={handleEmployeeCreated}
       />
-      
-      <EmployeePreviewDrawer 
-        employee={selectedEmployee} 
-        isOpen={!!selectedEmployee} 
-        onClose={() => setSelectedEmployee(null)} 
+
+      <EmployeePreviewDrawer
+        employee={selectedEmployee}
+        isOpen={!!selectedEmployee}
+        onClose={() => setSelectedEmployee(null)}
       />
 
     </div>

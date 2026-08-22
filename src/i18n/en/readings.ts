@@ -14,7 +14,7 @@ const en_readings = {
     totalReadingCost: 'Total Reading Cost',
   },
   toolbar: {
-    searchPlaceholder: 'Search readings...',
+    searchPlaceholder: 'Search by meter number or customer name...',
     filters: {
       status: {
         all: 'All Statuses',
@@ -22,32 +22,25 @@ const en_readings = {
         approved: 'Approved',
         rejected: 'Rejected',
       },
-      method: {
-        all: 'All Methods',
-        manual: 'Manual',
-        qrScan: 'QR Scan',
-      },
-      date: {
-        all: 'All Dates',
-        today: 'Today',
-        thisWeek: 'This Week',
+      month: {
+        all: 'All Months',
         thisMonth: 'This Month',
       },
     },
     actions: {
       addReading: 'Add Reading',
-      export: 'Export',
       refresh: 'Refresh',
     },
   },
   table: {
     columns: {
-      readingId: 'Reading ID',
-      meterNumber: 'Meter',
-      previousReading: 'Previous',
-      currentReading: 'Current',
+      readingId: 'Reading #',
+      meterNumber: 'Meter Number',
+      customer: 'Customer',
+      previousReading: 'Previous Reading',
+      currentReading: 'Current Reading',
       consumption: 'Consumption',
-      pricePerKwh: 'Price/kWh',
+      pricePerKwh: 'Price / kWh',
       readingCost: 'Cost',
       readingDate: 'Reading Date',
       method: 'Method',
@@ -56,7 +49,7 @@ const en_readings = {
     },
     emptyState: {
       title: 'No readings found',
-      description: 'Adjust your search filters or add a new reading.',
+      description: 'Adjust the search filters or add a new reading.',
     },
   },
   status: {
@@ -72,26 +65,23 @@ const en_readings = {
   },
   details: {
     title: 'Reading Details',
+    customer: 'Customer',
     notes: 'Notes',
-    createdBy: 'Created By',
+    createdBy: 'Recorded By',
     createdAt: 'Created At',
-    updatedAt: 'Updated At',
   },
   addModal: {
-    title: 'Add Meter Reading',
-    description: 'Enter the new reading details. Consumption and cost will be calculated automatically.',
-    meterSelect: 'Select Meter',
-    preview: {
-      consumption: 'Est. Consumption',
-      cost: 'Est. Cost',
-    },
+    title: 'Add New Reading',
+    editTitle: 'Edit Reading',
+    description: 'Enter the new reading details. Consumption and cost are calculated automatically by the backend.',
+    editDescription: 'Only the most recent reading for a meter can be edited, and only if no invoice is linked to it yet.',
+    meterSelect: 'Select a meter',
     actions: {
       cancel: 'Cancel',
       add: 'Add Reading',
+      update: 'Save Changes',
+      saving: 'Saving...',
     },
-    validation: {
-      currentLessThanPrevious: 'Current reading cannot be less than previous reading.',
-    }
   },
   actions: {
     viewDetails: 'View Details',
@@ -101,10 +91,24 @@ const en_readings = {
     reject: 'Reject',
   },
   notifications: {
-    added: 'Meter reading added successfully.',
-    deleted: 'Meter reading deleted successfully.',
+    added: 'Reading added successfully.',
+    updated: 'Reading updated successfully.',
+    deleted: 'Reading deleted successfully.',
     statusUpdated: 'Reading status updated successfully.',
-  }
+  },
+  loading: 'Loading...',
+  deleteConfirm: 'Are you sure you want to delete this reading?',
+  pagination: {
+    showing: 'Showing {{count}} of {{total}} readings',
+  },
+  errors: {
+    loadFailed: 'Failed to load readings. Make sure the backend server is running.',
+    statsFailed: 'Failed to load reading statistics.',
+    saveFailed: 'Failed to save reading.',
+    deleteFailed: 'Failed to delete reading.',
+    loadDetailsFailed: 'Failed to load reading details.',
+    loadMetersFailed: 'Failed to load meter list.',
+  },
 }
 
 export default en_readings

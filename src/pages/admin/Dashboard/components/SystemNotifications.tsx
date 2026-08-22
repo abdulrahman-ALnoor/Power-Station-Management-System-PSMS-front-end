@@ -1,91 +1,80 @@
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getMockNotifications, getMockActivities } from '@/data/mock/dashboard'
 import { AlertTriangle, BellRing } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { cn } from '@/utils/cn'
+import { fetchNotifications, type NotificationApiRecord } from '@/services/notifications.service'
 
 export function SystemNotifications() {
   const { t } = useTranslation('dashboard')
   const { isRTL } = useLanguage()
-  const notifications = getMockNotifications()
-  const activities = getMockActivities()
+
+  const [notifications, setNotifications] = useState<NotificationApiRecord[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchNotifications()
+      .then((res) => {
+        if (!cancelled) setNotifications(res.slice(0, 5))
+      })
+      .catch(() => {
+        /* fail silently — this is a secondary widget */
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  const isUrgent = (n: NotificationApiRecord) => n.status === 'failed' || n.notification_type === 'alert'
 
   return (
     <div className="bg-surface p-6 rounded-xl border border-border shadow-sm flex flex-col gap-8 h-full">
-      
-      {/* Notifications */}
+
       <div>
         <h4 className="font-headline text-headline text-primary mb-6">
           {t('notifications.title')}
         </h4>
         <div className="space-y-4">
-          {notifications.map((notif) => (
-            <div 
-              key={notif.id}
-              className={cn(
-                "flex gap-3 items-start pr-3",
-                isRTL ? "border-r-4" : "border-l-4 pl-3 pr-0",
-                notif.variant === 'danger' ? "border-[var(--color-danger)]" : "border-[var(--color-accent)]"
-              )}
-              dir={isRTL ? 'rtl' : 'ltr'}
-            >
-              {notif.variant === 'danger' ? (
-                <AlertTriangle size={20} className="text-[var(--color-danger)] mt-0.5 shrink-0" />
-              ) : (
-                <BellRing size={20} className="text-[var(--color-amber-gold)] mt-0.5 shrink-0" />
-              )}
-              <div className={isRTL ? "text-right" : "text-left"}>
-                <p className="font-semibold text-sm text-text">
-                  {t(notif.titleKey)}
-                </p>
-                <p className="text-[11px] text-outline mt-0.5">
-                  {t(notif.descriptionKey)}
-                </p>
-                <span className={cn(
-                  "text-[10px] font-bold mt-1 block",
-                  notif.variant === 'danger' ? "text-[var(--color-danger)]" : "text-outline font-normal"
-                )}>
-                  {t(notif.timeKey)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Activities Timeline */}
-      <div>
-        <h4 className="font-headline text-headline text-primary mb-6">
-          {t('activities.title')}
-        </h4>
-        <div 
-          className={cn(
-            "relative",
-            isRTL 
-              ? "pr-6 before:content-[''] before:absolute before:right-2 before:top-0 before:bottom-0 before:w-0.5 before:bg-[var(--color-outline-variant)]"
-              : "pl-6 before:content-[''] before:absolute before:left-2 before:top-0 before:bottom-0 before:w-0.5 before:bg-[var(--color-outline-variant)]"
+          {isLoading && <p className="text-outline text-sm">…</p>}
+          {!isLoading && notifications.length === 0 && (
+            <p className="text-outline text-sm">—</p>
           )}
-          dir={isRTL ? 'rtl' : 'ltr'}
-        >
-          {activities.map((act, idx) => (
-            <div key={act.id} className={cn("relative", idx !== activities.length - 1 ? "mb-6" : "")}>
-              <div 
+          {notifications.map((notif) => {
+            const urgent = isUrgent(notif)
+            return (
+              <div
+                key={notif.id}
                 className={cn(
-                  "absolute top-1 w-3 h-3 rounded-full border-2 border-surface",
-                  isRTL ? "-right-[21px]" : "-left-[21px]"
+                  "flex gap-3 items-start pr-3",
+                  isRTL ? "border-r-4" : "border-l-4 pl-3 pr-0",
+                  urgent ? "border-[var(--color-danger)]" : "border-[var(--color-accent)]"
                 )}
-                style={{ background: act.color }}
-              ></div>
-              <div className={isRTL ? "text-right" : "text-left"}>
-                <p className="font-semibold text-sm text-text">
-                  {t(act.titleKey)}
-                </p>
-                <p className="text-[11px] text-outline mt-0.5">
-                  {t(act.descriptionKey)}
-                </p>
+                dir={isRTL ? 'rtl' : 'ltr'}
+              >
+                {urgent ? (
+                  <AlertTriangle size={20} className="text-[var(--color-danger)] mt-0.5 shrink-0" />
+                ) : (
+                  <BellRing size={20} className="text-[var(--color-amber-gold)] mt-0.5 shrink-0" />
+                )}
+                <div className={isRTL ? "text-right" : "text-left"}>
+                  <p className="font-semibold text-sm text-text">
+                    {notif.customer?.name || notif.notification_type}
+                  </p>
+                  <p className="text-[11px] text-outline mt-0.5">
+                    {notif.message}
+                  </p>
+                  <span className={cn(
+                    "text-[10px] font-bold mt-1 block",
+                    urgent ? "text-[var(--color-danger)]" : "text-outline font-normal"
+                  )}>
+                    {new Date(notif.created_at).toLocaleString(isRTL ? 'ar-SA' : 'en-US')}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 

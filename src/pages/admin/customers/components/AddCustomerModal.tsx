@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, UserPlus } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
+import { createCustomer, type CustomerPayload } from '@/services/customers.service'
 
 export interface CustomerData {
   customer_number?: string
@@ -23,7 +24,8 @@ export function AddCustomerModal({ isOpen, onClose, onAdd }: AddCustomerModalPro
   const { t } = useTranslation('customers')
   const { isRTL } = useLanguage()
 
-  const [formData, setFormData] = useState<CustomerData>({
+    const [formData, setFormData] = useState<CustomerData>({
+
     customer_number: '',
     full_name: '',
     customer_type: 'residential',
@@ -38,10 +40,33 @@ export function AddCustomerModal({ isOpen, onClose, onAdd }: AddCustomerModalPro
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onAdd?.(formData)
-    setFormData({
+    setIsSubmitting(true)
+    setSubmitError(null)
+    setSubmitSuccess(null)
+
+    try {
+      const payload: CustomerPayload = {
+        customer_number: formData.customer_number || undefined,
+        full_name: formData.full_name.trim(),
+        customer_type: formData.customer_type,
+        phone: formData.phone.trim(),
+        alternative_phone: formData.alternative_phone?.trim() || undefined,
+        address_description: formData.address_description?.trim() || undefined,
+        notes: formData.notes?.trim() || undefined,
+      }
+
+      await createCustomer(payload)
+      window.alert('تم حفظ العميل بنجاح')
+      onAdd?.(formData)
+      setSubmitSuccess('تم حفظ العميل بنجاح')
+      setFormData({
+
       customer_number: '',
       full_name: '',
       customer_type: 'residential',
@@ -49,7 +74,28 @@ export function AddCustomerModal({ isOpen, onClose, onAdd }: AddCustomerModalPro
       alternative_phone: '',
       address_description: '',
       notes: '',
-    })
+      })
+      window.setTimeout(() => {
+        setSubmitSuccess(null)
+        onClose()
+      }, 700)
+    } catch (error) {
+      const apiError = error as {
+        message?: string
+        status?: number
+        errors?: Record<string, string[]>
+      }
+      const validationMessage = apiError.errors
+        ? Object.values(apiError.errors).flat().join(' ')
+        : undefined
+      setSubmitError(
+        validationMessage ||
+          apiError.message ||
+          `تعذر إضافة العميل${apiError.status ? ` (HTTP ${apiError.status})` : ''}`,
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!isOpen) return null
@@ -190,24 +236,39 @@ export function AddCustomerModal({ isOpen, onClose, onAdd }: AddCustomerModalPro
                   />
                 </div>
 
-              </div>
+                            </div>
+              {submitError && (
+                <p className="md:col-span-2 text-sm text-red-600" role="alert">
+                  {submitError}
+                </p>
+              )}
+              {submitSuccess && (
+                <p className="md:col-span-2 text-sm text-green-600" role="status">
+                  {submitSuccess}
+                </p>
+              )}
             </form>
           </div>
 
           <div className="p-6 pt-4 mt-2 border-t border-outline/10 bg-surface-white dark:bg-surface-container-low flex flex-col sm:flex-row items-center justify-end gap-3 shrink-0">
+
             <button
               type="button"
-              onClick={onClose}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-lg border border-outline/20 text-on-surface dark:text-on-dark font-semibold hover:bg-surface-variant dark:hover:bg-surface-container transition-colors min-h-[44px]"
+                            onClick={onClose}
+              disabled={isSubmitting}
+              className="w-full sm:w-auto px-6 py-2.5 rounded-lg border border-outline/20 text-on-surface dark:text-on-dark font-semibold hover:bg-surface-variant dark:hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
+
             >
               {t('addModal.actions.cancel')}
             </button>
             <button
-              type="submit"
+                            type="submit"
               form="add-customer-form"
-              className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-primary text-on-primary font-semibold hover:bg-primary-dark transition-colors shadow-sm min-h-[44px]"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-primary text-on-primary font-semibold hover:bg-primary-dark transition-colors shadow-sm min-h-[44px] disabled:opacity-50"
             >
-              {t('addModal.actions.add')}
+              {isSubmitting ? 'جاري الحفظ...' : t('addModal.actions.add')}
+
             </button>
           </div>
 
