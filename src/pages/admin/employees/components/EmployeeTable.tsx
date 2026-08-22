@@ -1,16 +1,73 @@
+
+import { useEffect, useState, type MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MOCK_EMPLOYEES } from '../data/mockData'
 import { Eye, Edit2, Trash2, Phone, Mail, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { cn } from '@/utils/cn'
+import { fetchEmployees, mapEmployee, deleteEmployee } from '@/services/employees.service'
+import type { Employee } from '../types'
 
 interface EmployeeTableProps {
   onViewClick: (id: string) => void
+  search?: string
+  role?: string
+  status?: string
+  refreshKey?: number
+  onDeleted?: () => void
 }
 
-export function EmployeeTable({ onViewClick }: EmployeeTableProps) {
+export function EmployeeTable({ onViewClick, search, role, status, refreshKey, onDeleted }: EmployeeTableProps) {
   const { t } = useTranslation('employees')
   const { isRTL } = useLanguage()
+
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [page, setPage] = useState(1)
+  const [lastPage, setLastPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  useEffect(() => {
+    
+    setPage(1)
+  }, [search, role, status])
+
+  useEffect(() => {
+    let cancelled = false
+    setIsLoading(true)
+    setError(null)
+    fetchEmployees({ page, search: search || undefined, role: role || undefined, status: (status as any) || undefined })
+      .then((res) => {
+        if (cancelled) return
+        setEmployees(res.data.map(mapEmployee))
+        setLastPage(res.last_page)
+        setTotal(res.total)
+      })
+      .catch(() => {
+        if (!cancelled) setError('تعذر تحميل الموظفين. تأكد من تشغيل الخادم الخلفي.')
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [page, search, role, status, refreshKey])
+
+  
+  const handleDelete = async (e:React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    if (!window.confirm(t('actions.confirmDelete', 'هل أنت متأكد من حذف هذا الموظف؟'))) return
+    setDeletingId(id)
+    try {
+      await deleteEmployee(id)
+      setEmployees((prev) => prev.filter((emp) => emp.id !== id))
+      onDeleted?.()
+    } catch {
+      window.alert('تعذر حذف الموظف.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -37,9 +94,18 @@ export function EmployeeTable({ onViewClick }: EmployeeTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border dark:divide-border-muted">
-            {MOCK_EMPLOYEES.map((employee) => (
-              <tr 
-                key={employee.id} 
+            {isLoading && (
+              <tr><td colSpan={5} className="px-6 py-10 text-center text-on-surface-variant dark:text-outline">جاري التحميل...</td></tr>
+            )}
+            {!isLoading && error && (
+              <tr><td colSpan={5} className="px-6 py-10 text-center text-error">{error}</td></tr>
+            )}
+            {!isLoading && !error && employees.length === 0 && (
+              <tr><td colSpan={5} className="px-6 py-10 text-center text-on-surface-variant dark:text-outline">لا يوجد موظفون</td></tr>
+            )}
+            {!isLoading && !error && employees.map((employee) => (
+              <tr
+                key={employee.id}
                 className="hover:bg-surface-container-low/50 dark:hover:bg-surface-container/50 transition-colors cursor-pointer group"
                 onClick={() => onViewClick(employee.id)}
               >
@@ -56,12 +122,9 @@ export function EmployeeTable({ onViewClick }: EmployeeTableProps) {
                 <td className="px-6 py-4">
                   <div className="space-y-1">
                     {employee.phone && (
-                      <div className="flex items-center gap-2 text-on-surface-variant text-[13px] dir-ltr justify-end sm:justify-start">
-                        {/* Force LTR for phone numbers but align properly depending on language, wait standard logical flow is better */}
-                        <div className={cn("flex items-center gap-2", isRTL ? "flex-row-reverse w-full justify-end" : "")}>
-                          <Phone size={14} className={isRTL ? "ms-1" : "me-1"} />
-                          <span className="dir-ltr">{employee.phone}</span>
-                        </div>
+                      <div className={cn("flex items-center gap-2 text-on-surface-variant text-[13px]", isRTL ? "flex-row-reverse w-full justify-end" : "")}>
+                        <Phone size={14} className={isRTL ? "ms-1" : "me-1"} />
+                        <span className="dir-ltr">{employee.phone}</span>
                       </div>
                     )}
                     <div className="flex items-center gap-2 text-on-surface-variant text-[13px]">
@@ -72,8 +135,8 @@ export function EmployeeTable({ onViewClick }: EmployeeTableProps) {
                 </td>
                 <td className="px-6 py-4">
                   <p className="font-body-md text-on-surface dark:text-on-dark">
-                    {employee.roles && employee.roles.length > 0 
-                      ? t(`toolbar.roles.${employee.roles[0]}`) 
+                    {employee.roles && employee.roles.length > 0
+                      ? t(`toolbar.roles.${employee.roles[0]}`, employee.roles[0])
                       : '-'}
                   </p>
                 </td>
@@ -84,24 +147,25 @@ export function EmployeeTable({ onViewClick }: EmployeeTableProps) {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
+                    <button
                       className="p-2 rounded-lg hover:bg-primary/10 text-primary dark:hover:bg-primary-fixed/20 dark:text-primary-fixed transition-colors"
                       title={t('actions.view')}
                       onClick={(e) => { e.stopPropagation(); onViewClick(employee.id) }}
                     >
                       <Eye size={18} />
                     </button>
-                    <button 
+                    <button
                       className="p-2 rounded-lg hover:bg-steel-blue/10 text-steel-blue transition-colors"
                       title={t('actions.edit')}
-                      onClick={(e) => { e.stopPropagation(); /* edit handler */ }}
+                      onClick={(e) => { e.stopPropagation(); onViewClick(employee.id) }}
                     >
                       <Edit2 size={18} />
                     </button>
-                    <button 
-                      className="p-2 rounded-lg hover:bg-error/10 text-error transition-colors"
+                    <button
+                      className="p-2 rounded-lg hover:bg-error/10 text-error transition-colors disabled:opacity-50"
                       title={t('actions.delete')}
-                      onClick={(e) => { e.stopPropagation(); /* delete handler */ }}
+                      disabled={deletingId === employee.id}
+                      onClick={(e) => handleDelete(e, employee.id)}
                     >
                       <Trash2 size={18} />
                     </button>
@@ -113,19 +177,25 @@ export function EmployeeTable({ onViewClick }: EmployeeTableProps) {
         </table>
       </div>
 
-      {/* Pagination - Matching Stitch design */}
+      {/* Pagination */}
       <div className="px-6 py-4 flex items-center justify-between bg-surface-container-lowest border-t border-border dark:bg-surface-container dark:border-border-muted">
         <p className="text-[12px] text-on-surface-variant">
-          {t('pagination.showing', { count: 10, total: 482 })}
+          {t('pagination.showing', { count: employees.length, total })}
         </p>
-        <div className="flex gap-1">
-          <button className="w-8 h-8 flex items-center justify-center rounded border border-border text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors dark:border-border-muted">
+        <div className="flex gap-1 items-center">
+          <button
+            className="w-8 h-8 flex items-center justify-center rounded border border-border text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors dark:border-border-muted disabled:opacity-40"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
             {isRTL ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded bg-primary text-on-primary font-medium">1</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded border border-border text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors dark:border-border-muted">2</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded border border-border text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors dark:border-border-muted">3</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded border border-border text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors dark:border-border-muted">
+          <span className="px-3 text-[12px] text-on-surface-variant">{page} / {lastPage}</span>
+          <button
+            className="w-8 h-8 flex items-center justify-center rounded border border-border text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors dark:border-border-muted disabled:opacity-40"
+            disabled={page >= lastPage}
+            onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+          >
             {isRTL ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           </button>
         </div>

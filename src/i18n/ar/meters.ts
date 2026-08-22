@@ -27,18 +27,26 @@ export default {
     }
   },
   toolbar: {
-    searchPlaceholder: 'البحث برقم العداد أو رمز QR...',
+    searchPlaceholder: 'البحث برقم العداد...',
     status: 'الحالة',
     refresh: 'تحديث',
     addMeter: 'إضافة عداد'
   },
   table: {
+    id: '#',
     meterNumber: 'رقم العداد',
+    customer: 'العميل',
     qrCode: 'رمز QR',
     installationDate: 'تاريخ التركيب',
     installationLocation: 'موقع التركيب',
     status: 'الحالة',
-    installedBy: 'تم التركيب بواسطة'
+    installedBy: 'تم التركيب بواسطة',
+    createdBy: 'أُنشئ بواسطة',
+    createdAt: 'تاريخ الإنشاء',
+    actions: 'إجراءات',
+    view: 'عرض',
+    edit: 'تعديل',
+    delete: 'حذف'
   },
   status: {
     active: 'نشط',
@@ -50,11 +58,21 @@ export default {
     title: 'لا توجد عدادات مسجلة حتى الآن',
     description: 'يرجى إضافة عدادات جديدة أو تعديل فلاتر البحث لإظهار النتائج المطلوبة في هذا الجدول.'
   },
+  loading: 'جاري التحميل...',
+  errors: {
+    loadFailed: 'تعذر تحميل العدادات. تأكد من تشغيل الخادم الخلفي.',
+    statsFailed: 'تعذر تحميل إحصائيات العدادات.',
+    deleteFailed: 'تعذر حذف العداد.',
+    saveFailed: 'تعذر حفظ العداد.',
+    loadDetailsFailed: 'تعذر تحميل بيانات العداد.'
+  },
+  deleteConfirm: 'هل أنت متأكد من حذف هذا العداد؟',
   pagination: {
     showing: 'عرض {{count}} من {{total}} عداد'
   },
   modal: {
     addTitle: 'إضافة عداد جديد',
+    editTitle: 'تعديل بيانات العداد',
     subtitle: 'أدخل بيانات العداد ومعلومات تركيبه.',
     sectionMeter: 'بيانات العداد',
     sectionInstallation: 'معلومات التركيب',
@@ -62,14 +80,16 @@ export default {
     meterNumber: 'رقم العداد',
     qrCode: 'رمز QR',
     searchCustomer: 'العميل',
-    searchCustomerPlaceholder: 'البحث عن عميل...',
+    selectCustomerPlaceholder: 'اختر عميلاً...',
     installationDate: 'تاريخ التركيب',
     installationLocation: 'موقع التركيب',
     installedBy: 'تم التركيب بواسطة',
-    installedByPlaceholder: 'البحث عن موظف...',
+    selectInstalledByPlaceholder: 'اختر الفني المسؤول...',
     status: 'حالة العداد',
     cancel: 'إلغاء',
-    confirmAdd: 'حفظ العداد'
+    confirmAdd: 'حفظ العداد',
+    confirmEdit: 'تحديث العداد',
+    saving: 'جاري الحفظ...'
   },
   drawer: {
     title: 'تفاصيل العداد',
@@ -84,7 +104,9 @@ export default {
     recentRequests: 'طلبات الخدمة الأخيرة',
     noRequests: 'لا توجد طلبات',
     printReport: 'طباعة التقرير',
-    viewInvoices: 'عرض الفواتير'
+    viewInvoices: 'عرض الفواتير',
+    createdAt: 'تاريخ الإنشاء',
+    qrImage: 'صورة رمز QR'
   },
   months: {
     1: 'يناير',

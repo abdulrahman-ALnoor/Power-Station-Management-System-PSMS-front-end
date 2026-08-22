@@ -1,16 +1,13 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, Plus, Filter, RefreshCw, Download } from 'lucide-react'
+import { Search, Plus, Filter, RefreshCw } from 'lucide-react'
 
 interface MeterReadingToolbarProps {
   searchQuery: string
   onSearchChange: (query: string) => void
   statusFilter: string
   onStatusFilterChange: (status: string) => void
-  methodFilter: string
-  onMethodFilterChange: (method: string) => void
-  dateFilter: string
-  onDateFilterChange: (dateRange: string) => void
+  thisMonthOnly: boolean
+  onThisMonthOnlyChange: (value: boolean) => void
   onAddClick: () => void
   onRefresh: () => void
 }
@@ -20,10 +17,8 @@ export function MeterReadingToolbar({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
-  methodFilter,
-  onMethodFilterChange,
-  dateFilter,
-  onDateFilterChange,
+  thisMonthOnly,
+  onThisMonthOnlyChange,
   onAddClick,
   onRefresh
 }: MeterReadingToolbarProps) {
@@ -56,13 +51,6 @@ export function MeterReadingToolbar({
           >
             <RefreshCw size={18} />
           </button>
-          
-          <button
-            className="hidden sm:flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-outline hover:text-on-surface dark:hover:text-on-dark border border-outline/20 dark:border-outline/10 rounded-xl hover:bg-surface-variant dark:hover:bg-surface-container-high transition-colors"
-          >
-            <Download size={18} />
-            {t('toolbar.actions.export')}
-          </button>
 
           <button
             onClick={onAddClick}
@@ -92,24 +80,12 @@ export function MeterReadingToolbar({
         </select>
 
         <select
-          value={methodFilter}
-          onChange={(e) => onMethodFilterChange(e.target.value)}
+          value={thisMonthOnly ? 'thisMonth' : 'all'}
+          onChange={(e) => onThisMonthOnlyChange(e.target.value === 'thisMonth')}
           className="bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-xl py-2 px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow cursor-pointer"
         >
-          <option value="all">{t('toolbar.filters.method.all')}</option>
-          <option value="manual">{t('toolbar.filters.method.manual')}</option>
-          <option value="qr_scan">{t('toolbar.filters.method.qrScan')}</option>
-        </select>
-
-        <select
-          value={dateFilter}
-          onChange={(e) => onDateFilterChange(e.target.value)}
-          className="bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-xl py-2 px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow cursor-pointer"
-        >
-          <option value="all">{t('toolbar.filters.date.all')}</option>
-          <option value="today">{t('toolbar.filters.date.today')}</option>
-          <option value="this_week">{t('toolbar.filters.date.thisWeek')}</option>
-          <option value="this_month">{t('toolbar.filters.date.thisMonth')}</option>
+          <option value="all">{t('toolbar.filters.month.all')}</option>
+          <option value="thisMonth">{t('toolbar.filters.month.thisMonth')}</option>
         </select>
       </div>
     </div>

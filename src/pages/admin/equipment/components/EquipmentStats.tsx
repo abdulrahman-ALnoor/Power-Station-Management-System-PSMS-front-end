@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Layers, CheckCircle2, Wrench, AlertTriangle, SearchX } from 'lucide-react'
-import { getEquipmentStats, MOCK_EQUIPMENT } from '../data/mockData'
+import { fetchEquipmentStats, type EquipmentStatsResponse } from '@/services/equipment.service'
+import type { EquipmentStat } from '../types'
 
 const ICON_MAP: Record<string, React.ElementType> = {
   'layers': Layers,
@@ -12,16 +14,45 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 export function EquipmentStats() {
   const { t } = useTranslation('equipment')
-  const stats = getEquipmentStats(MOCK_EQUIPMENT)
+  const [data, setData] = useState<EquipmentStatsResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchEquipmentStats()
+      .then((res) => {
+        if (!cancelled) setData(res)
+      })
+      .catch(() => {
+        if (!cancelled) setError('تعذر تحميل إحصائيات المعدات')
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  const byStatus = data?.by_status ?? {}
+  const stats: EquipmentStat[] = [
+    { id: 'total', labelKey: 'stats.total', value: data?.total_equipment ?? 0, iconKey: 'layers', variant: 'primary' },
+    { id: 'available', labelKey: 'stats.available', value: byStatus.available ?? 0, iconKey: 'check_circle', variant: 'success' },
+    { id: 'maintenance', labelKey: 'stats.maintenance', value: byStatus.maintenance ?? 0, iconKey: 'build', variant: 'warning' },
+    { id: 'damaged', labelKey: 'stats.damaged', value: byStatus.damaged ?? 0, iconKey: 'report_problem', variant: 'error' },
+    { id: 'lost', labelKey: 'stats.lost', value: byStatus.lost ?? 0, iconKey: 'search_off', variant: 'error' },
+  ]
+
+  if (error) {
+    return <div className="p-4 rounded-xl bg-error/10 text-error text-label-sm">{error}</div>
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {stats.map((stat) => {
         const Icon = ICON_MAP[stat.iconKey] || Layers
 
-        // Map semantic variants to exact Tailwind classes representing the Design System
-        let colors = { bg: '', iconBg: '', iconText: '', border: '' }
-        
+        let colors: { bg: string; iconBg: string; iconText: string; border: string }
+
         switch (stat.variant) {
           case 'primary':
             colors = {
@@ -65,8 +96,8 @@ export function EquipmentStats() {
         }
 
         return (
-          <div 
-            key={stat.id} 
+          <div
+            key={stat.id}
             className={`p-6 rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] flex flex-col justify-between ${colors.bg} ${colors.border}`}
           >
             <div className="flex items-start justify-between mb-4">
@@ -74,14 +105,14 @@ export function EquipmentStats() {
                 <Icon size={24} />
               </div>
             </div>
-            
+
             <div>
               <p className="text-label-md text-outline dark:text-outline font-bold mb-1">
                 {t(stat.labelKey)}
               </p>
               <div className="flex items-baseline gap-2">
                 <h3 className="font-display-sm text-display-sm font-bold text-on-surface dark:text-on-dark">
-                  {stat.value}
+                  {isLoading ? '—' : stat.value}
                 </h3>
               </div>
             </div>

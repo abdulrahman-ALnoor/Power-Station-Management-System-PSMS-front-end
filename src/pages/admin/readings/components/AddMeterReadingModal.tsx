@@ -1,108 +1,112 @@
-import React, { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, Plus, AlertCircle } from 'lucide-react'
-import { MeterReading, ReadingMethod } from '../types'
+import { X, Plus, Edit2 } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
+import { createReading, updateReading } from '@/services/meterReadings.service'
+import { fetchMeterList, mapMeter } from '@/services/meters.service'
+import type { Meter } from '@/pages/admin/meters/types'
+import type { MeterReading, ReadingMethod, CreateReadingPayload } from '../types'
+import type { ApiError } from '@/types/api'
 
 interface AddMeterReadingModalProps {
   isOpen: boolean
   onClose: () => void
-  onAdd: (reading: Omit<MeterReading, 'id' | 'created_at' | 'updated_at' | 'status' | 'created_by'>) => void
+  onSaved?: () => void
+  /** When provided, the modal edits this reading instead of creating a new one. */
+  reading?: MeterReading | null
 }
 
-export function AddMeterReadingModal({ isOpen, onClose, onAdd }: AddMeterReadingModalProps) {
+export function AddMeterReadingModal({ isOpen, onClose, onSaved, reading }: AddMeterReadingModalProps) {
   const { t } = useTranslation('readings')
   const { isRTL } = useLanguage()
+  const isEditMode = Boolean(reading)
 
-  const [meterId, setMeterId] = useState('')
-  const [previousReading, setPreviousReading] = useState<number | ''>('')
-  const [currentReading, setCurrentReading] = useState<number | ''>('')
-  const [pricePerKwh, setPricePerKwh] = useState<number>(250) // Default for demo
-  const [readingDate, setReadingDate] = useState(() => new Date().toISOString().split('T')[0])
-  const [method, setMethod] = useState<ReadingMethod>('manual')
-  const [notes, setNotes] = useState('')
+  const [meters, setMeters] = useState<Meter[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const consumption = (typeof currentReading === 'number' && typeof previousReading === 'number') 
-    ? Math.max(0, currentReading - previousReading) 
-    : 0
-
-  const cost = consumption * pricePerKwh
-
-  const formatNumber = (val: number) => new Intl.NumberFormat('en-US').format(val)
-  const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'YER' }).format(val)
-
   useEffect(() => {
-    if (typeof currentReading === 'number' && typeof previousReading === 'number') {
-      if (currentReading < previousReading) {
-        setError(t('addModal.validation.currentLessThanPrevious'))
-      } else {
-        setError(null)
-      }
-    } else {
-      setError(null)
-    }
-  }, [currentReading, previousReading, t])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (
-      error ||
-      !meterId ||
-      previousReading === '' ||
-      currentReading === '' ||
-      previousReading === null ||
-      currentReading === null ||
-      pricePerKwh === null
-    ) {
-      return
-    }
-    onAdd({
-      meter_id: parseInt(meterId, 10),
-      previous_reading: Number(previousReading),
-      current_reading: Number(currentReading),
-      consumption,
-      price_per_kwh: pricePerKwh,
-      reading_cost: cost,
-      reading_date: readingDate,
-      reading_method: method,
-      notes: notes || null
-    })
-
-    // Reset
-    setMeterId('')
-    setPreviousReading('')
-    setCurrentReading('')
-    setNotes('')
-  }
+    if (!isOpen || isEditMode) return
+    // Only needed for create mode — editing keeps the original meter fixed.
+    fetchMeterList({ page: 1 })
+      .then((res) => setMeters(res.data.map(mapMeter)))
+      .catch(() => setError(t('errors.loadMetersFailed')))
+  }, [isOpen, isEditMode, t])
 
   if (!isOpen) return null
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+    setError(null)
+
+    const formElement = e.currentTarget
+    const form = new FormData(formElement)
+
+    const currentReading = Number(form.get('current_reading') || 0)
+    const readingDate = String(form.get('reading_date') || '')
+    const readingMethod = (form.get('reading_method') as ReadingMethod) || undefined
+    const notes = String(form.get('notes') || '') || null
+
+    setIsSubmitting(true)
+    try {
+      if (isEditMode && reading) {
+        await updateReading(reading.id, {
+          current_reading: currentReading,
+          reading_date: readingDate,
+          reading_method: readingMethod,
+          notes,
+        })
+      } else {
+        const meterId = Number(form.get('meter_id') || 0)
+        const payload: CreateReadingPayload = {
+          meter_id: meterId,
+          current_reading: currentReading,
+          reading_date: readingDate,
+          reading_method: readingMethod,
+          notes,
+        }
+        await createReading(payload)
+      }
+            formElement.reset()
+      window.alert(isEditMode ? 'تم تحديث القراءة بنجاح' : 'تم إضافة القراءة بنجاح')
+      onSaved?.()
+      onClose()
+    } catch (err) {
+      const apiError = err as ApiError
+      const validationMessage = apiError.errors
+        ? Object.values(apiError.errors).flat().join(' ')
+        : undefined
+      setError(validationMessage || apiError?.message || t('errors.saveFailed'))
+
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <>
-      <div 
+      <div
         className="fixed inset-0 bg-black/45 z-40 transition-opacity"
         onClick={onClose}
       />
-      
-      <div 
+
+      <div
         className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         <div className="bg-white dark:bg-surface-container-low w-full max-w-2xl rounded-2xl shadow-2xl border border-outline/10 flex flex-col max-h-[calc(100vh-32px)] overflow-hidden">
-          
+
           <div className="flex items-center justify-between p-6 border-b border-outline/10">
             <div>
               <h2 className="font-headline-sm text-xl font-semibold text-on-surface dark:text-on-dark flex items-center gap-2">
-                <Plus size={20} className="text-primary" />
-                {t('addModal.title')}
+                {isEditMode ? <Edit2 size={20} className="text-primary" /> : <Plus size={20} className="text-primary" />}
+                {isEditMode ? t('addModal.editTitle') : t('addModal.title')}
               </h2>
               <p className="text-sm text-outline dark:text-outline/80 mt-2">
-                {t('addModal.description')}
+                {isEditMode ? t('addModal.editDescription') : t('addModal.description')}
               </p>
             </div>
-            <button 
+            <button
               onClick={onClose}
               aria-label={isRTL ? 'إغلاق' : 'Close'}
               className="p-2 rounded-full hover:bg-surface-variant dark:hover:bg-surface-container transition-colors text-outline self-start mt-[-4px]"
@@ -112,31 +116,45 @@ export function AddMeterReadingModal({ isOpen, onClose, onAdd }: AddMeterReading
           </div>
 
           <div className="flex-1 overflow-y-auto p-6">
-            <form id="add-reading-form" onSubmit={handleSubmit} className="space-y-6">
-              
+            <form
+              key={reading?.id ?? 'new'}
+              id="add-reading-form"
+              onSubmit={handleSubmit}
+              className="space-y-6"
+            >
+              {error && (
+                <div className="p-3 rounded-lg bg-error/10 text-error text-sm">{error}</div>
+              )}
+
               {/* SECTION 1: Meter Information */}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-primary dark:text-primary-light">
                   {isRTL ? 'بيانات العداد' : 'Meter Information'}
                 </h3>
-                
+
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
                     {t('table.columns.meterNumber')} <span className="text-error">*</span>
                   </label>
-                  <select
-                    required
-                    value={meterId}
-                    onChange={(e) => setMeterId(e.target.value)}
-                    className="w-full min-w-0 bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow cursor-pointer"
-                  >
-                    <option value="" disabled>{t('addModal.meterSelect')}</option>
-                    <option value="101">MET-10001</option>
-                    <option value="102">MET-10002</option>
-                    <option value="103">MET-10003</option>
-                    <option value="104">MET-10004</option>
-                    <option value="105">MET-10005</option>
-                  </select>
+                  {isEditMode ? (
+                    <div className="w-full bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 flex items-center">
+                      {reading?.meter?.meter_number} {reading?.meter?.customerName ? `— ${reading.meter.customerName}` : ''}
+                    </div>
+                  ) : (
+                    <select
+                      name="meter_id"
+                      required
+                      defaultValue=""
+                      className="w-full min-w-0 bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow cursor-pointer"
+                    >
+                      <option value="" disabled>{t('addModal.meterSelect')}</option>
+                      {meters.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.meter_number}{m.customerName ? ` — ${m.customerName}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
 
@@ -145,46 +163,22 @@ export function AddMeterReadingModal({ isOpen, onClose, onAdd }: AddMeterReading
                 <h3 className="text-sm font-semibold text-primary dark:text-primary-light">
                   {isRTL ? 'بيانات القراءة' : 'Reading Information'}
                 </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
-                      {t('table.columns.previousReading')} <span className="text-error">*</span>
-                    </label>
-                    <input
-                      required
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={previousReading}
-                      onChange={(e) => setPreviousReading(e.target.value ? Number(e.target.value) : '')}
-                      dir="ltr"
-                      className="w-full bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow text-start"
-                    />
-                  </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
                       {t('table.columns.currentReading')} <span className="text-error">*</span>
                     </label>
                     <input
+                      name="current_reading"
                       required
                       type="number"
                       step="0.01"
                       min="0"
-                      value={currentReading}
-                      onChange={(e) => setCurrentReading(e.target.value ? Number(e.target.value) : '')}
+                      defaultValue={reading?.current_reading ?? ''}
                       dir="ltr"
-                      className={`w-full bg-surface-container-lowest dark:bg-surface-container/30 border text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 transition-shadow text-start ${
-                        error ? 'border-error text-error focus:border-error' : 'border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark focus:border-primary'
-                      }`}
+                      className="w-full bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow text-start"
                     />
-                    {error && (
-                      <p className="text-xs font-medium text-error flex items-center gap-1 mt-1">
-                        <AlertCircle size={12} />
-                        {error}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -192,26 +186,10 @@ export function AddMeterReadingModal({ isOpen, onClose, onAdd }: AddMeterReading
                       {t('table.columns.readingDate')} <span className="text-error">*</span>
                     </label>
                     <input
+                      name="reading_date"
                       required
                       type="date"
-                      value={readingDate}
-                      onChange={(e) => setReadingDate(e.target.value)}
-                      dir="ltr"
-                      className="w-full bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow text-start"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
-                      {t('table.columns.pricePerKwh')} <span className="text-error">*</span>
-                    </label>
-                    <input
-                      required
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={pricePerKwh}
-                      onChange={(e) => setPricePerKwh(Number(e.target.value))}
+                      defaultValue={reading?.reading_date ?? new Date().toISOString().split('T')[0]}
                       dir="ltr"
                       className="w-full bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow text-start"
                     />
@@ -222,8 +200,8 @@ export function AddMeterReadingModal({ isOpen, onClose, onAdd }: AddMeterReading
                       {t('table.columns.method')}
                     </label>
                     <select
-                      value={method}
-                      onChange={(e) => setMethod(e.target.value as ReadingMethod)}
+                      name="reading_method"
+                      defaultValue={reading?.reading_method ?? 'manual'}
                       className="w-full bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow cursor-pointer"
                     >
                       <option value="manual">{t('method.manual')}</option>
@@ -231,48 +209,27 @@ export function AddMeterReadingModal({ isOpen, onClose, onAdd }: AddMeterReading
                     </select>
                   </div>
                 </div>
+
+                <p className="text-xs text-outline/70 dark:text-outline/50">
+                  {isRTL
+                    ? 'سيتم احتساب القراءة السابقة والاستهلاك والتكلفة تلقائياً من الباك اند بعد الحفظ.'
+                    : 'Previous reading, consumption, and cost will be calculated automatically by the backend after saving.'}
+                </p>
               </div>
 
-              {/* SECTION 3: Reading Summary */}
-              <div className="space-y-4 pt-6 border-t border-outline/10">
-                <h3 className="text-sm font-semibold text-primary dark:text-primary-light">
-                  {isRTL ? 'ملخص القراءة' : 'Reading Summary'}
-                </h3>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-4">
-                    <p className="text-sm font-medium text-outline dark:text-outline/80 mb-2">
-                      {t('addModal.preview.consumption')}
-                    </p>
-                    <p className="font-semibold text-lg text-on-surface dark:text-on-dark" dir="ltr">
-                      {formatNumber(consumption)} <span className="text-sm">kWh</span>
-                    </p>
-                  </div>
-                  
-                  <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-4">
-                    <p className="text-sm font-medium text-outline dark:text-outline/80 mb-2">
-                      {t('addModal.preview.cost')}
-                    </p>
-                    <p className="font-semibold text-lg text-teal-600 dark:text-teal-400" dir="ltr">
-                      {formatCurrency(cost)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 4: Notes */}
+              {/* SECTION 3: Notes */}
               <div className="space-y-4 pt-6 border-t border-outline/10">
                 <h3 className="text-sm font-semibold text-primary dark:text-primary-light">
                   {isRTL ? 'الملاحظات' : 'Notes'}
                 </h3>
-                
+
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
                     {t('details.notes')}
                   </label>
                   <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
+                    name="notes"
+                    defaultValue={reading?.notes ?? ''}
                     rows={4}
                     className="w-full min-h-[100px] bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow resize-none"
                   />
@@ -293,10 +250,12 @@ export function AddMeterReadingModal({ isOpen, onClose, onAdd }: AddMeterReading
             <button
               type="submit"
               form="add-reading-form"
-              disabled={!!error}
+              disabled={isSubmitting}
               className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-primary text-on-primary font-semibold hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
             >
-              {t('addModal.actions.add')}
+              {isSubmitting
+                ? t('addModal.actions.saving')
+                : (isEditMode ? t('addModal.actions.update') : t('addModal.actions.add'))}
             </button>
           </div>
 

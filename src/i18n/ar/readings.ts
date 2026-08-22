@@ -14,7 +14,7 @@ const ar_readings = {
     totalReadingCost: 'إجمالي تكلفة القراءات',
   },
   toolbar: {
-    searchPlaceholder: 'البحث في القراءات...',
+    searchPlaceholder: 'البحث برقم العداد أو اسم العميل...',
     filters: {
       status: {
         all: 'كل الحالات',
@@ -22,21 +22,13 @@ const ar_readings = {
         approved: 'معتمدة',
         rejected: 'مرفوضة',
       },
-      method: {
-        all: 'كل طرق القراءة',
-        manual: 'يدوية',
-        qrScan: 'مسح QR',
-      },
-      date: {
-        all: 'كل التواريخ',
-        today: 'اليوم',
-        thisWeek: 'هذا الأسبوع',
+      month: {
+        all: 'كل الأشهر',
         thisMonth: 'هذا الشهر',
       },
     },
     actions: {
       addReading: 'إضافة قراءة',
-      export: 'تصدير',
       refresh: 'تحديث',
     },
   },
@@ -44,6 +36,7 @@ const ar_readings = {
     columns: {
       readingId: 'رقم القراءة',
       meterNumber: 'رقم العداد',
+      customer: 'العميل',
       previousReading: 'القراءة السابقة',
       currentReading: 'القراءة الحالية',
       consumption: 'الاستهلاك',
@@ -72,26 +65,23 @@ const ar_readings = {
   },
   details: {
     title: 'تفاصيل القراءة',
+    customer: 'العميل',
     notes: 'الملاحظات',
     createdBy: 'منشئ القراءة',
     createdAt: 'وقت الإنشاء',
-    updatedAt: 'آخر تحديث',
   },
   addModal: {
     title: 'إضافة قراءة جديدة',
-    description: 'أدخل تفاصيل القراءة الجديدة. سيتم حساب الاستهلاك والتكلفة تلقائياً.',
+    editTitle: 'تعديل القراءة',
+    description: 'أدخل تفاصيل القراءة الجديدة. سيتم حساب الاستهلاك والتكلفة تلقائياً من الباك اند.',
+    editDescription: 'يمكن تعديل آخر قراءة فقط لكل عداد، وبشرط عدم وجود فاتورة مرتبطة بها.',
     meterSelect: 'اختر العداد',
-    preview: {
-      consumption: 'الاستهلاك المقدر',
-      cost: 'التكلفة المقدرة',
-    },
     actions: {
       cancel: 'إلغاء',
       add: 'إضافة القراءة',
+      update: 'حفظ التعديل',
+      saving: 'جاري الحفظ...',
     },
-    validation: {
-      currentLessThanPrevious: 'لا يمكن أن تكون القراءة الحالية أقل من القراءة السابقة.',
-    }
   },
   actions: {
     viewDetails: 'عرض التفاصيل',
@@ -102,9 +92,23 @@ const ar_readings = {
   },
   notifications: {
     added: 'تمت إضافة القراءة بنجاح.',
+    updated: 'تم تحديث القراءة بنجاح.',
     deleted: 'تم حذف القراءة بنجاح.',
     statusUpdated: 'تم تحديث حالة القراءة بنجاح.',
-  }
+  },
+  loading: 'جاري التحميل...',
+  deleteConfirm: 'هل أنت متأكد من حذف هذه القراءة؟',
+  pagination: {
+    showing: 'عرض {{count}} من {{total}} قراءة',
+  },
+  errors: {
+    loadFailed: 'تعذر تحميل القراءات. تأكد من تشغيل الخادم الخلفي.',
+    statsFailed: 'تعذر تحميل إحصائيات القراءات.',
+    saveFailed: 'تعذر حفظ القراءة.',
+    deleteFailed: 'تعذر حذف القراءة.',
+    loadDetailsFailed: 'تعذر تحميل بيانات القراءة.',
+    loadMetersFailed: 'تعذر تحميل قائمة العدادات.',
+  },
 }
 
 export default ar_readings

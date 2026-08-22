@@ -1,9 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { MeterReading } from './types'
-import { MOCK_METER_READINGS, getMeterReadingStats } from './data/mockData'
+import { fetchReadingById, mapMeterReading } from '@/services/meterReadings.service'
 import { MeterReadingStats } from './components/MeterReadingStats'
 import { MeterReadingToolbar } from './components/MeterReadingToolbar'
 import { MeterReadingTable } from './components/MeterReadingTable'
@@ -14,76 +13,47 @@ export function MeterReadingsManagementPage() {
   const { t } = useTranslation('readings')
   const { isRTL } = useLanguage()
 
-  const [readings, setReadings] = useState<MeterReading[]>(MOCK_METER_READINGS)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [methodFilter, setMethodFilter] = useState('all')
-  const [dateFilter, setDateFilter] = useState('all')
+  const [thisMonthOnly, setThisMonthOnly] = useState(false)
+
+  const [refreshKey, setRefreshKey] = useState(0)
+  const triggerRefresh = () => setRefreshKey((k) => k + 1)
 
   const [selectedReading, setSelectedReading] = useState<MeterReading | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  
-  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
-  const stats = useMemo(() => getMeterReadingStats(readings), [readings])
-
-  const filteredReadings = useMemo(() => {
-    return readings.filter(reading => {
-      const matchesSearch = 
-        reading.id.toString().includes(searchQuery) ||
-        reading.meter?.meter_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        reading.meter_id.toString().includes(searchQuery)
-      
-      const matchesStatus = statusFilter === 'all' || reading.status === statusFilter
-      const matchesMethod = methodFilter === 'all' || reading.reading_method === methodFilter
-      
-      let matchesDate = true
-      if (dateFilter !== 'all') {
-        const readingDate = new Date(reading.reading_date)
-        const today = new Date()
-        if (dateFilter === 'today') {
-          matchesDate = readingDate.toDateString() === today.toDateString()
-        } else if (dateFilter === 'this_week') {
-          const firstDay = new Date(today.setDate(today.getDate() - today.getDay()))
-          matchesDate = readingDate >= firstDay
-        } else if (dateFilter === 'this_month') {
-          matchesDate = readingDate.getMonth() === today.getMonth() && readingDate.getFullYear() === today.getFullYear()
-        }
-      }
-
-      return matchesSearch && matchesStatus && matchesMethod && matchesDate
-    })
-  }, [readings, searchQuery, statusFilter, methodFilter, dateFilter])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingReading, setEditingReading] = useState<MeterReading | null>(null)
 
   const handleViewDetails = (reading: MeterReading) => {
     setSelectedReading(reading)
     setIsDetailsOpen(true)
   }
 
-  const handleAddReading = (newReadingData: Omit<MeterReading, 'id' | 'created_at' | 'updated_at' | 'status' | 'created_by'>) => {
-    const newReading: MeterReading = {
-      ...newReadingData,
-      id: Math.max(...readings.map(r => r.id)) + 1,
-      created_by: 1, // Mock user ID
-      status: 'pending',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      meter: { id: newReadingData.meter_id, meter_number: `MET-${newReadingData.meter_id}` },
-      createdBy: { id: 1, name: 'Current User' }
-    }
-    
-    setReadings([newReading, ...readings])
-    setIsAddModalOpen(false)
-    setNotification({ type: 'success', message: t('notifications.added') })
+  const openAddModal = () => {
+    setEditingReading(null)
+    setIsModalOpen(true)
   }
 
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => setNotification(null), 3000)
-      return () => clearTimeout(timer)
+  const openEditModal = async (reading: MeterReading) => {
+    try {
+      const raw = await fetchReadingById(reading.id)
+      setEditingReading(mapMeterReading(raw))
+      setIsModalOpen(true)
+    } catch {
+      window.alert(t('errors.loadDetailsFailed'))
     }
-  }, [notification])
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setEditingReading(null)
+  }
+
+  const handleSaved = () => {
+    triggerRefresh()
+  }
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto pb-12">
@@ -96,7 +66,7 @@ export function MeterReadingsManagementPage() {
           <p className="text-label-md text-outline dark:text-outline/80 mt-1">
             {t('pageSubtitle')}
           </p>
-          <nav 
+          <nav
             className="flex gap-2 text-label-sm text-outline/60 dark:text-outline/50 mt-2"
             dir={isRTL ? 'rtl' : 'ltr'}
           >
@@ -107,52 +77,40 @@ export function MeterReadingsManagementPage() {
         </div>
       </div>
 
-      {/* Notification Toast */}
-      {notification && (
-        <div className={`p-4 rounded-xl flex items-center justify-between shadow-sm border ${
-          notification.type === 'success' 
-            ? 'bg-success/10 border-success/20 text-success' 
-            : 'bg-error/10 border-error/20 text-error'
-        }`}>
-          <p className="font-bold text-label-md">{notification.message}</p>
-          <button onClick={() => setNotification(null)} className="opacity-70 hover:opacity-100">
-            <X size={18} />
-          </button>
-        </div>
-      )}
+      <MeterReadingStats refreshKey={refreshKey} />
 
-      <MeterReadingStats stats={stats} />
-
-      <MeterReadingToolbar 
+      <MeterReadingToolbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
-        methodFilter={methodFilter}
-        onMethodFilterChange={setMethodFilter}
-        dateFilter={dateFilter}
-        onDateFilterChange={setDateFilter}
-        onAddClick={() => setIsAddModalOpen(true)}
-        onRefresh={() => setReadings(MOCK_METER_READINGS)}
+        thisMonthOnly={thisMonthOnly}
+        onThisMonthOnlyChange={setThisMonthOnly}
+        onAddClick={openAddModal}
+        onRefresh={triggerRefresh}
       />
 
-      <MeterReadingTable 
-        data={filteredReadings}
+      <MeterReadingTable
         onViewDetails={handleViewDetails}
-        onEdit={(r) => console.log('Edit', r.id)}
-        onDelete={(r) => console.log('Delete', r.id)}
+        onEdit={openEditModal}
+        search={searchQuery}
+        status={statusFilter === 'all' ? undefined : statusFilter}
+        thisMonthOnly={thisMonthOnly}
+        refreshKey={refreshKey}
+        onChanged={triggerRefresh}
       />
 
-      <MeterReadingDetailsDrawer 
+      <MeterReadingDetailsDrawer
         reading={selectedReading}
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
       />
 
-      <AddMeterReadingModal 
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddReading}
+      <AddMeterReadingModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onSaved={handleSaved}
+        reading={editingReading}
       />
     </div>
   )

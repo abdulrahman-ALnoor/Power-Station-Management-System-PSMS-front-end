@@ -1,13 +1,37 @@
 import { useTranslation } from 'react-i18next'
-import { getMockServiceRequests } from '@/data/mock/dashboard'
+import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/Badge'
 import { useLanguage } from '@/hooks/useLanguage'
 import { cn } from '@/utils/cn'
+import type { DashboardLatestServiceRequest } from '@/services/dashboard.service.ts'
+import type { StatusVariant } from '@/types/common'
 
-export function LatestServiceRequests() {
+interface LatestServiceRequestsProps {
+  requests: DashboardLatestServiceRequest[]
+}
+
+const priorityVariant = (priority: string): StatusVariant => {
+  switch (priority) {
+    case 'urgent': return 'danger'
+    case 'high': return 'warning'
+    case 'low': return 'neutral'
+    default: return 'info'
+  }
+}
+
+const statusVariant = (status: string): StatusVariant => {
+  switch (status) {
+    case 'completed': case 'resolved': return 'success'
+    case 'in_progress': return 'info'
+    case 'cancelled': return 'danger'
+    default: return 'neutral'
+  }
+}
+
+export function LatestServiceRequests({ requests }: LatestServiceRequestsProps) {
   const { t } = useTranslation('dashboard')
   const { isRTL } = useLanguage()
-  const requests = getMockServiceRequests()
+  const navigate = useNavigate()
 
   return (
     <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden flex flex-col h-full">
@@ -15,11 +39,14 @@ export function LatestServiceRequests() {
         <h4 className="font-headline text-headline text-primary">
           {t('serviceRequests.title')}
         </h4>
-        <button className="text-primary hover:underline text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-primary rounded">
+        <button
+          onClick={() => navigate('/admin/requests')}
+          className="text-primary hover:underline text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+        >
           {t('serviceRequests.viewAll')}
         </button>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className={cn("w-full text-sm", isRTL ? "text-right" : "text-left")} dir={isRTL ? "rtl" : "ltr"}>
           <thead>
@@ -33,22 +60,27 @@ export function LatestServiceRequests() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-border)]">
+            {requests.length === 0 && (
+              <tr><td colSpan={6} className="p-6 text-center text-outline">{t('readings.viewAll') && '—'}</td></tr>
+            )}
             {requests.map((req) => (
               <tr key={req.id} className="hover:bg-[var(--color-surface-container-lowest)] transition-colors">
-                <td className="p-4 font-bold text-primary whitespace-nowrap">{req.id}</td>
-                <td className="p-4 text-text whitespace-nowrap">{req.customer}</td>
-                <td className="p-4 text-text whitespace-nowrap">{t(req.typeKey)}</td>
+                <td className="p-4 font-bold text-primary whitespace-nowrap">{req.request_number}</td>
+                <td className="p-4 text-text whitespace-nowrap">{req.customer_name || '-'}</td>
+                <td className="p-4 text-text whitespace-nowrap">{req.request_type}</td>
                 <td className="p-4 whitespace-nowrap">
-                  <Badge variant={req.priorityVariant} className="text-[10px] px-2 py-0.5">
-                    {t(req.priorityKey)}
+                  <Badge variant={priorityVariant(req.priority)} className="text-[10px] px-2 py-0.5">
+                    {req.priority}
                   </Badge>
                 </td>
                 <td className="p-4 whitespace-nowrap">
-                  <Badge variant={req.statusVariant} className="text-[10px] px-2 py-0.5">
-                    {t(req.statusKey)}
+                  <Badge variant={statusVariant(req.status)} className="text-[10px] px-2 py-0.5">
+                    {req.status}
                   </Badge>
                 </td>
-                <td className="p-4 text-outline whitespace-nowrap">{req.date}</td>
+                <td className="p-4 text-outline whitespace-nowrap">
+                  {new Date(req.created_at).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}
+                </td>
               </tr>
             ))}
           </tbody>
