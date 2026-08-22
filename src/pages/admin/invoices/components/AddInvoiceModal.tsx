@@ -3,6 +3,12 @@ import { X, ReceiptText } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 
 import {
+  showSuccess,
+  showError,
+} from '@/utils/toast'
+
+
+import {
   createInvoice,
   fetchConsumptionCharges,
   type ConsumptionChargeRecord,
@@ -76,91 +82,107 @@ export function AddInvoiceModal({
     (item) => String(item.id) === consumptionChargeId,
   )
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault()
+ const handleSubmit = async (
+  event: React.FormEvent<HTMLFormElement>,
+) => {
+  event.preventDefault()
 
-    setErrorMessage(null)
+  setErrorMessage(null)
 
-    const numericPaidAmount = Number(paidAmount)
+  const numericPaidAmount = Number(paidAmount)
 
-    if (!consumptionChargeId) {
-      setErrorMessage('اختر رسوم الاستهلاك أولًا.')
-      return
+  if (!consumptionChargeId) {
+    setErrorMessage('اختر رسوم الاستهلاك أولًا.')
+    return
+  }
+
+  if (
+    !Number.isFinite(numericPaidAmount) ||
+    numericPaidAmount <= 0
+  ) {
+    setErrorMessage(
+      'أدخل مبلغًا مدفوعًا أكبر من صفر.',
+    )
+    return
+  }
+
+  if (
+    selectedCharge &&
+    numericPaidAmount >
+      Number(selectedCharge.remaining_amount)
+  ) {
+    setErrorMessage(
+      'المبلغ المدفوع أكبر من المبلغ المتبقي.',
+    )
+    return
+  }
+
+  setIsSubmitting(true)
+
+  try {
+    const payload: InvoiceData = {
+      consumption_charge_id:
+        Number(consumptionChargeId),
+
+      paid_amount: numericPaidAmount,
+
+      payment_notes:
+        paymentNotes.trim() || undefined,
     }
 
-    if (
-      !Number.isFinite(numericPaidAmount) ||
-      numericPaidAmount <= 0
-    ) {
-      setErrorMessage('أدخل مبلغًا مدفوعًا أكبر من صفر.')
-      return
+    // إنشاء الفاتورة
+    const createdInvoice =
+      await createInvoice(payload)
+
+    // تحديث الصفحة الرئيسية
+    onAdd?.(createdInvoice)
+
+    // إعادة تعيين الحقول
+    setConsumptionChargeId('')
+    setPaidAmount('')
+    setPaymentNotes('')
+
+    // إغلاق نافذة الإضافة أولاً
+    onClose()
+
+    // ثم إظهار رسالة النجاح
+    showSuccess(
+      'تم إنشاء الفاتورة بنجاح.',
+      'تمت الإضافة بنجاح',
+    )
+
+  } catch (error) {
+    const apiError = error as {
+      message?: string
+      status?: number
+      errors?: Record<string, string[]>
     }
 
-    if (
-      selectedCharge &&
-      numericPaidAmount > Number(selectedCharge.remaining_amount)
-    ) {
-      setErrorMessage(
-        'المبلغ المدفوع أكبر من المبلغ المتبقي.',
-      )
-      return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      const payload: InvoiceData = {
-        consumption_charge_id: Number(consumptionChargeId),
-        paid_amount: numericPaidAmount,
-        payment_notes:
-          paymentNotes.trim() || undefined,
-      }
-
-      // إنشاء الفاتورة
-      const createdInvoice = await createInvoice(payload)
-
-      // إظهار رسالة النجاح
-      window.alert('تم إنشاء الفاتورة بنجاح')
-
-      // إرسال الفاتورة الجديدة إلى الصفحة الرئيسية
-      onAdd?.(createdInvoice)
-
-      // إعادة تعيين الحقول
-      setConsumptionChargeId('')
-      setPaidAmount('')
-      setPaymentNotes('')
-
-      // إغلاق المودال
-      onClose()
-
-    } catch (error) {
-      const apiError = error as {
-        message?: string
-        status?: number
-        errors?: Record<string, string[]>
-      }
-
-      const validationMessage = apiError.errors
+    const validationMessage =
+      apiError.errors
         ? Object.values(apiError.errors)
             .flat()
             .join(' ')
         : undefined
 
-      setErrorMessage(
-        validationMessage ||
-          apiError.message ||
-          `تعذر إنشاء الفاتورة${
-            apiError.status
-              ? ` (HTTP ${apiError.status})`
-              : ''
-          }`,
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+    const errorMessage =
+      validationMessage ||
+      apiError.message ||
+      'تعذر إنشاء الفاتورة. يرجى المحاولة مرة أخرى.'
+
+    // إظهار الخطأ داخل النافذة
+    setErrorMessage(errorMessage)
+
+    // وإظهار رسالة الخطأ العامة
+    showError(
+      errorMessage,
+      'فشلت عملية الإضافة',
+    )
+
+  } finally {
+    setIsSubmitting(false)
   }
+}
 
   if (!isOpen) return null
 

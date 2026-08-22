@@ -5,7 +5,11 @@ import { OverdueInvoicesPage } from '@/pages/admin/reports/OverdueInvoicesPage'
 
 
 
-
+import {
+  showSuccess,
+  showError,
+  showConfirm,
+} from '@/utils/toast'
 
 
 
@@ -266,36 +270,47 @@ export function InvoicesManagementPage() {
   // حذف فاتورة
   // =========================
 
-  const handleDelete = async (
-    invoice: InvoiceApiRecord,
-  ) => {
-    const confirmed =
-      window.confirm(
-        `هل تريد حذف الفاتورة ${invoice.invoice_number}؟`,
-      )
+// ============================================================
+// Delete invoice
+// ============================================================
 
-    if (!confirmed) return
+const handleDelete = (
+  invoice: InvoiceApiRecord,
+) => {
+  showConfirm(
+    `هل أنت متأكد من حذف الفاتورة ${invoice.invoice_number}؟ لا يمكن التراجع عن هذه العملية.`,
 
-    try {
-      await deleteInvoice(invoice.id)
+    async () => {
+      try {
+        await deleteInvoice(
+          invoice.id,
+        )
 
-      window.alert(
-        'تم حذف الفاتورة بنجاح',
-      )
+        showSuccess(
+          `تم حذف الفاتورة ${invoice.invoice_number} بنجاح.`,
+          'تم الحذف بنجاح',
+        )
 
-      await loadData()
-    } catch (requestError) {
-      const apiError = requestError as {
-        message?: string
+        await loadData()
+
+      } catch (requestError) {
+
+        const apiError =
+          requestError as {
+            message?: string
+          }
+
+        showError(
+          apiError.message ||
+            'تعذر حذف الفاتورة. يرجى المحاولة مرة أخرى.',
+          'فشلت عملية الحذف',
+        )
       }
+    },
 
-      window.alert(
-        apiError.message ||
-          'تعذر حذف الفاتورة',
-      )
-    }
-  }
-
+    'تأكيد حذف الفاتورة',
+  )
+}
   // =========================
   // تعديل فاتورة
   // =========================

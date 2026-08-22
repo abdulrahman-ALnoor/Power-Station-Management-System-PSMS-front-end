@@ -393,9 +393,8 @@ function CollectionRow({
       </td>
 
       <td className="px-6 py-4">
-        {collection.customer?.name ??
-          'غير معروف'}
-      </td>
+  {collection.customer?.full_name|| 'غير معروف'}
+</td>
 
       <td className="px-6 py-4 font-bold text-green-600 dark:text-green-500">
         {formatCurrency(

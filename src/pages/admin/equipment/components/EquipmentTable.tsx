@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react'
+import type { MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Eye, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { cn } from '@/utils/cn'
 import { fetchEquipmentList, mapEquipment, deleteEquipment } from '@/services/equipment.service'
+import {
+  showSuccess,
+  showError,
+  showConfirm,
+} from '@/utils/toast'
 import type { Equipment } from '../types'
 
 interface EquipmentTableProps {
@@ -51,20 +57,52 @@ export function EquipmentTable({ onRowClick, onEditClick, search, status, refres
     return () => { cancelled = true }
   }, [page, search, status, refreshKey])
 
-  const handleDelete = async (e: React.MouseEvent, id: number) => {
-    e.stopPropagation()
-    if (!window.confirm('هل أنت متأكد من حذف هذه المعدة؟')) return
-    setDeletingId(id)
-    try {
-      await deleteEquipment(id)
-      setItems((prev) => prev.filter((it) => it.id !== id))
-      onDeleted?.()
-    } catch {
-      window.alert('تعذر حذف المعدة.')
-    } finally {
-      setDeletingId(null)
-    }
-  }
+const handleDelete = (
+  e: MouseEvent<HTMLButtonElement>,
+  id: number,
+) => {
+  e.stopPropagation()
+
+  showConfirm(
+    'هل أنت متأكد من حذف هذه المعدة؟ لا يمكن التراجع عن هذه العملية.',
+    async () => {
+      setDeletingId(id)
+
+      try {
+        await deleteEquipment(id)
+
+        // حذف المعدة من الجدول مباشرة
+        setItems((prev) =>
+          prev.filter((item) => item.id !== id),
+        )
+
+        // تحديث العدد
+        setTotal((prev) =>
+          Math.max(0, prev - 1),
+        )
+
+        // تحديث الجدول والإحصائيات
+        onDeleted?.()
+
+        // رسالة نجاح الحذف
+        showSuccess(
+          'تم حذف المعدة من النظام بنجاح.',
+          'تم الحذف بنجاح',
+        )
+      } catch {
+        // رسالة خطأ إذا فشل الحذف
+        showError(
+          'تعذر حذف المعدة. يرجى المحاولة مرة أخرى.',
+          'فشلت عملية الحذف',
+        )
+      } finally {
+        setDeletingId(null)
+      }
+    },
+    'تأكيد حذف المعدة',
+  )
+}
+  
 
   const getStatusStyle = (status: string | null) => {
     switch (status) {

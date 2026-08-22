@@ -1,101 +1,250 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import { useLanguage } from '@/hooks/useLanguage'
+
 import { EquipmentStats } from './components/EquipmentStats'
 import { EquipmentToolbar } from './components/EquipmentToolbar'
 import { EquipmentTable } from './components/EquipmentTable'
 import { EquipmentDetailsDrawer } from './components/EquipmentDetailsDrawer'
+import { EquipmentEditModal } from './components/EquipmentEditModal'
 import { AddEquipmentModal } from './components/AddEquipmentModal'
-import { fetchEquipmentById, mapEquipment } from '@/services/equipment.service'
+
+import {
+  fetchEquipmentById,
+  mapEquipment,
+} from '@/services/equipment.service'
+
 import type { Equipment } from './types'
 
 export function EquipmentManagementPage() {
   const { t } = useTranslation('equipment')
   const { isRTL } = useLanguage()
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
-  const [selectedEquipmentId, setSelectedEquipmentId] = useState<number | null>(null)
+  // نافذة الإضافة
+  const [isAddModalOpen, setIsAddModalOpen] =
+    useState(false)
 
-  const [search, setSearch] = useState('')
-  const [status, setStatus] = useState('')
-  const [refreshKey, setRefreshKey] = useState(0)
+  // نافذة التفاصيل
+  const [isDetailsOpen, setIsDetailsOpen] =
+    useState(false)
 
-  const handleRowClick = (id: number) => {
-    setSelectedEquipmentId(id)
-    fetchEquipmentById(id)
-      .then((raw) => setSelectedEquipment(mapEquipment(raw)))
-      .catch(() => setSelectedEquipment(null))
+  // نافذة التعديل
+  const [isEditModalOpen, setIsEditModalOpen] =
+    useState(false)
+
+  // المعدة المحددة
+  const [selectedEquipment, setSelectedEquipment] =
+    useState<Equipment | null>(null)
+
+  // البحث
+  const [search, setSearch] =
+    useState('')
+
+  // الحالة
+  const [status, setStatus] =
+    useState('')
+
+  // تحديث البيانات
+  const [refreshKey, setRefreshKey] =
+    useState(0)
+
+  // =========================
+  // فتح التفاصيل
+  // =========================
+
+  const handleRowClick = async (id: number) => {
+    try {
+      const raw =
+        await fetchEquipmentById(id)
+
+      const equipment =
+        mapEquipment(raw)
+
+      setSelectedEquipment(equipment)
+
+      setIsEditModalOpen(false)
+      setIsDetailsOpen(true)
+    } catch {
+      setSelectedEquipment(null)
+    }
   }
+
+  // =========================
+  // فتح التعديل
+  // =========================
+
+  const handleEditClick = async (id: number) => {
+    try {
+      const raw =
+        await fetchEquipmentById(id)
+
+      const equipment =
+        mapEquipment(raw)
+
+      setSelectedEquipment(equipment)
+
+      setIsDetailsOpen(false)
+      setIsEditModalOpen(true)
+    } catch {
+      setSelectedEquipment(null)
+    }
+  }
+
+  // =========================
+  // بعد الإضافة
+  // =========================
 
   const handleCreated = () => {
     setIsAddModalOpen(false)
-    setRefreshKey((k) => k + 1)
+
+    setRefreshKey((current) =>
+      current + 1,
+    )
+  }
+
+  // =========================
+  // بعد التعديل
+  // =========================
+
+  const handleUpdated = (
+    updatedEquipment: Equipment,
+  ) => {
+    setSelectedEquipment(
+      updatedEquipment,
+    )
+
+    setIsEditModalOpen(false)
+
+    setRefreshKey((current) =>
+      current + 1,
+    )
+  }
+
+  // =========================
+  // إغلاق التفاصيل
+  // =========================
+
+  const handleCloseDetails = () => {
+    setIsDetailsOpen(false)
+
+    setSelectedEquipment(null)
+  }
+
+  // =========================
+  // إغلاق التعديل
+  // =========================
+
+  const handleCloseEdit = () => {
+    setIsEditModalOpen(false)
+
+    setSelectedEquipment(null)
   }
 
   return (
     <>
       <div className="space-y-6">
 
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Header */}
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+
           <div className="text-start">
+
             <h1 className="font-headline-md text-headline-md font-bold text-primary dark:text-on-dark">
               {t('pageTitle')}
             </h1>
 
             <nav
-              className="flex gap-2 text-label-sm text-outline mt-1"
+              className="mt-1 flex gap-2 text-label-sm text-outline"
               dir={isRTL ? 'rtl' : 'ltr'}
               aria-label={t('breadcrumb.equipment')}
             >
-              <span>{t('breadcrumb.home')}</span>
+              <span>
+                {t('breadcrumb.home')}
+              </span>
+
               <span>/</span>
-              <span>{t('breadcrumb.equipment')}</span>
+
+              <span>
+                {t('breadcrumb.equipment')}
+              </span>
+
             </nav>
+
           </div>
+
         </div>
 
-        {/* Statistics */}
-        <EquipmentStats key={`stats-${refreshKey}`} />
+        {/* الإحصائيات */}
+        <EquipmentStats
+          key={`stats-${refreshKey}`}
+        />
 
-        {/* Toolbar */}
+        {/* الأدوات */}
         <EquipmentToolbar
-          onAddClick={() => setIsAddModalOpen(true)}
+          onAddClick={() =>
+            setIsAddModalOpen(true)
+          }
           search={search}
           onSearchChange={setSearch}
           status={status}
           onStatusChange={setStatus}
-          onRefresh={() => setRefreshKey((k) => k + 1)}
+          onRefresh={() =>
+            setRefreshKey(
+              (current) => current + 1,
+            )
+          }
         />
 
-        {/* Equipment Table */}
+        {/* الجدول */}
         <EquipmentTable
           onRowClick={handleRowClick}
-          onEditClick={handleRowClick}
+          onEditClick={handleEditClick}
           search={search}
           status={status}
           refreshKey={refreshKey}
-          onDeleted={() => setRefreshKey((k) => k + 1)}
+          onDeleted={() =>
+            setRefreshKey(
+              (current) => current + 1,
+            )
+          }
         />
+
       </div>
 
-      {/* Equipment Details Drawer */}
+      {/* ========================= */}
+      {/* نافذة التفاصيل */}
+      {/* ========================= */}
+
       <EquipmentDetailsDrawer
         equipment={selectedEquipment}
-        isOpen={selectedEquipmentId !== null}
-        onClose={() => {
-          setSelectedEquipmentId(null)
-          setSelectedEquipment(null)
-        }}
+        isOpen={isDetailsOpen}
+        onClose={handleCloseDetails}
       />
 
-      {/* Add Equipment Modal */}
+      {/* ========================= */}
+      {/* نافذة التعديل */}
+      {/* ========================= */}
+
+      <EquipmentEditModal
+        equipment={selectedEquipment}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEdit}
+        onUpdated={handleUpdated}
+      />
+
+      {/* ========================= */}
+      {/* نافذة إضافة المعدة */}
+      {/* ========================= */}
+
       <AddEquipmentModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() =>
+          setIsAddModalOpen(false)
+        }
         onCreated={handleCreated}
       />
+
     </>
   )
 }

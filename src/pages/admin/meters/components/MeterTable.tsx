@@ -6,6 +6,14 @@ import { cn } from '@/utils/cn'
 import { fetchMeterList, mapMeter, deleteMeter } from '@/services/meters.service'
 import type { Meter, MeterStatus } from '../types'
 
+
+import {
+  showSuccess,
+  showError,
+  showConfirm,
+} from '@/utils/toast'
+
+
 interface MeterTableProps {
   onRowClick: (id: number) => void
   onEditClick?: (id: number) => void
@@ -55,21 +63,46 @@ export function MeterTable({ onRowClick, onEditClick, search, status, refreshKey
     return () => { cancelled = true }
   }, [page, search, status, refreshKey, t])
 
-  const handleDelete = async (e: React.MouseEvent, id: number) => {
-    e.stopPropagation()
-    if (!window.confirm(t('deleteConfirm'))) return
-    setDeletingId(id)
-    try {
-      await deleteMeter(id)
-      setItems((prev) => prev.filter((it) => it.id !== id))
-      onDeleted?.()
-    } catch {
-      window.alert(t('errors.deleteFailed'))
-    } finally {
-      setDeletingId(null)
-    }
-  }
+ const handleDelete = (
+  e: React.MouseEvent,
+  id: number,
+) => {
+  e.stopPropagation()
 
+  showConfirm(
+    t('deleteConfirm'),
+
+    async () => {
+      setDeletingId(id)
+
+      try {
+        await deleteMeter(id)
+
+        setItems((prev) =>
+          prev.filter(
+            (it) => it.id !== id,
+          ),
+        )
+
+        onDeleted?.()
+
+        showSuccess(
+          'تم حذف العداد بنجاح.',
+          'تم الحذف بنجاح',
+        )
+      } catch {
+        showError(
+          t('errors.deleteFailed'),
+          'فشلت عملية الحذف',
+        )
+      } finally {
+        setDeletingId(null)
+      }
+    },
+
+    'تأكيد حذف العداد',
+  )
+}
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'active': return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'

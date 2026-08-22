@@ -247,10 +247,10 @@ export interface CollectionRecord {
 
   invoice_number: string
 
-  customer: {
-    id: number | null
-    name: string | null
-  } | null
+ customer: {
+  id: number | null
+  full_name: string | null
+} | null
 
   paid_amount: number | string
 

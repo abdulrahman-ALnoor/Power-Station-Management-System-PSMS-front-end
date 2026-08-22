@@ -1,10 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { X, Laptop, Smartphone, CarFront } from 'lucide-react'
-import * as Icons from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { X } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { Employee } from '../types'
-import { useLanguage } from '@/hooks/useLanguage'
+import type { Employee } from '../types'
 
 interface EmployeePreviewDrawerProps {
   employee: Employee | null
@@ -12,153 +9,379 @@ interface EmployeePreviewDrawerProps {
   onClose: () => void
 }
 
-function DynamicIcon({ name, className }: { name: string, className?: string }) {
-  const iconMap: Record<string, keyof typeof Icons> = {
-    laptop: 'Laptop',
-    smartphone: 'Smartphone',
-    car_repair: 'CarFront',
-  }
-  const iconName = iconMap[name] || 'Circle'
-  const Icon = Icons[iconName] as LucideIcon
-  if (!Icon) return null
-  return <Icon className={className} size={14} />
-}
-
-export function EmployeePreviewDrawer({ employee, isOpen, onClose }: EmployeePreviewDrawerProps) {
+export function EmployeePreviewDrawer({
+  employee,
+  isOpen,
+  onClose,
+}: EmployeePreviewDrawerProps) {
   const { t } = useTranslation('employees')
-  const { isRTL } = useLanguage()
 
-  if (!employee) return null
+  if (!employee || !isOpen) return null
+
+  const roleName =
+    employee.roles && employee.roles.length > 0
+      ? employee.roles[0]
+      : '-'
+
+  const getRoleName = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'مدير'
+
+      case 'engineer':
+        return 'مهندس'
+
+      case 'accountant':
+        return 'محاسب'
+
+      case 'reader':
+        return 'قارئ عدادات'
+
+      default:
+        return role
+    }
+  }
 
   return (
-    <>
-      {/* Backdrop */}
-      <div 
-        className={cn(
-          "fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300",
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        )}
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+      dir="rtl"
+    >
+      {/* الخلفية */}
+      <div
+        className="absolute inset-0"
         onClick={onClose}
       />
-      
-      {/* Drawer */}
-      <div 
-        className={cn(
-          "fixed top-0 bottom-0 w-full sm:w-[500px] bg-surface shadow-2xl z-[60] overflow-y-auto transition-transform duration-300 dark:bg-surface-container",
-          isRTL ? "left-0" : "right-0",
-          isOpen 
-            ? "translate-x-0" 
-            : isRTL ? "-translate-x-full" : "translate-x-full"
-        )}
+
+      {/* نافذة التفاصيل */}
+      <div
+        className="
+          relative
+          z-10
+          flex
+          w-full
+          max-w-2xl
+          max-h-[90vh]
+          flex-col
+          overflow-hidden
+          rounded-2xl
+          bg-white
+          shadow-2xl
+        "
       >
-        <button 
-          className="absolute top-4 inset-inline-start-4 w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low hover:bg-surface-container-high transition-colors z-10 dark:bg-surface dark:hover:bg-surface-high"
-          onClick={onClose}
+        {/* Header */}
+        <div
+          className="
+            flex
+            shrink-0
+            items-center
+            justify-between
+            border-b
+            border-gray-200
+            bg-white
+            px-6
+            py-5
+          "
         >
-          <X className="text-primary dark:text-on-dark" size={24} />
-        </button>
-        
-        <div className="p-8 pt-12">
-          
-          {/* Header / Avatar */}
-          <div className="flex flex-col items-center text-center mb-8">
+          <h2 className="text-xl font-bold text-gray-900">
+            تفاصيل الموظف
+          </h2>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-full
+              bg-gray-100
+              text-gray-700
+              transition
+              hover:bg-gray-200
+            "
+          >
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* المحتوى القابل للتمرير */}
+        <div
+          className="
+            flex-1
+            overflow-y-auto
+            p-6
+            outline-none
+          "
+          tabIndex={0}
+        >
+          {/* معلومات الموظف */}
+          <div className="mb-8 flex flex-col items-center text-center">
+
             <div className="relative">
-              <div className="w-24 h-24 rounded-full border-4 border-primary-fixed mb-4 bg-primary/10 text-primary flex items-center justify-center text-4xl font-bold dark:border-primary dark:bg-primary-fixed/20 dark:text-primary-fixed">
-                {employee.name.charAt(0)}
+
+              <div
+                className="
+                  mb-4
+                  flex
+                  h-24
+                  w-24
+                  items-center
+                  justify-center
+                  rounded-full
+                  border-4
+                  border-primary/20
+                  bg-primary/10
+                  text-4xl
+                  font-bold
+                  text-primary
+                "
+              >
+                {employee.name.charAt(0).toUpperCase()}
               </div>
-              <span className={cn(
-                "absolute bottom-4 w-6 h-6 border-2 border-surface rounded-full dark:border-surface-container",
-                employee.status === 'active' ? 'bg-green-500' : 'bg-surface-dim',
-                isRTL ? "left-0" : "right-0"
-              )} />
-            </div>
-            <h2 className="font-headline-md text-headline-md font-bold text-primary dark:text-on-dark">{employee.name}</h2>
-            <p className="text-steel-blue font-bold">
-              {employee.roles && employee.roles.length > 0 
-                ? t(`toolbar.roles.${employee.roles[0]}`) 
-                : '-'}
-            </p>
-          </div>
-          
-          <div className="space-y-6">
-            
-            {/* Personal Info */}
-            <section>
-              <h4 className="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-3 border-b border-border-muted pb-1 dark:border-border">
-                {t('drawer.personalInfo')}
-              </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-[12px] text-on-surface-variant dark:text-outline">{t('modal.email')}</p>
-                  <p className="font-bold text-primary dark:text-on-dark">{employee.email}</p>
-                </div>
-                {employee.phone && (
-                  <div>
-                    <p className="text-[12px] text-on-surface-variant dark:text-outline">{t('modal.phone')}</p>
-                    <p className="font-bold text-primary dark:text-on-dark dir-ltr text-start">{employee.phone}</p>
-                  </div>
+
+              <span
+                className={cn(
+                  `
+                    absolute
+                    bottom-4
+                    left-0
+                    h-6
+                    w-6
+                    rounded-full
+                    border-4
+                    border-white
+                  `,
+                  employee.status === 'active'
+                    ? 'bg-green-500'
+                    : 'bg-gray-400',
                 )}
+              />
+
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900">
+              {employee.name}
+            </h2>
+
+            <p className="mt-1 font-semibold text-primary">
+              {getRoleName(roleName)}
+            </p>
+
+            <span
+              className={cn(
+                'mt-3 rounded-full px-4 py-1 text-sm font-bold',
+                employee.status === 'active'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-red-100 text-red-700',
+              )}
+            >
+              {employee.status === 'active'
+                ? 'نشط'
+                : 'غير نشط'}
+            </span>
+
+          </div>
+
+          {/* المعلومات الشخصية */}
+          <section className="mb-6">
+
+            <h3
+              className="
+                mb-4
+                border-b
+                border-gray-200
+                pb-2
+                text-lg
+                font-bold
+                text-gray-900
+              "
+            >
+              المعلومات الشخصية
+            </h3>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+              <div
+                className="
+                  rounded-xl
+                  border
+                  border-gray-200
+                  bg-white
+                  p-4
+                  shadow-sm
+                "
+              >
+                <p className="mb-1 text-sm text-gray-500">
+                  الاسم
+                </p>
+
+                <p className="font-bold text-gray-900">
+                  {employee.name}
+                </p>
               </div>
-            </section>
-            
-            {/* Permissions */}
-            {employee.permissions && (
-              <section>
-                <h4 className="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-3 border-b border-border-muted pb-1 dark:border-border">
-                  {t('drawer.permissions')}
-                </h4>
-                <div className="space-y-2">
-                  {employee.permissions.map(perm => (
-                    <div key={perm.id} className="flex items-center justify-between p-3 bg-background rounded-lg border border-border-muted/30 dark:bg-surface dark:border-border">
-                      <span className="text-body-md text-on-surface dark:text-on-dark">{t(`permissions.${perm.nameKey}`)}</span>
-                      <span className={cn(
-                        "text-[10px] px-2 py-0.5 rounded-full font-bold",
-                        perm.active 
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-surface-dim text-on-surface-variant dark:bg-surface-container-high dark:text-outline"
-                      )}>
-                        {perm.active ? t('drawer.active') : t('drawer.inactive')}
+
+              <div
+                className="
+                  rounded-xl
+                  border
+                  border-gray-200
+                  bg-white
+                  p-4
+                  shadow-sm
+                "
+              >
+                <p className="mb-1 text-sm text-gray-500">
+                  البريد الإلكتروني
+                </p>
+
+                <p className="break-all font-bold text-gray-900">
+                  {employee.email}
+                </p>
+              </div>
+
+              <div
+                className="
+                  rounded-xl
+                  border
+                  border-gray-200
+                  bg-white
+                  p-4
+                  shadow-sm
+                "
+              >
+                <p className="mb-1 text-sm text-gray-500">
+                  رقم الهاتف
+                </p>
+
+                <p
+                  className="font-bold text-gray-900"
+                  dir="ltr"
+                >
+                  {employee.phone || 'غير متوفر'}
+                </p>
+              </div>
+
+              <div
+                className="
+                  rounded-xl
+                  border
+                  border-gray-200
+                  bg-white
+                  p-4
+                  shadow-sm
+                "
+              >
+                <p className="mb-1 text-sm text-gray-500">
+                  الدور الوظيفي
+                </p>
+
+                <p className="font-bold text-gray-900">
+                  {getRoleName(roleName)}
+                </p>
+              </div>
+
+            </div>
+
+          </section>
+
+          {/* الصلاحيات */}
+          {employee.permissions &&
+            employee.permissions.length > 0 && (
+              <section className="mb-6">
+
+                <h3
+                  className="
+                    mb-4
+                    border-b
+                    border-gray-200
+                    pb-2
+                    text-lg
+                    font-bold
+                    text-gray-900
+                  "
+                >
+                  الصلاحيات
+                </h3>
+
+                <div className="space-y-3">
+
+                  {employee.permissions.map((perm) => (
+                    <div
+                      key={perm.id}
+                      className="
+                        flex
+                        items-center
+                        justify-between
+                        rounded-xl
+                        border
+                        border-gray-200
+                        bg-white
+                        p-4
+                        shadow-sm
+                      "
+                    >
+
+                      <span className="font-medium text-gray-800">
+                        {t(`permissions.${perm.nameKey}`)}
                       </span>
+
+                      <span
+                        className={cn(
+                          'rounded-full px-3 py-1 text-xs font-bold',
+                          perm.active
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700',
+                        )}
+                      >
+                        {perm.active
+                          ? 'مسموح'
+                          : 'غير مسموح'}
+                      </span>
+
                     </div>
                   ))}
+
                 </div>
+
               </section>
             )}
-            
-            {/* Equipment */}
-            {employee.equipment && (
-              <section>
-                <h4 className="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-3 border-b border-border-muted pb-1 dark:border-border">
-                  {t('drawer.equipment')}
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {employee.equipment.map(item => (
-                    <span 
-                      key={item.id} 
-                      className="bg-surface-container px-3 py-1 rounded-full text-xs text-primary flex items-center gap-1 border border-border dark:bg-surface dark:text-on-dark dark:border-border-muted"
-                    >
-                      <DynamicIcon name={item.type} />
-                      {t(`drawer.equip.${item.nameKey}`)}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            )}
-            
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="mt-12 flex gap-3">
-            <button className="flex-1 bg-primary text-on-primary py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors dark:bg-primary-fixed dark:text-primary">
-              {t('drawer.editData')}
-            </button>
-            <button className="flex-1 border border-error text-error py-3 rounded-lg font-bold hover:bg-error/5 transition-colors dark:border-red-400 dark:text-red-400">
-              {t('drawer.suspendAccount')}
-            </button>
-          </div>
-          
+
         </div>
+
+        {/* Footer */}
+        <div
+          className="
+            shrink-0
+            border-t
+            border-gray-200
+            bg-white
+            p-5
+          "
+        >
+          <button
+            type="button"
+            onClick={onClose}
+            className="
+              w-full
+              rounded-xl
+              border
+              border-gray-300
+              bg-white
+              py-3
+              font-bold
+              text-gray-700
+              transition
+              hover:bg-gray-50
+            "
+          >
+            إلغاء
+          </button>
+        </div>
+
       </div>
-    </>
+    </div>
   )
 }

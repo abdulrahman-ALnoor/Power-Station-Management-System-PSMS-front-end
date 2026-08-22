@@ -11,168 +11,300 @@ interface EquipmentDetailsDrawerProps {
   onClose: () => void
 }
 
-export function EquipmentDetailsDrawer({ equipment, isOpen, onClose }: EquipmentDetailsDrawerProps) {
+export function EquipmentDetailsDrawer({
+  equipment,
+  isOpen,
+  onClose,
+}: EquipmentDetailsDrawerProps) {
   const { t } = useTranslation('equipment')
   const { isRTL } = useLanguage()
-  const [shouldRender, setShouldRender] = useState(false)
+
+  const [shouldRender, setShouldRender] =
+    useState(false)
 
   useEffect(() => {
-    if (isOpen) setShouldRender(true)
-    else {
-      const timer = setTimeout(() => setShouldRender(false), 300)
+    if (isOpen) {
+      setShouldRender(true)
+    } else {
+      const timer = setTimeout(
+        () => setShouldRender(false),
+        300,
+      )
+
       return () => clearTimeout(timer)
     }
   }, [isOpen])
 
-  if (!shouldRender || !equipment) return null
+  if (!shouldRender || !equipment) {
+    return null
+  }
 
-  const getStatusStyle = (status: string | null) => {
+  const getStatusStyle = (
+    status: string | null,
+  ) => {
     switch (status) {
-      case 'available': return 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-500'
-      case 'maintenance': return 'bg-amber-50 text-amber-gold dark:bg-amber-900/30 dark:text-amber-500'
-      case 'damaged': return 'bg-error-container text-error dark:bg-error-container/20 dark:text-error'
-      case 'lost': return 'bg-error-container text-error dark:bg-error-container/20 dark:text-error'
-      default: return 'bg-surface-dim text-on-surface-variant'
+      case 'available':
+        return 'bg-green-50 text-green-600'
+
+      case 'maintenance':
+        return 'bg-amber-50 text-amber-600'
+
+      case 'damaged':
+        return 'bg-red-50 text-red-600'
+
+      case 'lost':
+        return 'bg-red-50 text-red-600'
+
+      default:
+        return 'bg-gray-100 text-gray-600'
     }
   }
 
-  const drawerClasses = cn(
-    "fixed top-0 h-full w-full sm:w-[480px] bg-surface-white dark:bg-surface-container z-[70] shadow-2xl transition-transform duration-300 flex flex-col",
-    isRTL ? "right-0" : "left-0",
-    isOpen 
-      ? "translate-x-0" 
-      : (isRTL ? "translate-x-full" : "-translate-x-full")
-  )
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')
+  const formatDate = (
+    dateString: string,
+  ) => {
+    return new Date(
+      dateString,
+    ).toLocaleDateString(
+      isRTL ? 'ar-SA' : 'en-US',
+    )
   }
 
   return (
-    <>
-      <div 
-        className={cn(
-          "fixed inset-0 bg-primary/40 dark:bg-black/60 backdrop-blur-sm z-[60] transition-opacity duration-300",
-          isOpen ? "opacity-100" : "opacity-0"
-        )}
+    <div
+      className={cn(
+        'fixed inset-0 z-[70] flex items-center justify-center p-4 transition-opacity duration-300',
+        isOpen
+          ? 'opacity-100'
+          : 'pointer-events-none opacity-0',
+      )}
+    >
+      {/* الخلفية */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      
-      <div className={drawerClasses} dir={isRTL ? 'rtl' : 'ltr'}>
+
+      {/* نافذة التفاصيل */}
+      <div
+        dir={isRTL ? 'rtl' : 'ltr'}
+        className="relative z-10 flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+      >
         {/* Header */}
-        <div className="p-6 border-b border-outline-variant dark:border-border-muted flex justify-between items-center bg-primary text-on-primary dark:bg-surface-container-low dark:text-on-dark">
-          <h3 className="font-headline-md font-bold">{t('drawer.title')}</h3>
-          <button 
-            className="hover:bg-white/10 dark:hover:bg-surface-container-high p-2 rounded-full transition-colors" 
+        <div className="flex items-center justify-between border-b border-gray-200 bg-white p-6">
+
+          <h3 className="font-headline-md font-bold text-gray-900">
+            {t('drawer.title')}
+          </h3>
+
+          <button
+            type="button"
+            className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
             onClick={onClose}
-            aria-label={t('drawer.close')}
           >
-            <X size={20} />
+            <X size={22} />
           </button>
+
         </div>
 
         {/* Content */}
-        <div className="flex-grow overflow-y-auto p-6 space-y-8">
-          
-          {/* Equipment Profile */}
+        <div className="flex-grow space-y-8 overflow-y-auto bg-white p-6">
+
+          {/* بيانات المعدة */}
           <div className="space-y-4">
-            <div className="w-full h-48 bg-surface-container-low dark:bg-surface-container rounded-xl overflow-hidden relative flex items-center justify-center">
-              <div className="w-full h-full bg-primary/5 dark:bg-primary-fixed/5 flex items-center justify-center">
-                 <span className="text-outline text-label-sm">{t('drawer.imagePlaceholder')}</span>
-              </div>
-              <span className={cn("absolute top-4 inset-inline-end-4 px-3 py-1 rounded-full text-[12px] font-bold shadow-md", getStatusStyle(equipment.status))}>
-                {equipment.status ? t(`status.${equipment.status}`) : '-'}
+
+            <div className="relative flex h-48 w-full items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+
+              <span className="text-sm text-gray-400">
+                {t('drawer.imagePlaceholder')}
               </span>
+
+              <span
+                className={cn(
+                  'absolute top-4 rounded-full px-3 py-1 text-[12px] font-bold shadow-sm',
+                  isRTL
+                    ? 'left-4'
+                    : 'right-4',
+                  getStatusStyle(
+                    equipment.status,
+                  ),
+                )}
+              >
+                {equipment.status
+                  ? t(`status.${equipment.status}`)
+                  : '-'}
+              </span>
+
             </div>
+
             <div>
-              <h4 className="font-headline-md font-bold text-primary dark:text-on-dark">{equipment.equipment_name}</h4>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="bg-surface-container-lowest dark:bg-surface-container-low p-3 rounded-lg border border-outline-variant dark:border-border-muted">
-                  <p className="text-label-sm text-outline mb-1">{t('drawer.equipmentId')}</p>
-                  <p className="font-bold text-on-surface dark:text-on-dark">{equipment.id}</p>
-                </div>
-                <div className="bg-surface-container-lowest dark:bg-surface-container-low p-3 rounded-lg border border-outline-variant dark:border-border-muted">
-                  <p className="text-label-sm text-outline mb-1">{t('drawer.serialNumber')}</p>
-                  <p className="font-bold text-on-surface dark:text-on-dark">{equipment.serial_number || '-'}</p>
-                </div>
-                <div className="bg-surface-container-lowest dark:bg-surface-container-low p-3 rounded-lg border border-outline-variant dark:border-border-muted">
-                  <p className="text-label-sm text-outline mb-1">{t('drawer.createdAt')}</p>
-                  <p className="font-bold text-on-surface dark:text-on-dark flex items-center gap-2">
-                    <Calendar size={14} className="text-outline" />
-                    <span dir="ltr">{formatDate(equipment.created_at)}</span>
+
+              <h4 className="font-headline-md font-bold text-gray-900">
+                {equipment.equipment_name}
+              </h4>
+
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+
+                  <p className="mb-1 text-sm text-gray-500">
+                    {t('drawer.equipmentId')}
                   </p>
+
+                  <p className="font-bold text-gray-900">
+                    {equipment.id}
+                  </p>
+
                 </div>
-                <div className="bg-surface-container-lowest dark:bg-surface-container-low p-3 rounded-lg border border-outline-variant dark:border-border-muted">
-                  <p className="text-label-sm text-outline mb-1">{t('drawer.createdBy')}</p>
-                  <p className="font-bold text-on-surface dark:text-on-dark">{equipment.createdBy?.name || '-'}</p>
+
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+
+                  <p className="mb-1 text-sm text-gray-500">
+                    {t('drawer.serialNumber')}
+                  </p>
+
+                  <p className="font-bold text-gray-900">
+                    {equipment.serial_number || '-'}
+                  </p>
+
                 </div>
+
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+
+                  <p className="mb-1 text-sm text-gray-500">
+                    {t('drawer.createdAt')}
+                  </p>
+
+                  <p className="flex items-center gap-2 font-bold text-gray-900">
+
+                    <Calendar
+                      size={16}
+                      className="text-gray-400"
+                    />
+
+                    <span dir="ltr">
+                      {formatDate(
+                        equipment.created_at,
+                      )}
+                    </span>
+
+                  </p>
+
+                </div>
+
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+
+                  <p className="mb-1 text-sm text-gray-500">
+                    {t('drawer.createdBy')}
+                  </p>
+
+                  <p className="font-bold text-gray-900">
+                    {equipment.createdBy?.name || '-'}
+                  </p>
+
+                </div>
+
               </div>
+
             </div>
+
           </div>
 
-          {/* Assigned User */}
+          {/* المستخدم المرتبط */}
           <div className="space-y-4">
-            <h5 className="font-body-md font-bold border-b border-outline-variant dark:border-border-muted pb-2 text-on-surface dark:text-on-dark">
+
+            <h5 className="border-b border-gray-200 pb-2 font-bold text-gray-900">
               {t('drawer.assignedUser')}
             </h5>
+
             {equipment.user ? (
-              <div className="flex items-center gap-4 bg-surface-container-low dark:bg-surface-container p-4 rounded-xl">
-                {equipment.user.initials ? (
-                  <div className="w-12 h-12 rounded-full bg-primary-fixed dark:bg-primary-fixed/20 text-primary dark:text-primary-fixed flex items-center justify-center text-title-md font-bold shrink-0">
-                    {equipment.user.initials}
-                  </div>
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-surface-variant dark:bg-surface-container-high flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-on-surface-variant">person</span>
-                  </div>
-                )}
-                <div>
-                  <p className="font-bold text-primary dark:text-on-dark">{equipment.user.name}</p>
-                  <p className="text-label-sm text-outline mt-1">ID: {equipment.user.id}</p>
-                </div>
+
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+
+                <p className="font-bold text-gray-900">
+                  {equipment.user.name}
+                </p>
+
+                <p className="mt-1 text-sm text-gray-500">
+                  ID: {equipment.user.id}
+                </p>
+
               </div>
+
             ) : (
-              <div className="bg-surface-container-lowest dark:bg-surface-container-low border border-dashed border-outline-variant dark:border-border-muted p-6 rounded-xl flex items-center justify-center text-outline">
+
+              <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-gray-500">
+
                 {t('drawer.unassignedUser')}
+
               </div>
+
             )}
+
           </div>
 
-          {/* Notes */}
+          {/* الملاحظات */}
           <div className="space-y-4">
-            <h5 className="font-body-md font-bold border-b border-outline-variant dark:border-border-muted pb-2 text-on-surface dark:text-on-dark">
+
+            <h5 className="border-b border-gray-200 pb-2 font-bold text-gray-900">
               {t('drawer.notes')}
             </h5>
-            <div className="bg-surface-container-lowest dark:bg-surface-container-low p-4 rounded-xl border border-outline-variant dark:border-border-muted">
+
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+
               {equipment.notes ? (
-                <p className="text-body-md text-on-surface-variant dark:text-on-dark whitespace-pre-wrap leading-relaxed">
+
+                <p className="whitespace-pre-wrap leading-relaxed text-gray-700">
                   {equipment.notes}
                 </p>
+
               ) : (
-                <p className="text-body-md text-outline italic">لا توجد ملاحظات</p>
+
+                <p className="italic text-gray-400">
+                  لا توجد ملاحظات
+                </p>
+
               )}
+
             </div>
+
           </div>
 
-          <div className="pt-2">
-            <p className="text-label-sm text-outline flex gap-2">
-              <span>{t('drawer.updatedAt')}:</span>
-              <span dir="ltr">{formatDate(equipment.updated_at)}</span>
+          {/* آخر تحديث */}
+          <div>
+
+            <p className="flex gap-2 text-sm text-gray-500">
+
+              <span>
+                {t('drawer.updatedAt')}:
+              </span>
+
+              <span dir="ltr">
+                {formatDate(
+                  equipment.updated_at,
+                )}
+              </span>
+
             </p>
+
           </div>
 
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-6 border-t border-outline-variant dark:border-border-muted bg-surface-container-lowest dark:bg-surface-container-low flex gap-3 shrink-0">
-          <button className="flex-1 bg-primary text-on-primary py-3 rounded-lg font-bold hover:bg-primary-container dark:bg-primary-fixed dark:text-primary dark:hover:bg-primary dark:hover:text-white transition-colors">
-            {t('drawer.editData')}
+        {/* Footer - زر واحد فقط */}
+        <div className="border-t border-gray-200 bg-white p-6">
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full rounded-xl bg-primary py-3 font-bold text-white transition-colors hover:bg-primary/90"
+          >
+            إغلاق
           </button>
-          <button className="flex-1 border border-error text-error py-3 rounded-lg font-bold hover:bg-error/5 dark:hover:bg-error-container/20 transition-colors">
-            {t('drawer.withdrawEquipment')}
-          </button>
+
         </div>
+
       </div>
-    </>
+    </div>
   )
 }
