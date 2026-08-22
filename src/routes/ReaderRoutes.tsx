@@ -11,20 +11,20 @@ import { ReaderServiceRequestsPage } from '@/pages/reader/service-requests/Reade
 import { AuthGuard } from './guards/AuthGuard'
 
 export function ReaderRoutes() {
-  return (
-    <Routes>
-      <Route element={<AuthGuard />}>
-        <Route element={<ReaderLayout />}>
-          <Route path="dashboard" element={<ReaderDashboardPage />} />
-          
-          <Route path="equipment" element={<ReaderEquipmentPage />} />
-          <Route path="readings" element={<ReaderReadingsPage />} />
-          <Route path="service-requests" element={<ReaderServiceRequestsPage />} />
+ return (
+ <Routes>
+ <Route element={<AuthGuard />}>
+ <Route element={<ReaderLayout />}>
+ <Route path="dashboard" element={<ReaderDashboardPage />} />
+ 
+ <Route path="equipment" element={<ReaderEquipmentPage />} />
+ <Route path="readings" element={<ReaderReadingsPage />} />
+ <Route path="service-requests" element={<ReaderServiceRequestsPage />} />
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="dashboard" replace />} />
-        </Route>
-      </Route>
-    </Routes>
-  )
+ {/* Fallback */}
+ <Route path="*" element={<Navigate to="dashboard" replace />} />
+ </Route>
+ </Route>
+ </Routes>
+ )
 }

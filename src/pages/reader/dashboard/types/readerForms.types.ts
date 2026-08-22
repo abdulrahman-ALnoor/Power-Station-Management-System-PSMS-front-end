@@ -11,17 +11,17 @@ export type ServiceRequestStatus = 'pending' | 'assigned' | 'in_progress' | 'com
 // ── Temporary Frontend Entities ────────────────────────────────
 
 export interface MockCustomer {
-  id: number
-  name: string
-  phone: string
+ id: number
+ name: string
+ phone: string
 }
 
 export interface MockMeterInfo {
-  id: number
-  meterNumber: string
-  customer: MockCustomer
-  previousReading: number
-  pricePerKwh: number
+ id: number
+ meterNumber: string
+ customer: MockCustomer
+ previousReading: number
+ pricePerKwh: number
 }
 
 // ── Payloads for Future Laravel API ────────────────────────────
@@ -31,14 +31,14 @@ export interface MockMeterInfo {
  * Contains only fields that the Reader is allowed to submit.
  */
 export interface CreateMeterReadingPayload {
-  meter_id: number
-  current_reading: number
-  consumption: number
-  price_per_kwh: number
-  reading_cost: number
-  reading_date: string // YYYY-MM-DD
-  reading_method: ReadingMethod
-  notes?: string | null
+ meter_id: number
+ current_reading: number
+ consumption: number
+ price_per_kwh: number
+ reading_cost: number
+ reading_date: string // YYYY-MM-DD
+ reading_method: ReadingMethod
+ notes?: string | null
 }
 
 /**
@@ -46,9 +46,9 @@ export interface CreateMeterReadingPayload {
  * Contains only fields that the Reader is allowed to submit.
  */
 export interface CreateServiceRequestPayload {
-  meter_id: number
-  customer_id: number
-  request_type: ServiceRequestType
-  priority: ServiceRequestPriority
-  description?: string | null
+ meter_id: number
+ customer_id: number
+ request_type: ServiceRequestType
+ priority: ServiceRequestPriority
+ description?: string | null
 }

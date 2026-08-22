@@ -12,20 +12,20 @@ import { AccountantServiceRequestsPage } from '@/pages/accountant/service-reques
 import { AuthGuard } from './guards/AuthGuard'
 
 export function AccountantRoutes() {
-  return (
-    <Routes>
-      <Route element={<AuthGuard />}>
-        <Route element={<AccountantLayout />}>
-          <Route path="dashboard" element={<AccountantDashboardPage />} />
-          <Route path="invoices" element={<AccountantInvoicesPage />} />
-          <Route path="readings" element={<AccountantReadingsPage />} />
-          <Route path="service-requests" element={<AccountantServiceRequestsPage />} />
-          <Route path="equipment" element={<AccountantEquipmentPage />} />
+ return (
+ <Routes>
+ <Route element={<AuthGuard />}>
+ <Route element={<AccountantLayout />}>
+ <Route path="dashboard" element={<AccountantDashboardPage />} />
+ <Route path="invoices" element={<AccountantInvoicesPage />} />
+ <Route path="readings" element={<AccountantReadingsPage />} />
+ <Route path="service-requests" element={<AccountantServiceRequestsPage />} />
+ <Route path="equipment" element={<AccountantEquipmentPage />} />
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="dashboard" replace />} />
-        </Route>
-      </Route>
-    </Routes>
-  )
+ {/* Fallback */}
+ <Route path="*" element={<Navigate to="dashboard" replace />} />
+ </Route>
+ </Route>
+ </Routes>
+ )
 }

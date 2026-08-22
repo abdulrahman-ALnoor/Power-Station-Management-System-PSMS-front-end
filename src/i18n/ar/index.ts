@@ -11,21 +11,23 @@ import readings from './readings'
 import { customers } from './customers'
 import { serviceRequests } from './serviceRequests'
 import { engineer } from './engineer'
+import reader from './reader'
 
 const ar = {
-  common,
-  navigation,
-  auth,
-  dashboard,
-  employees,
-  meters,
-  equipment,
-  invoices,
-  settings,
-  readings,
-  customers,
-  serviceRequests,
-  engineer,
+ common,
+ navigation,
+ auth,
+ dashboard,
+ employees,
+ meters,
+ equipment,
+ invoices,
+ settings,
+ readings,
+ customers,
+ serviceRequests,
+ engineer,
+ reader,
 }
 
 export default ar

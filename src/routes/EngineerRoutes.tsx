@@ -11,22 +11,22 @@ import { ServiceRequestsPage } from '@/pages/engineer/service-requests/ServiceRe
 import { EngineerEquipmentPage } from '@/pages/engineer/equipment/EngineerEquipmentPage'
 
 export function EngineerRoutes() {
-  return (
-    <Routes>
-      <Route element={<AuthGuard />}>
-        <Route element={<EngineerLayout />}>
-          <Route path="dashboard" element={<EngineerDashboardPage />} />
-          <Route path="service-requests" element={<ServiceRequestsPage />} />
-          <Route path="equipment" element={<EngineerEquipmentPage />} />
-        
-        {/* Placeholder routes for the rest of engineer navigation */}
-        <Route path="reports/*" element={<div>Reports Placeholder</div>} />
-        <Route path="activity-log/*" element={<div>Activity Log Placeholder</div>} />
+ return (
+ <Routes>
+ <Route element={<AuthGuard />}>
+ <Route element={<EngineerLayout />}>
+ <Route path="dashboard" element={<EngineerDashboardPage />} />
+ <Route path="service-requests" element={<ServiceRequestsPage />} />
+ <Route path="equipment" element={<EngineerEquipmentPage />} />
+ 
+ {/* Placeholder routes for the rest of engineer navigation */}
+ <Route path="reports/*" element={<div>Reports Placeholder</div>} />
+ <Route path="activity-log/*" element={<div>Activity Log Placeholder</div>} />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="dashboard" replace />} />
-        </Route>
-      </Route>
-    </Routes>
-  )
+ {/* Fallback */}
+ <Route path="*" element={<Navigate to="dashboard" replace />} />
+ </Route>
+ </Route>
+ </Routes>
+ )
 }

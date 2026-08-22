@@ -8,48 +8,51 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { ReaderSidebar } from './ReaderSidebar'
 import { AdminHeader } from '../AdminLayout/AdminHeader'
 
-/** Maps route paths to page titles */
-const PAGE_TITLE_MAP: Record<string, string> = {
-  '/reader/dashboard': 'لوحة تحكم القارئ',
-  '/reader/service-requests': 'طلبات الخدمة',
-  '/reader/equipment': 'المعدات',
-  '/reader/readings': 'إدارة القراءات',
-}
+import { useLanguage } from '@/hooks/useLanguage'
 
 export function ReaderLayout() {
-  const location = useLocation()
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
+ const location = useLocation()
+ const [isMobileOpen, setIsMobileOpen] = useState(false)
 
-  // Resolve page title from current route
-  const pageTitle = PAGE_TITLE_MAP[location.pathname]
-  
-  // Optional: Provide subtitle for specific pages (like dashboard)
-  const pageSubtitle = location.pathname === '/reader/dashboard' 
-    ? 'متابعة القراءات اليومية والعدادات والطلبات المرتبطة بمهامك.' 
-    : undefined
+ const { t } = useLanguage('reader')
 
-  return (
-    <div className="admin-shell">
-      {/* Sidebar */}
-      <ReaderSidebar
-        isMobileOpen={isMobileOpen}
-        onMobileClose={() => setIsMobileOpen(false)}
-      />
+ const getPageTitle = (pathname: string) => {
+ switch (pathname) {
+ case '/reader/dashboard': return t('header.title')
+ case '/reader/service-requests': return t('pageTitles.serviceRequests')
+ case '/reader/equipment': return t('pageTitles.equipment')
+ case '/reader/readings': return t('pageTitles.readings')
+ default: return ''
+ }
+ }
 
-      {/* Main content area */}
-      <div className="admin-main">
-        {/* Header */}
-        <AdminHeader
-          title={pageTitle}
-          subtitle={pageSubtitle}
-          onMobileMenuToggle={() => setIsMobileOpen(true)}
-        />
+ const pageTitle = getPageTitle(location.pathname)
+ const pageSubtitle = location.pathname === '/reader/dashboard' 
+ ? t('header.subtitle') 
+ : undefined
 
-        {/* Page content — rendered by child routes */}
-        <main className="admin-content" id="main-content" tabIndex={-1}>
-          <Outlet />
-        </main>
-      </div>
-    </div>
-  )
+ return (
+ <div className="admin-shell">
+ {/* Sidebar */}
+ <ReaderSidebar
+ isMobileOpen={isMobileOpen}
+ onMobileClose={() => setIsMobileOpen(false)}
+ />
+
+ {/* Main content area */}
+ <div className="admin-main">
+ {/* Header */}
+ <AdminHeader
+ title={pageTitle}
+ subtitle={pageSubtitle}
+ onMobileMenuToggle={() => setIsMobileOpen(true)}
+ />
+
+ {/* Page content — rendered by child routes */}
+ <main className="admin-content" id="main-content" tabIndex={-1}>
+ <Outlet />
+ </main>
+ </div>
+ </div>
+ )
 }
