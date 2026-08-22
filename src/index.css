@@ -78,15 +78,15 @@
   --text-label:              0.75rem;    /* 12px — labels, badges */
 
   /* Spacing Tokens */
-  --spacing-sidebar:         280px;
-  --spacing-header:          64px;
-  --spacing-container:       1440px;
-  --spacing-gutter:          24px;
-  --spacing-page:            32px;
-  --spacing-sm:              8px;
-  --spacing-md:              16px;
-  --spacing-lg:              24px;
-  --spacing-xl:              32px;
+  --app-spacing-sidebar:         280px;
+  --app-spacing-header:          64px;
+  --app-spacing-container:       1440px;
+  --app-spacing-gutter:          24px;
+  --app-spacing-page:            32px;
+  --app-spacing-sm:              8px;
+  --app-spacing-md:              16px;
+  --app-spacing-lg:              24px;
+  --app-spacing-xl:              32px;
 
   /* Border Radius */
   --radius-sm:               0.25rem;   /* 4px */
@@ -137,9 +137,13 @@
   --color-outline:           #4a5568;
 
   /* Colors — Semantic Adjustments */
+  --color-success:           #4ade80; /* lighter green for dark mode contrast */
   --color-success-light:     #0c3b1e;
+  --color-warning:           #fcd34d; /* lighter yellow */
   --color-warning-light:     #4d3100;
+  --color-danger:            #f87171; /* lighter red */
   --color-danger-light:      #520909;
+  --color-info:              #93c5fd; /* lighter blue */
   --color-info-light:        #182e54;
 
   /* Colors — Sidebar */
@@ -232,8 +236,10 @@ body {
 /* ── Layout Shell ────────────────────────────────────────── */
 .admin-shell {
   display: flex;
-  min-height: 100svh;
+  height: 100vh;
+  height: 100dvh;
   background-color: var(--color-background);
+  overflow: hidden;
 }
 
 /* Sidebar is automatically on the right in RTL, left in LTR due to native direction handling */
@@ -248,16 +254,17 @@ body {
 
 .admin-content {
   flex: 1;
-  padding: var(--spacing-page);
+  min-height: 0;
+  padding: var(--app-spacing-page);
   overflow-y: auto;
-  max-width: var(--spacing-container);
+  max-width: var(--app-spacing-container);
   width: 100%;
 }
 
 /* ── Sidebar ─────────────────────────────────────────────── */
 .admin-sidebar {
-  width: var(--spacing-sidebar);
-  min-width: var(--spacing-sidebar);
+  width: var(--app-spacing-sidebar);
+  min-width: var(--app-spacing-sidebar);
   background-color: var(--color-sidebar-bg);
   display: flex;
   flex-direction: column;
@@ -277,13 +284,13 @@ body {
 
 /* ── Header ──────────────────────────────────────────────── */
 .admin-header {
-  height: var(--spacing-header);
-  min-height: var(--spacing-header);
+  height: var(--app-spacing-header);
+  min-height: var(--app-spacing-header);
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
-  padding-inline: var(--spacing-gutter);
+  padding-inline: var(--app-spacing-gutter);
   position: sticky;
   top: 0;
   z-index: 30;
@@ -296,7 +303,7 @@ body {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: var(--spacing-lg);
+  padding: var(--app-spacing-lg);
   transition: box-shadow var(--transition-base);
 }
 
@@ -402,12 +409,34 @@ body {
   }
 
   .admin-content {
-    padding: var(--spacing-md);
+    padding: var(--app-spacing-md);
   }
 }
 
 @media (max-width: 640px) {
   .admin-content {
-    padding: var(--spacing-sm);
+    padding: var(--app-spacing-sm);
+  }
+}
+
+/* ── Print Styles ────────────────────────────────────────── */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-section, #print-section * {
+    visibility: visible;
+  }
+  #print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white !important;
+  }
+  @page {
+    margin: 0.5cm;
   }
 }

@@ -17,6 +17,7 @@ interface StatCardProps {
   icon: ReactNode
   iconColor?: string
   iconBg?: string
+  iconClassName?: string
   trend?: {
     direction: TrendDirection
     value: string
@@ -40,6 +41,7 @@ export function StatCard({
   icon,
   iconColor = 'var(--color-primary)',
   iconBg = 'var(--color-surface-container)',
+  iconClassName,
   trend,
   className,
 }: StatCardProps) {
@@ -60,8 +62,8 @@ export function StatCard({
       >
         {/* Icon container */}
         <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: iconBg, color: iconColor }}
+          className={cn("w-11 h-11 rounded-xl flex items-center justify-center shrink-0", iconClassName)}
+          style={!iconClassName ? { background: iconBg, color: iconColor } : undefined}
         >
           {icon}
         </div>

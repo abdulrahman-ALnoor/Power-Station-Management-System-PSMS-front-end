@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, Plus, Filter, RefreshCw, Download } from 'lucide-react'
+import { Search, Plus, Filter, RefreshCw } from 'lucide-react'
 
 interface MeterReadingToolbarProps {
   searchQuery: string
@@ -11,7 +11,7 @@ interface MeterReadingToolbarProps {
   onMethodFilterChange: (method: string) => void
   dateFilter: string
   onDateFilterChange: (dateRange: string) => void
-  onAddClick: () => void
+  onAddClick?: () => void
   onRefresh: () => void
 }
 
@@ -34,7 +34,7 @@ export function MeterReadingToolbar({
       {/* Top Row: Search and Actions */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Search */}
-        <div className="relative w-full sm:max-w-md">
+        <div className="relative w-full sm:w-[280px] lg:w-[320px] shrink-0">
           <div className="absolute inset-y-0 start-0 pl-3 flex items-center pointer-events-none text-outline/50 rtl:pr-3 rtl:pl-0">
             <Search size={18} />
           </div>
@@ -57,20 +57,16 @@ export function MeterReadingToolbar({
             <RefreshCw size={18} />
           </button>
           
-          <button
-            className="hidden sm:flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-outline hover:text-on-surface dark:hover:text-on-dark border border-outline/20 dark:border-outline/10 rounded-xl hover:bg-surface-variant dark:hover:bg-surface-container-high transition-colors"
-          >
-            <Download size={18} />
-            {t('toolbar.actions.export')}
-          </button>
 
-          <button
-            onClick={onAddClick}
-            className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-on-primary text-sm font-bold rounded-xl transition-colors shadow-sm active:scale-95"
-          >
-            <Plus size={18} />
-            {t('toolbar.actions.addReading')}
-          </button>
+          {onAddClick && (
+            <button
+              onClick={onAddClick}
+              className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-on-primary text-sm font-bold rounded-xl transition-colors shadow-sm active:scale-95"
+            >
+              <Plus size={18} />
+              {t('toolbar.actions.addReading')}
+            </button>
+          )}
         </div>
       </div>
 

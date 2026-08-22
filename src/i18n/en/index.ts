@@ -10,6 +10,7 @@ import settings from './settings'
 import readings from './readings'
 import { customers } from './customers'
 import { serviceRequests } from './serviceRequests'
+import { engineer } from './engineer'
 
 const en = {
   common,
@@ -24,6 +25,7 @@ const en = {
   readings,
   customers,
   serviceRequests,
+  engineer,
 }
 
 export default en

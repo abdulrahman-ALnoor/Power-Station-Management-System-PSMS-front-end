@@ -38,7 +38,7 @@ export function Modal({
   size = 'md',
   closeOnOverlayClick = true,
 }: ModalProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   // Trap focus and handle ESC
   useEffect(() => {
@@ -53,7 +53,7 @@ export function Modal({
     }
   }, [open])
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDialogElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Escape') onClose()
   }
 
@@ -72,12 +72,12 @@ export function Modal({
       />
 
       {/* Dialog */}
-      <dialog
+      <div
+        role="dialog"
         ref={dialogRef}
-        open
         className={cn(
           'relative z-10 w-full rounded-2xl border',
-          'bg-white flex flex-col max-h-[90vh]',
+          'bg-white dark:bg-surface-container flex flex-col max-h-[90vh] overflow-hidden',
           SIZE_MAP[size] ?? SIZE_MAP.md,
         )}
         style={{
@@ -100,7 +100,7 @@ export function Modal({
             </h2>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-surface-low transition-colors"
               style={{ color: 'var(--color-text-muted)' }}
               aria-label="Close dialog"
             >
@@ -123,7 +123,7 @@ export function Modal({
             {footer}
           </div>
         )}
-      </dialog>
+      </div>
     </div>
   )
 }

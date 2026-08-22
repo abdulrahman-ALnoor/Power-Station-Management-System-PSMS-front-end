@@ -8,16 +8,21 @@ import { useLanguage } from '@/hooks/useLanguage'
 import type { PaginationMeta } from '@/types/common'
 
 interface PaginationProps {
-  meta: PaginationMeta
+  meta?: PaginationMeta
   onPageChange: (page: number) => void
   className?: string
 }
 
 export function Pagination({ meta, onPageChange, className }: PaginationProps) {
   const { t, isRTL } = useLanguage()
-  const { currentPage, lastPage, perPage, total } = meta
 
-  const startItem = (currentPage - 1) * perPage + 1
+  // Safely default values if meta is missing or incomplete
+  const currentPage = meta?.currentPage ?? 1
+  const lastPage = meta?.lastPage ?? 1
+  const perPage = meta?.perPage ?? 10
+  const total = meta?.total ?? 0
+
+  const startItem = total === 0 ? 0 : (currentPage - 1) * perPage + 1
   const endItem = Math.min(currentPage * perPage, total)
 
   // Generate page numbers to show

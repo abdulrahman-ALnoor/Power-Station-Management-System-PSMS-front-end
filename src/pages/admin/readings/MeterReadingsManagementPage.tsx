@@ -1,60 +1,80 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
-import { MeterReading } from './types'
-import { MOCK_METER_READINGS, getMeterReadingStats } from './data/mockData'
-import { MeterReadingStats } from './components/MeterReadingStats'
-import { MeterReadingToolbar } from './components/MeterReadingToolbar'
-import { MeterReadingTable } from './components/MeterReadingTable'
-import { MeterReadingDetailsDrawer } from './components/MeterReadingDetailsDrawer'
+import { MeterReading } from '../../shared/readings/types'
+import { getMeterReadingStats } from '../../shared/readings/data/mockData'
+import { MeterReadingStats } from '../../shared/readings/components/MeterReadingStats'
+import { MeterReadingToolbar } from '../../shared/readings/components/MeterReadingToolbar'
+import { MeterReadingTable } from '../../shared/readings/components/MeterReadingTable'
+import { MeterReadingDetailsDrawer } from '../../shared/readings/components/MeterReadingDetailsDrawer'
 import { AddMeterReadingModal } from './components/AddMeterReadingModal'
+import { ChangeReadingStatusModal } from './components/ChangeReadingStatusModal'
+import { readingService, GetReadingsParams } from '../../../services/shared/readingService'
+import { Pagination } from '@/components/ui/Pagination'
+import { ReadingStatus } from '../../shared/readings/types'
 
 export function MeterReadingsManagementPage() {
   const { t } = useTranslation('readings')
   const { isRTL } = useLanguage()
 
-  const [readings, setReadings] = useState<MeterReading[]>(MOCK_METER_READINGS)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [methodFilter, setMethodFilter] = useState('all')
-  const [dateFilter, setDateFilter] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const [data, setData] = useState<MeterReading[]>([])
+  const [total, setTotal] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [lastPage, setLastPage] = useState(1)
+
+  const [filters, setFilters] = useState<GetReadingsParams>({
+    page: 1,
+    per_page: 10,
+    search: '',
+    status: 'all',
+    method: 'all',
+    date: 'all',
+  })
 
   const [selectedReading, setSelectedReading] = useState<MeterReading | null>(null)
+  const [readingToEdit, setReadingToEdit] = useState<MeterReading | undefined>()
+  const [readingToDelete, setReadingToDelete] = useState<MeterReading | null>(null)
+  const [readingToChangeStatus, setReadingToChangeStatus] = useState<MeterReading | null>(null)
+  
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
   
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
-  const stats = useMemo(() => getMeterReadingStats(readings), [readings])
+  const stats = useMemo(() => getMeterReadingStats(data), [data])
 
-  const filteredReadings = useMemo(() => {
-    return readings.filter(reading => {
-      const matchesSearch = 
-        reading.id.toString().includes(searchQuery) ||
-        reading.meter?.meter_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        reading.meter_id.toString().includes(searchQuery)
-      
-      const matchesStatus = statusFilter === 'all' || reading.status === statusFilter
-      const matchesMethod = methodFilter === 'all' || reading.reading_method === methodFilter
-      
-      let matchesDate = true
-      if (dateFilter !== 'all') {
-        const readingDate = new Date(reading.reading_date)
-        const today = new Date()
-        if (dateFilter === 'today') {
-          matchesDate = readingDate.toDateString() === today.toDateString()
-        } else if (dateFilter === 'this_week') {
-          const firstDay = new Date(today.setDate(today.getDate() - today.getDay()))
-          matchesDate = readingDate >= firstDay
-        } else if (dateFilter === 'this_month') {
-          matchesDate = readingDate.getMonth() === today.getMonth() && readingDate.getFullYear() === today.getFullYear()
-        }
-      }
+  const fetchReadings = async (currentFilters: GetReadingsParams) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const response = await readingService.getReadings(currentFilters)
+      setData(response.data)
+      setTotal(response.total)
+      setCurrentPage(response.current_page)
+      setLastPage(response.last_page)
+    } catch (err) {
+      setError('حدث خطأ أثناء جلب البيانات')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-      return matchesSearch && matchesStatus && matchesMethod && matchesDate
-    })
-  }, [readings, searchQuery, statusFilter, methodFilter, dateFilter])
+  useEffect(() => {
+    fetchReadings(filters)
+  }, [filters])
+
+  const handleSearchChange = (search: string) => setFilters({ ...filters, search, page: 1 })
+  const handleStatusChange = (status: string) => setFilters({ ...filters, status, page: 1 })
+  const handleMethodChange = (method: string) => setFilters({ ...filters, method, page: 1 })
+  const handleDateChange = (date: string) => setFilters({ ...filters, date, page: 1 })
+  const handlePageChange = (page: number) => setFilters({ ...filters, page })
 
   const handleViewDetails = (reading: MeterReading) => {
     setSelectedReading(reading)
@@ -62,20 +82,24 @@ export function MeterReadingsManagementPage() {
   }
 
   const handleAddReading = (newReadingData: Omit<MeterReading, 'id' | 'created_at' | 'updated_at' | 'status' | 'created_by'>) => {
-    const newReading: MeterReading = {
-      ...newReadingData,
-      id: Math.max(...readings.map(r => r.id)) + 1,
-      created_by: 1, // Mock user ID
-      status: 'pending',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      meter: { id: newReadingData.meter_id, meter_number: `MET-${newReadingData.meter_id}` },
-      createdBy: { id: 1, name: 'Current User' }
-    }
-    
-    setReadings([newReading, ...readings])
+    fetchReadings(filters)
     setIsAddModalOpen(false)
-    setNotification({ type: 'success', message: t('notifications.added') })
+    setReadingToEdit(undefined)
+    setNotification({ type: 'success', message: readingToEdit ? (isRTL ? 'تم تعديل القراءة بنجاح' : 'Reading updated successfully') : t('notifications.added') })
+  }
+
+  const handleStatusChangeSubmit = (readingId: number, newStatus: ReadingStatus) => {
+    setData(prev => prev.map(r => r.id === readingId ? { ...r, status: newStatus } : r))
+    setNotification({ type: 'success', message: isRTL ? 'تم تغيير حالة القراءة بنجاح' : 'Status updated successfully' })
+    setIsStatusModalOpen(false)
+  }
+
+  const handleDeleteConfirm = () => {
+    // Mock delete
+    fetchReadings(filters)
+    setIsDeleteModalOpen(false)
+    setReadingToDelete(null)
+    setNotification({ type: 'success', message: isRTL ? 'تم حذف القراءة بنجاح' : 'Reading deleted successfully' })
   }
 
   useEffect(() => {
@@ -91,22 +115,11 @@ export function MeterReadingsManagementPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-start">
           <h1 className="font-headline-md text-headline-md font-bold text-primary dark:text-on-dark">
-            {t('pageTitle')}
+            إدارة القراءات
           </h1>
-          <p className="text-label-md text-outline dark:text-outline/80 mt-1">
-            {t('pageSubtitle')}
-          </p>
-          <nav 
-            className="flex gap-2 text-label-sm text-outline/60 dark:text-outline/50 mt-2"
-            dir={isRTL ? 'rtl' : 'ltr'}
-          >
-            <span>{t('breadcrumb.home')}</span>
-            <span>/</span>
-            <span>{t('breadcrumb.readings')}</span>
-          </nav>
         </div>
       </div>
-
+      
       {/* Notification Toast */}
       {notification && (
         <div className={`p-4 rounded-xl flex items-center justify-between shadow-sm border ${
@@ -121,27 +134,56 @@ export function MeterReadingsManagementPage() {
         </div>
       )}
 
+      {error && (
+        <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 flex justify-between items-center">
+          <span>{error}</span>
+        </div>
+      )}
+
       <MeterReadingStats stats={stats} />
 
       <MeterReadingToolbar 
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-        methodFilter={methodFilter}
-        onMethodFilterChange={setMethodFilter}
-        dateFilter={dateFilter}
-        onDateFilterChange={setDateFilter}
+        searchQuery={filters.search || ''}
+        onSearchChange={handleSearchChange}
+        statusFilter={filters.status || 'all'}
+        onStatusFilterChange={handleStatusChange}
+        methodFilter={filters.method || 'all'}
+        onMethodFilterChange={handleMethodChange}
+        dateFilter={filters.date || 'all'}
+        onDateFilterChange={handleDateChange}
         onAddClick={() => setIsAddModalOpen(true)}
-        onRefresh={() => setReadings(MOCK_METER_READINGS)}
+        onRefresh={() => fetchReadings(filters)}
       />
 
       <MeterReadingTable 
-        data={filteredReadings}
+        data={data}
         onViewDetails={handleViewDetails}
-        onEdit={(r) => console.log('Edit', r.id)}
-        onDelete={(r) => console.log('Delete', r.id)}
+        onChangeStatus={(r) => {
+          setReadingToChangeStatus(r)
+          setIsStatusModalOpen(true)
+        }}
+        onEdit={(r) => {
+          setReadingToEdit(r)
+          setIsAddModalOpen(true)
+        }}
+        onDelete={(r) => {
+          setReadingToDelete(r)
+          setIsDeleteModalOpen(true)
+        }}
       />
+
+      {/* Pagination */}
+      {!isLoading && data.length > 0 && (
+        <Pagination
+          meta={{
+            currentPage,
+            lastPage,
+            perPage: filters.per_page || 10,
+            total,
+          }}
+          onPageChange={handlePageChange}
+        />
+      )}
 
       <MeterReadingDetailsDrawer 
         reading={selectedReading}
@@ -151,9 +193,78 @@ export function MeterReadingsManagementPage() {
 
       <AddMeterReadingModal 
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false)
+          setReadingToEdit(undefined)
+        }}
         onAdd={handleAddReading}
+        readingToEdit={readingToEdit}
       />
+
+      <ChangeReadingStatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        reading={readingToChangeStatus}
+        onSave={handleStatusChangeSubmit}
+      />
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && createPortal(
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+          {/* BACKDROP */}
+          <div 
+            onClick={() => setIsDeleteModalOpen(false)}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: 'rgba(0,0,0,0.4)',
+              zIndex: 0,
+            }}
+          />
+          
+          {/* MODAL */}
+          <aside 
+            className="absolute inset-0 flex items-center justify-center p-4 sm:p-6"
+            style={{ zIndex: 1 }}
+            dir={isRTL ? 'rtl' : 'ltr'}
+          >
+            <div 
+              className="w-full max-w-sm rounded-2xl shadow-2xl border border-outline/10 flex flex-col overflow-hidden"
+              style={{
+                backgroundColor: '#ffffff',
+                opacity: 1,
+                filter: 'none'
+              }}
+            >
+              <div className="p-6">
+                <h2 className="font-headline-sm text-lg font-bold text-on-surface dark:text-on-dark mb-2">
+                  {isRTL ? 'تأكيد الحذف' : 'Confirm Deletion'}
+                </h2>
+                <p className="text-sm text-outline dark:text-outline/80">
+                  {isRTL 
+                    ? 'هل أنت متأكد أنك تريد حذف هذه القراءة؟ لا يمكن التراجع عن هذا الإجراء.'
+                    : 'Are you sure you want to delete this reading? This action cannot be undone.'}
+                </p>
+              </div>
+              <div className="p-4 border-t border-outline/10 bg-surface-container-lowest dark:bg-surface-container-low flex justify-end gap-3">
+                <button
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-outline hover:bg-surface-variant dark:hover:bg-surface-container transition-colors"
+                >
+                  {isRTL ? 'إلغاء' : 'Cancel'}
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold bg-error text-white hover:bg-error/90 transition-colors"
+                >
+                  {isRTL ? 'حذف' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }

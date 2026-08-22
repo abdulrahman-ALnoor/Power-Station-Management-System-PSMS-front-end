@@ -67,3 +67,103 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
     ],
   },
 ]
+
+export const ENGINEER_NAV_GROUPS: NavGroup[] = [
+  {
+    key: 'main',
+    labelKey: 'navigation:groups.main',
+    items: [
+      {
+        key: 'dashboard',
+        labelKey: 'navigation:engineerDashboard',
+        icon: 'LayoutDashboard',
+        path: '/engineer/dashboard',
+      },
+      {
+        key: 'serviceRequests',
+        labelKey: 'navigation:serviceRequests',
+        icon: 'Headset',
+        path: '/engineer/service-requests',
+      },
+      {
+        key: 'equipment',
+        labelKey: 'navigation:equipment',
+        icon: 'Factory',
+        path: '/engineer/equipment',
+      },
+    ],
+  },
+]
+
+export const READER_NAV_GROUPS: NavGroup[] = [
+  {
+    key: 'main',
+    labelKey: 'navigation:groups.main',
+    items: [
+      {
+        key: 'dashboard',
+        labelKey: 'navigation:dashboard',
+        icon: 'LayoutDashboard',
+        path: '/reader/dashboard',
+      },
+      {
+        key: 'equipment',
+        labelKey: 'navigation:equipment',
+        icon: 'Factory',
+        path: '/reader/equipment',
+      },
+      {
+        key: 'readings',
+        labelKey: 'navigation:readings',
+        icon: 'Activity',
+        path: '/reader/readings',
+      },
+      {
+        key: 'serviceRequests',
+        labelKey: 'navigation:serviceRequests',
+        icon: 'Headset',
+        path: '/reader/service-requests',
+      },
+    ],
+  },
+]
+
+export const ACCOUNTANT_NAV_GROUPS: NavGroup[] = [
+  {
+    key: 'main',
+    labelKey: 'navigation:groups.main',
+    items: [
+      {
+        key: 'dashboard',
+        labelKey: 'navigation:dashboard',
+        icon: 'LayoutDashboard',
+        path: '/accountant/dashboard',
+      },
+      {
+        key: 'invoices',
+        labelKey: 'navigation:invoices',
+        icon: 'Receipt',
+        path: '/accountant/invoices',
+      },
+      {
+        key: 'readings',
+        labelKey: 'navigation:readings',
+        icon: 'Activity',
+        path: '/accountant/readings',
+      },
+      {
+        key: 'serviceRequests',
+        labelKey: 'navigation:serviceRequests',
+        icon: 'Headset',
+        path: '/accountant/service-requests',
+      },
+      {
+        key: 'equipment',
+        labelKey: 'navigation:equipment',
+        icon: 'Factory',
+        path: '/accountant/equipment',
+      },
+    ],
+  },
+]
+

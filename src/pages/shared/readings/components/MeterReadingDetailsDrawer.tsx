@@ -1,4 +1,5 @@
 import React from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X, Calendar, User, FileText, CheckCircle2, XCircle, Clock, Hash } from 'lucide-react'
 import { MeterReading } from '../types'
@@ -59,15 +60,28 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
     }
   }
 
-  return (
-    <>
+  return createPortal(
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+      {/* BACKDROP */}
       <div 
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity"
         onClick={onClose}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.4)',
+          zIndex: 0,
+        }}
       />
       
-      <div 
-        className={`fixed top-0 ${isRTL ? 'left-0' : 'right-0'} bottom-0 w-full max-w-md bg-surface-white dark:bg-surface-container-low shadow-2xl z-50 flex flex-col transition-transform transform`}
+      {/* DRAWER */}
+      <aside 
+        className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} bottom-0 w-full max-w-md shadow-2xl flex flex-col transition-transform transform`}
+        style={{ 
+          zIndex: 1,
+          backgroundColor: '#ffffff',
+          opacity: 1,
+          filter: 'none'
+        }}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         <div className="flex items-center justify-between p-6 border-b border-outline/10 shrink-0">
@@ -167,7 +181,8 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
           </div>
           
         </div>
-      </div>
-    </>
+      </aside>
+    </div>,
+    document.body
   )
 }

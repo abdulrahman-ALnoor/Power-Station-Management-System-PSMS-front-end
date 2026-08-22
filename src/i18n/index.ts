@@ -28,7 +28,7 @@ i18n
     lng: DEFAULT_LANGUAGE,
     fallbackLng: DEFAULT_LANGUAGE,
     defaultNS: DEFAULT_NAMESPACE,
-    ns: ['common', 'navigation', 'auth', 'dashboard', 'employees', 'meters', 'equipment'],
+    ns: ['common', 'navigation', 'auth', 'dashboard', 'employees', 'meters', 'equipment', 'engineer'],
     interpolation: {
       escapeValue: false, // React already escapes by default
     },

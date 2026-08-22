@@ -4,11 +4,18 @@
 
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AdminRoutes } from './AdminRoutes'
+import { EngineerRoutes } from './EngineerRoutes'
+import { ReaderRoutes } from './ReaderRoutes'
+
+import { AccountantRoutes } from './AccountantRoutes'
 
 /**
  * Root-level route configuration.
  * - / → redirects to /admin
  * - /admin/* → AdminRoutes (protected, with layout)
+ * - /engineer/* → EngineerRoutes (protected, with layout)
+ * - /reader/* → ReaderRoutes (protected, with layout)
+ * - /accountant/* → AccountantRoutes (protected, with layout)
  */
 export function AppRouter() {
   return (
@@ -18,6 +25,15 @@ export function AppRouter() {
 
       {/* Admin module — all sub-routes handled by AdminRoutes */}
       <Route path="/admin/*" element={<AdminRoutes />} />
+
+      {/* Engineer module — all sub-routes handled by EngineerRoutes */}
+      <Route path="/engineer/*" element={<EngineerRoutes />} />
+
+      {/* Reader module — all sub-routes handled by ReaderRoutes */}
+      <Route path="/reader/*" element={<ReaderRoutes />} />
+
+      {/* Accountant module — all sub-routes handled by AccountantRoutes */}
+      <Route path="/accountant/*" element={<AccountantRoutes />} />
 
       {/* 404 fallback */}
       <Route

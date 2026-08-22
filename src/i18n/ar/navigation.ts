@@ -24,6 +24,12 @@ const ar_navigation = {
   addUserCTA: 'إضافة مستخدم جديد',
   emergencyReportCTA: 'تقرير الطوارئ',
 
+  // Engineer Navigation
+  engineerDashboard: 'لوحة تحكم المهندس',
+  serviceRequests: 'طلبات الخدمة',
+  reports: 'التقارير',
+  activityLog: 'سجل الأنشطة',
+
   // User area
   myProfile: 'ملفي الشخصي',
   logout: 'تسجيل الخروج',

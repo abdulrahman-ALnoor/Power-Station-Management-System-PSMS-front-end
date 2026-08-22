@@ -15,11 +15,13 @@ import type { Language } from '@/types/common'
 interface AdminHeaderProps {
   /** Page title to display */
   title?: string
+  /** Optional subtitle to display below title */
+  subtitle?: string
   /** Called when mobile menu button is pressed */
   onMobileMenuToggle: () => void
 }
 
-export function AdminHeader({ title, onMobileMenuToggle }: AdminHeaderProps) {
+export function AdminHeader({ title, subtitle, onMobileMenuToggle }: AdminHeaderProps) {
   const { t, isRTL, language, setLanguage } = useLanguage()
   const { user } = useAuth()
   const { theme, toggleTheme } = useTheme()
@@ -48,14 +50,26 @@ export function AdminHeader({ title, onMobileMenuToggle }: AdminHeaderProps) {
           <Menu size={20} style={{ color: 'var(--color-text-muted)' }} />
         </button>
 
-        {/* Page title */}
-        {title && (
-          <h1
-            className="text-headline truncate"
-            style={{ color: 'var(--color-primary)' }}
-          >
-            {title}
-          </h1>
+        {/* Page title & subtitle */}
+        {(title || subtitle) && (
+          <div className="flex flex-col justify-center min-w-0">
+            {title && (
+              <h1
+                className="text-headline truncate leading-tight"
+                style={{ color: 'var(--color-text)' }}
+              >
+                {title}
+              </h1>
+            )}
+            {subtitle && (
+              <p
+                className="text-xs truncate"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                {subtitle}
+              </p>
+            )}
+          </div>
         )}
       </div>
 

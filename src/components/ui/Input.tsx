@@ -79,7 +79,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-invalid={!!error}
             className={cn(
               'w-full h-10 rounded-lg border text-body transition-colors',
-              'bg-white placeholder:text-[var(--color-text-disabled)]',
+              'bg-surface placeholder:text-[var(--color-text-disabled)]',
               'focus:outline-none focus:ring-2 focus:ring-offset-0',
               addonStart ? 'ps-10' : 'ps-3',
               addonEnd ? 'pe-10' : 'pe-3',

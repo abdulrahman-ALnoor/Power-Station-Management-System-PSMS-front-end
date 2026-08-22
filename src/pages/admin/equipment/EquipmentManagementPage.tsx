@@ -35,16 +35,6 @@ export function EquipmentManagementPage() {
             <h1 className="font-headline-md text-headline-md font-bold text-primary dark:text-on-dark">
               {t('pageTitle')}
             </h1>
-
-            <nav
-              className="flex gap-2 text-label-sm text-outline mt-1"
-              dir={isRTL ? 'rtl' : 'ltr'}
-              aria-label={t('breadcrumb.equipment')}
-            >
-              <span>{t('breadcrumb.home')}</span>
-              <span>/</span>
-              <span>{t('breadcrumb.equipment')}</span>
-            </nav>
           </div>
         </div>
 

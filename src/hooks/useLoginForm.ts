@@ -99,14 +99,24 @@ export function useLoginForm(): UseLoginFormReturn {
         // This will be replaced in Step 2 backend integration.
         await new Promise((resolve) => setTimeout(resolve, 800))
 
+        let role = 'admin'
+        if (values.username === 'engineer') role = 'engineer'
+        if (values.username === 'reader') role = 'reader'
+
         login('placeholder-token', {
           id: 1,
           name: values.username,
           email: `${values.username}@psms.com`,
-          role: 'admin',
+          role: role as any,
         })
 
-        navigate('/admin/dashboard')
+        if (role === 'reader') {
+          navigate('/reader/dashboard')
+        } else if (role === 'engineer') {
+          navigate('/engineer/dashboard')
+        } else {
+          navigate('/admin/dashboard')
+        }
       } catch {
         setErrors({ general: t('login.loginFailed') })
       } finally {

@@ -24,6 +24,12 @@ const en_navigation = {
   addUserCTA: 'Add New User',
   emergencyReportCTA: 'Emergency Report',
 
+  // Engineer Navigation
+  engineerDashboard: 'Engineer Dashboard',
+  serviceRequests: 'Service Requests',
+  reports: 'Reports',
+  activityLog: 'Activity Log',
+
   // User area
   myProfile: 'My Profile',
   logout: 'Logout',

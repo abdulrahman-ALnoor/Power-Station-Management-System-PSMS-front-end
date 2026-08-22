@@ -1,54 +1,39 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MoreVertical, SearchX, CheckCircle2, XCircle, Clock } from 'lucide-react'
+import { MoreVertical, SearchX, Clock, Eye, Edit2, Trash2, RefreshCw } from 'lucide-react'
 import { MeterReading } from '../types'
 import { useLanguage } from '@/hooks/useLanguage'
+import { ReadingStatusBadge } from './ReadingStatusBadge'
 
 interface MeterReadingTableProps {
   data: MeterReading[]
   onViewDetails: (reading: MeterReading) => void
-  onEdit: (reading: MeterReading) => void
-  onDelete: (reading: MeterReading) => void
+  onChangeStatus?: (reading: MeterReading) => void
+  onEdit?: (reading: MeterReading) => void
+  onDelete?: (reading: MeterReading) => void
 }
 
-export function MeterReadingTable({ data, onViewDetails, onEdit, onDelete }: MeterReadingTableProps) {
+export function MeterReadingTable({ data, onViewDetails, onChangeStatus, onEdit, onDelete }: MeterReadingTableProps) {
   const { t } = useTranslation('readings')
   const { isRTL } = useLanguage()
+
+  const [activeMenu, setActiveMenu] = useState<number | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setActiveMenu(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const formatNumber = (val: number) => new Intl.NumberFormat('en-US').format(val)
   const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'YER' }).format(val)
 
-  const getStatusBadge = (status: MeterReading['status']) => {
-    switch (status) {
-      case 'approved':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-success/10 text-success">
-            <CheckCircle2 size={12} />
-            {t('status.approved')}
-          </span>
-        )
-      case 'rejected':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-error/10 text-error">
-            <XCircle size={12} />
-            {t('status.rejected')}
-          </span>
-        )
-      case 'pending':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-warning/10 text-warning dark:bg-amber-500/10 dark:text-amber-500">
-            <Clock size={12} />
-            {t('status.pending')}
-          </span>
-        )
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-outline/10 text-outline">
-            {t('status.unspecified')}
-          </span>
-        )
-    }
-  }
+
 
   const getMethodText = (method: MeterReading['reading_method']) => {
     switch (method) {
@@ -124,16 +109,81 @@ export function MeterReadingTable({ data, onViewDetails, onEdit, onDelete }: Met
                   {reading.reading_date}
                 </td>
                 <td className="px-6 py-4">
-                  {getStatusBadge(reading.status)}
+                  <ReadingStatusBadge status={reading.status} />
                 </td>
-                <td className="px-6 py-4 text-end">
+                <td className="px-6 py-4 text-end relative">
                   <button 
-                    onClick={() => onViewDetails(reading)}
-                    className="p-2 rounded-lg text-outline hover:text-primary hover:bg-primary/10 transition-colors"
-                    title={t('actions.viewDetails')}
+                    onClick={() => setActiveMenu(activeMenu === reading.id ? null : reading.id)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      activeMenu === reading.id 
+                        ? 'text-primary bg-primary/10' 
+                        : 'text-outline hover:text-primary hover:bg-primary/10'
+                    }`}
+                    title={t('actions.options', 'الخيارات')}
                   >
                     <MoreVertical size={18} />
                   </button>
+
+                  {/* Dropdown Menu */}
+                  {activeMenu === reading.id && (
+                    <div 
+                      ref={menuRef}
+                      className={`absolute z-50 mt-2 w-48 bg-surface-white dark:bg-surface-container-high rounded-xl shadow-lg border border-outline/10 py-1 ${
+                        isRTL ? 'left-8' : 'right-8'
+                      }`}
+                      style={{ top: '100%', marginTop: '-10px' }}
+                    >
+                      <button
+                        onClick={() => {
+                          onViewDetails(reading)
+                          setActiveMenu(null)
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-start text-on-surface dark:text-on-dark hover:bg-surface-container-lowest dark:hover:bg-surface-container/50 transition-colors"
+                      >
+                        <Eye size={16} className="text-outline" />
+                        {t('actions.viewDetails', 'عرض التفاصيل')}
+                      </button>
+                      
+                      {onChangeStatus && (
+                        <button
+                          onClick={() => {
+                            onChangeStatus(reading)
+                            setActiveMenu(null)
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-start text-on-surface dark:text-on-dark hover:bg-surface-container-lowest dark:hover:bg-surface-container/50 transition-colors"
+                        >
+                          <RefreshCw size={16} className="text-outline" />
+                          {t('actions.changeStatus', 'تغيير الحالة')}
+                        </button>
+                      )}
+                      
+                      {onEdit && (
+                        <button
+                          onClick={() => {
+                            onEdit(reading)
+                            setActiveMenu(null)
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-start text-on-surface dark:text-on-dark hover:bg-surface-container-lowest dark:hover:bg-surface-container/50 transition-colors"
+                        >
+                          <Edit2 size={16} className="text-outline" />
+                          {t('actions.edit', 'تعديل')}
+                        </button>
+                      )}
+
+                      {onDelete && (
+                        <button
+                          onClick={() => {
+                            onDelete(reading)
+                            setActiveMenu(null)
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-start text-error hover:bg-error/10 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                          {t('actions.delete', 'حذف')}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

@@ -10,6 +10,7 @@ import settings from './settings'
 import readings from './readings'
 import { customers } from './customers'
 import { serviceRequests } from './serviceRequests'
+import { engineer } from './engineer'
 
 const ar = {
   common,
@@ -24,6 +25,7 @@ const ar = {
   readings,
   customers,
   serviceRequests,
+  engineer,
 }
 
 export default ar
