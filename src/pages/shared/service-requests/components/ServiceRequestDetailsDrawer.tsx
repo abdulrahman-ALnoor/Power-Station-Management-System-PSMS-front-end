@@ -25,102 +25,79 @@ export function ServiceRequestDetailsDrawer({ request, onClose }: ServiceRequest
 
  return createPortal(
  <div
- style={{
- position: 'fixed',
- inset: 0,
- zIndex: 999999,
- direction: isRTL ? 'rtl' : 'ltr'
- }}
+ className="fixed inset-0 z-[999999]"
+ style={{ direction: isRTL ? 'rtl' : 'ltr' }}
  >
  <div
  onClick={onClose}
- style={{
- position: 'absolute',
- inset: 0,
- background: 'rgba(0,0,0,0.45)',
- }}
+ className="absolute inset-0 bg-black/45 dark:bg-black/60"
  />
 
  <div
  onClick={(e) => e.stopPropagation()}
- style={{
- position: 'absolute',
- top: '50%',
- left: '50%',
- transform: 'translate(-50%, -50%)',
- width: 'min(720px, calc(100vw - 32px))',
- maxHeight: 'calc(100vh - 32px)',
- overflowY: 'auto',
- background: '#ffffff',
- opacity: 1,
- filter: 'none',
- backdropFilter: 'none',
- borderRadius: '16px',
- boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
- zIndex: 1000000,
- }}
+ className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(720px,calc(100vw-32px))] max-h-[calc(100vh-32px)] overflow-y-auto bg-surface rounded-2xl shadow-2xl z-[1000000]"
  >
- <div style={{ padding: '24px' }}>
+ <div className="p-6">
  {/* Header */}
- <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
- <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>تفاصيل الطلب</h2>
+ <div className="flex justify-between items-center mb-6 pb-4 border-b border-border dark:border-border-subtle">
+ <h2 className="m-0 text-2xl font-bold text-text-primary">تفاصيل الطلب</h2>
  <button 
  type="button" 
  onClick={onClose}
- style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
+ className="bg-transparent border-none text-2xl cursor-pointer text-text-muted hover:text-text-primary dark:text-text-secondary dark:hover:text-text-primary transition-colors"
  >
  ✕
  </button>
  </div>
 
  {/* Details Content */}
- <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
  
- <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
- <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '4px' }}>رقم الطلب</div>
- <div style={{ fontWeight: '500' }}>REQ-#{request.id}</div>
+ <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg border border-transparent dark:border-border-subtle">
+ <div className="text-sm text-text-muted dark:text-text-secondary mb-1">رقم الطلب</div>
+ <div className="font-medium text-text-primary">REQ-#{request.id}</div>
  </div>
 
- <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
- <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '4px' }}>العميل</div>
- <div style={{ fontWeight: '500' }}>{request.customer?.full_name || '-'}</div>
+ <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg border border-transparent dark:border-border-subtle">
+ <div className="text-sm text-text-muted dark:text-text-secondary mb-1">العميل</div>
+ <div className="font-medium text-text-primary">{request.customer?.full_name || '-'}</div>
  </div>
 
- <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
- <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '4px' }}>رقم العداد</div>
- <div style={{ fontWeight: '500' }}>{request.meter?.meter_number || '-'}</div>
+ <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg border border-transparent dark:border-border-subtle">
+ <div className="text-sm text-text-muted dark:text-text-secondary mb-1">رقم العداد</div>
+ <div className="font-medium text-text-primary">{request.meter?.meter_number || '-'}</div>
  </div>
 
- <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
- <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '4px' }}>المهندس المسؤول</div>
- <div style={{ fontWeight: '500' }}>{request.assignedEngineer?.name || 'غير مسند'}</div>
+ <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg border border-transparent dark:border-border-subtle">
+ <div className="text-sm text-text-muted dark:text-text-secondary mb-1">المهندس المسؤول</div>
+ <div className="font-medium text-text-primary">{request.assignedEngineer?.name || 'غير مسند'}</div>
  </div>
 
- <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
- <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '4px' }}>نوع الطلب</div>
- <div style={{ fontWeight: '500' }}>{getRequestType(request.request_type)}</div>
+ <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg border border-transparent dark:border-border-subtle">
+ <div className="text-sm text-text-muted dark:text-text-secondary mb-1">نوع الطلب</div>
+ <div className="font-medium text-text-primary">{getRequestType(request.request_type)}</div>
  </div>
 
- <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
- <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '4px' }}>تاريخ الإنشاء</div>
- <div style={{ fontWeight: '500' }}>{new Date(request.created_at).toLocaleDateString()}</div>
+ <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg border border-transparent dark:border-border-subtle">
+ <div className="text-sm text-text-muted dark:text-text-secondary mb-1">تاريخ الإنشاء</div>
+ <div className="font-medium text-text-primary">{new Date(request.created_at).toLocaleDateString()}</div>
  </div>
 
- <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
- <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '4px' }}>الأولوية</div>
+ <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg border border-transparent dark:border-border-subtle">
+ <div className="text-sm text-text-muted dark:text-text-secondary mb-1">الأولوية</div>
  <div><ServiceRequestPriorityBadge priority={request.priority} /></div>
  </div>
 
- <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
- <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '4px' }}>الحالة</div>
+ <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg border border-transparent dark:border-border-subtle">
+ <div className="text-sm text-text-muted dark:text-text-secondary mb-1">الحالة</div>
  <div><ServiceRequestStatusBadge status={request.status} /></div>
  </div>
 
  </div>
 
- <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
- <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '8px' }}>وصف الطلب</div>
- <p style={{ margin: 0, lineHeight: 1.6 }}>{request.description || 'لا يوجد وصف'}</p>
+ <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg mb-6 border border-transparent dark:border-border-subtle">
+ <div className="text-sm text-text-muted dark:text-text-secondary mb-2">وصف الطلب</div>
+ <p className="m-0 leading-relaxed text-text-primary">{request.description || 'لا يوجد وصف'}</p>
  </div>
 
  </div>

@@ -75,25 +75,24 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
  
  {/* DRAWER */}
  <aside 
- className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} bottom-0 w-full max-w-md shadow-2xl flex flex-col transition-transform transform`}
+ className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} bottom-0 w-full max-w-md shadow-2xl flex flex-col transition-transform transform bg-surface`}
  style={{ 
  zIndex: 1,
- backgroundColor: '#ffffff',
  opacity: 1,
  filter: 'none'
  }}
  dir={isRTL ? 'rtl' : 'ltr'}
  >
- <div className="flex items-center justify-between p-6 border-b border-border shrink-0">
+ <div className="flex items-center justify-between p-6 border-b border-border dark:border-border-subtle shrink-0">
  <div>
  <h2 className="font-headline-sm font-bold text-text-primary flex items-center gap-2">
- <Hash size={20} className="text-primary" />
+ <Hash size={20} className="text-primary dark:text-info" />
  {t('details.title')} #{reading.id}
  </h2>
  </div>
  <button 
  onClick={onClose}
- className="p-2 rounded-full hover:bg-surface-container :bg-surface-container transition-colors text-text-muted"
+ className="p-2 rounded-full hover:bg-surface-container dark:hover:bg-surface-hover transition-colors text-text-muted dark:text-text-secondary"
  >
  <X size={20} />
  </button>
@@ -103,7 +102,7 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
  
  <div className="flex items-center justify-between">
  <div>
- <p className="text-label-sm font-bold text-text-muted mb-1">
+ <p className="text-label-sm font-bold text-text-muted dark:text-text-secondary mb-1">
  {t('table.columns.meterNumber')}
  </p>
  <p className="font-title-lg font-black text-text-primary ">
@@ -115,55 +114,55 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
  </div>
  </div>
 
- <div className="bg-surface-low rounded-xl p-5 border border-border grid grid-cols-2 gap-4">
+ <div className="bg-surface-low dark:bg-surface-elevated rounded-xl p-5 border border-border dark:border-border-subtle grid grid-cols-2 gap-4">
  <div>
- <p className="text-label-xs text-text-muted mb-1">{t('table.columns.previousReading')}</p>
+ <p className="text-label-xs text-text-muted dark:text-text-secondary mb-1">{t('table.columns.previousReading')}</p>
  <p className="font-bold text-text-primary " dir="ltr">{formatNumber(reading.previous_reading)}</p>
  </div>
  <div>
- <p className="text-label-xs text-text-muted mb-1">{t('table.columns.currentReading')}</p>
+ <p className="text-label-xs text-text-muted dark:text-text-secondary mb-1">{t('table.columns.currentReading')}</p>
  <p className="font-bold text-text-primary " dir="ltr">{formatNumber(reading.current_reading)}</p>
  </div>
- <div className="col-span-2 pt-2 border-t border-border">
+ <div className="col-span-2 pt-2 border-t border-border dark:border-border-subtle">
  <div className="flex justify-between items-center">
- <p className="text-label-sm font-bold text-text-muted ">{t('table.columns.consumption')}</p>
- <p className="font-black text-lg text-accent " dir="ltr">{formatNumber(reading.consumption)} kWh</p>
+ <p className="text-label-sm font-bold text-text-muted dark:text-text-secondary ">{t('table.columns.consumption')}</p>
+ <p className="font-black text-lg text-accent dark:text-warning" dir="ltr">{formatNumber(reading.consumption)} kWh</p>
  </div>
  </div>
  </div>
 
  <div className="space-y-4">
- <div className="flex justify-between items-center py-3 border-b border-border">
- <span className="text-label-md text-text-muted ">{t('table.columns.pricePerKwh')}</span>
+ <div className="flex justify-between items-center py-3 border-b border-border dark:border-border-subtle">
+ <span className="text-label-md text-text-muted dark:text-text-secondary">{t('table.columns.pricePerKwh')}</span>
  <span className="font-bold text-text-primary " dir="ltr">{formatCurrency(reading.price_per_kwh)}</span>
  </div>
- <div className="flex justify-between items-center py-3 border-b border-border">
- <span className="text-label-md font-bold text-text-muted ">{t('table.columns.readingCost')}</span>
- <span className="font-black text-teal-600 " dir="ltr">{formatCurrency(reading.reading_cost)}</span>
+ <div className="flex justify-between items-center py-3 border-b border-border dark:border-border-subtle">
+ <span className="text-label-md font-bold text-text-muted dark:text-text-secondary">{t('table.columns.readingCost')}</span>
+ <span className="font-black text-success" dir="ltr">{formatCurrency(reading.reading_cost)}</span>
  </div>
- <div className="flex justify-between items-center py-3 border-b border-border">
- <span className="text-label-md text-text-muted ">{t('table.columns.method')}</span>
+ <div className="flex justify-between items-center py-3 border-b border-border dark:border-border-subtle">
+ <span className="text-label-md text-text-muted dark:text-text-secondary">{t('table.columns.method')}</span>
  <span className="font-medium text-text-primary ">{getMethodText(reading.reading_method)}</span>
  </div>
- <div className="flex justify-between items-center py-3 border-b border-border">
- <span className="text-label-md text-text-muted flex items-center gap-2"><Calendar size={16}/> {t('table.columns.readingDate')}</span>
+ <div className="flex justify-between items-center py-3 border-b border-border dark:border-border-subtle">
+ <span className="text-label-md text-text-muted dark:text-text-secondary flex items-center gap-2"><Calendar size={16}/> {t('table.columns.readingDate')}</span>
  <span className="font-medium text-text-primary ">{reading.reading_date}</span>
  </div>
  </div>
 
  {reading.notes && (
- <div className="bg-surface-container/50 rounded-xl p-4">
- <div className="flex items-center gap-2 text-text-muted mb-2">
+ <div className="bg-surface-container/50 dark:bg-surface-elevated rounded-xl p-4 border border-transparent dark:border-border-subtle">
+ <div className="flex items-center gap-2 text-text-muted dark:text-text-secondary mb-2">
  <FileText size={16} />
  <span className="text-label-sm font-bold">{t('details.notes')}</span>
  </div>
- <p className="text-sm text-text-primary-variant leading-relaxed whitespace-pre-wrap">
+ <p className="text-sm text-text-primary-variant dark:text-text-primary leading-relaxed whitespace-pre-wrap">
  {reading.notes}
  </p>
  </div>
  )}
 
- <div className="text-xs text-text-muted space-y-2 pt-4">
+ <div className="text-xs text-text-muted dark:text-text-disabled space-y-2 pt-4">
  {reading.createdBy && (
  <div className="flex items-center gap-2">
  <User size={14} />
