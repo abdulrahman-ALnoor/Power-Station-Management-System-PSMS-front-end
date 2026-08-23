@@ -116,11 +116,11 @@ export function ServiceRequestModal({ isOpen, onClose, onSuccess, requestToEdit 
  }
  }
 
- const modalTitle = requestToEdit 
- ? t('serviceRequests.createModal.editTitle', 'تعديل طلب خدمة') 
+ const modalTitle = requestToEdit
+ ? t('serviceRequests.createModal.editTitle', 'تعديل طلب خدمة')
  : t('serviceRequests.createModal.title', 'إضافة طلب خدمة')
- const submitText = requestToEdit 
- ? t('serviceRequests.createModal.actions.save', 'حفظ التعديلات') 
+ const submitText = requestToEdit
+ ? t('serviceRequests.createModal.actions.save', 'حفظ التعديلات')
  : t('serviceRequests.createModal.actions.submit', 'إضافة الطلب')
 
  return createPortal(
@@ -180,7 +180,7 @@ export function ServiceRequestModal({ isOpen, onClose, onSuccess, requestToEdit 
  <h4 className="font-bold text-primary border-b border-border pb-2">
  {t('serviceRequests.createModal.sections.customerData', 'بيانات العميل والعداد')}
  </h4>
- 
+
  <div className="grid grid-cols-1 gap-5">
  <Select
  label={t('serviceRequests.createModal.fields.customer', 'العميل')}

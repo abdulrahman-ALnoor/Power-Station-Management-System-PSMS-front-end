@@ -11,7 +11,7 @@ interface ServiceRequestDetailsDrawerProps {
 
 export function ServiceRequestDetailsDrawer({ request, onClose }: ServiceRequestDetailsDrawerProps) {
  const { isRTL } = useLanguage()
- 
+
  if (!request) return null
 
  const getRequestType = (type: string) => {
@@ -41,8 +41,8 @@ export function ServiceRequestDetailsDrawer({ request, onClose }: ServiceRequest
  {/* Header */}
  <div className="flex justify-between items-center mb-6 pb-4 border-b border-border dark:border-border-subtle">
  <h2 className="m-0 text-2xl font-bold text-text-primary">تفاصيل الطلب</h2>
- <button 
- type="button" 
+ <button
+ type="button"
  onClick={onClose}
  className="bg-transparent border-none text-2xl cursor-pointer text-text-muted hover:text-text-primary dark:text-text-secondary dark:hover:text-text-primary transition-colors"
  >
@@ -52,7 +52,7 @@ export function ServiceRequestDetailsDrawer({ request, onClose }: ServiceRequest
 
  {/* Details Content */}
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
- 
+
  <div className="bg-surface-low dark:bg-surface-elevated p-4 rounded-lg border border-transparent dark:border-border-subtle">
  <div className="text-sm text-text-muted dark:text-text-secondary mb-1">رقم الطلب</div>
  <div className="font-medium text-text-primary">REQ-#{request.id}</div>

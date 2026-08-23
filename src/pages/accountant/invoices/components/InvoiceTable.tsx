@@ -71,7 +71,7 @@ export function InvoiceTable({ invoices, onView, onPrint, onEdit, onDelete }: In
  {format(new Date(inv.created_at), 'dd MMM yyyy', { locale: ar })}
  </td>
  <td className="py-4 px-4 text-sm text-center relative whitespace-nowrap">
- <button 
+ <button
  className="p-2 hover:bg-surface-container rounded-lg text-text-muted hover:text-text transition-colors"
  onClick={() => setOpenMenuId(openMenuId === inv.id ? null : inv.id)}
  >
@@ -80,11 +80,11 @@ export function InvoiceTable({ invoices, onView, onPrint, onEdit, onDelete }: In
 
  {/* Actions Dropdown */}
  {openMenuId === inv.id && (
- <div 
+ <div
  ref={menuRef}
  className="absolute left-6 top-10 w-48 bg-surface rounded-xl shadow-xl border border-border overflow-hidden z-50 animate-fade-in"
  >
- <button 
+ <button
  onClick={() => {
  onView(inv)
  setOpenMenuId(null)
@@ -94,7 +94,7 @@ export function InvoiceTable({ invoices, onView, onPrint, onEdit, onDelete }: In
  <Eye size={16} className="text-primary" />
  عرض التفاصيل
  </button>
- <button 
+ <button
  onClick={() => {
  onEdit(inv)
  setOpenMenuId(null)
@@ -104,7 +104,7 @@ export function InvoiceTable({ invoices, onView, onPrint, onEdit, onDelete }: In
  <Edit2 size={16} className="text-warning" />
  تعديل الفاتورة
  </button>
- <button 
+ <button
  onClick={() => {
  onPrint(inv)
  setOpenMenuId(null)
@@ -115,7 +115,7 @@ export function InvoiceTable({ invoices, onView, onPrint, onEdit, onDelete }: In
  طباعة الفاتورة
  </button>
  <div className="h-px bg-border my-1" />
- <button 
+ <button
  onClick={() => {
  onDelete(inv)
  setOpenMenuId(null)

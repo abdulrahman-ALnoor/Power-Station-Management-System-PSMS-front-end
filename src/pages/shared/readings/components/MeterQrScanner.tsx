@@ -21,7 +21,7 @@ export function MeterQrScanner({ isOpen, onClose, onScanSuccess }: MeterQrScanne
  if (!isOpen) return
 
  const qrCodeRegionId = "qr-reader-container"
- 
+
  // Initialize scanner
  const html5QrCode = new Html5Qrcode(qrCodeRegionId)
  scannerRef.current = html5QrCode
@@ -62,7 +62,7 @@ export function MeterQrScanner({ isOpen, onClose, onScanSuccess }: MeterQrScanne
  return createPortal(
  <div style={{ position: 'fixed', inset: 0, zIndex: 10000 }}>
  {/* BACKDROP */}
- <div 
+ <div
  onClick={onClose}
  style={{
  position: 'absolute',
@@ -71,14 +71,14 @@ export function MeterQrScanner({ isOpen, onClose, onScanSuccess }: MeterQrScanne
  zIndex: 0,
  }}
  />
- 
+
  {/* MODAL */}
- <aside 
+ <aside
  className="absolute inset-0 flex items-center justify-center p-4 sm:p-6"
  style={{ zIndex: 1 }}
  dir={isRTL ? 'rtl' : 'ltr'}
  >
- <div 
+ <div
  className="w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden"
  style={{
  backgroundColor: '#ffffff',
@@ -91,7 +91,7 @@ export function MeterQrScanner({ isOpen, onClose, onScanSuccess }: MeterQrScanne
  <Camera size={20} className="text-primary" />
  {isRTL ? 'مسح QR للعداد' : 'Scan Meter QR'}
  </h2>
- <button 
+ <button
  onClick={onClose}
  className="p-2 rounded-full hover:bg-surface-container transition-colors text-text-muted"
  >
@@ -122,7 +122,7 @@ export function MeterQrScanner({ isOpen, onClose, onScanSuccess }: MeterQrScanne
  </>
  )}
  </div>
- 
+
  <div className="p-4 border-t border-border bg-surface flex justify-center shrink-0">
  <button
  onClick={onClose}

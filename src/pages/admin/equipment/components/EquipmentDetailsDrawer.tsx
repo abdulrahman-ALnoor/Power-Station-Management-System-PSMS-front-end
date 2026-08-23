@@ -39,8 +39,8 @@ export function EquipmentDetailsDrawer({ equipment, isOpen, onClose }: Equipment
  const drawerClasses = cn(
  "fixed top-0 h-full w-full sm:w-[480px] bg-surface z-[70] shadow-2xl transition-transform duration-300 flex flex-col",
  isRTL ? "right-0" : "left-0",
- isOpen 
- ? "translate-x-0" 
+ isOpen
+ ? "translate-x-0"
  : (isRTL ? "translate-x-full" : "-translate-x-full")
  )
 
@@ -50,20 +50,20 @@ export function EquipmentDetailsDrawer({ equipment, isOpen, onClose }: Equipment
 
  return (
  <>
- <div 
+ <div
  className={cn(
  "fixed inset-0 bg-primary/40 backdrop-blur-sm z-[60] transition-opacity duration-300",
  isOpen ? "opacity-100" : "opacity-0"
  )}
  onClick={onClose}
  />
- 
+
  <div className={drawerClasses} dir={isRTL ? 'rtl' : 'ltr'}>
  {/* Header */}
  <div className="p-6 border-b border-border-variant flex justify-between items-center bg-primary text-on-primary ">
  <h3 className="font-headline-md font-bold">{t('drawer.title')}</h3>
- <button 
- className="hover:bg-surface/10 :bg-surface-container-high p-2 rounded-full transition-colors" 
+ <button
+ className="hover:bg-surface/10 :bg-surface-container-high p-2 rounded-full transition-colors"
  onClick={onClose}
  aria-label={t('drawer.close')}
  >
@@ -73,7 +73,7 @@ export function EquipmentDetailsDrawer({ equipment, isOpen, onClose }: Equipment
 
  {/* Content */}
  <div className="flex-grow overflow-y-auto p-6 space-y-8">
- 
+
  {/* Equipment Profile */}
  <div className="space-y-4">
  <div className="w-full h-48 bg-surface-container-low rounded-xl overflow-hidden relative flex items-center justify-center">

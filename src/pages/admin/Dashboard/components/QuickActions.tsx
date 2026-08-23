@@ -10,14 +10,14 @@ import {
  FileText,
 } from 'lucide-react'
 
-export type QuickActionType = 
- | 'addCustomer' 
- | 'addMeter' 
- | 'addReading' 
- | 'createInvoice' 
- | 'addEmployee' 
- | 'addEquipment' 
- | 'requestService' 
+export type QuickActionType =
+ | 'addCustomer'
+ | 'addMeter'
+ | 'addReading'
+ | 'createInvoice'
+ | 'addEmployee'
+ | 'addEquipment'
+ | 'requestService'
  | 'viewReports'
 
 interface QuickActionsProps {

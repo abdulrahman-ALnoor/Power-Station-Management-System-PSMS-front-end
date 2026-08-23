@@ -56,7 +56,7 @@ export function MeterReadingToolbar({
  >
  <RefreshCw size={18} />
  </button>
- 
+
 
  {onAddClick && (
  <button

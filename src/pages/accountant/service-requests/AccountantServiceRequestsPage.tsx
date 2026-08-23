@@ -21,7 +21,7 @@ export function AccountantServiceRequestsPage() {
 
  const [isLoading, setIsLoading] = useState(true)
  const [error, setError] = useState<string | null>(null)
- 
+
  const [data, setData] = useState<ServiceRequest[]>([])
  const [total, setTotal] = useState(0)
  const [currentPage, setCurrentPage] = useState(1)
@@ -41,11 +41,11 @@ export function AccountantServiceRequestsPage() {
  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null)
  const [requestToEdit, setRequestToEdit] = useState<ServiceRequest | undefined>()
  const [requestToDelete, setRequestToDelete] = useState<ServiceRequest | null>(null)
- 
+
  const [isModalOpen, setIsModalOpen] = useState(false)
  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
  const [isDeleting, setIsDeleting] = useState(false)
- 
+
  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
  const fetchRequests = async (currentFilters: GetServiceRequestsParams) => {
@@ -128,8 +128,8 @@ export function AccountantServiceRequestsPage() {
  {/* Notification Toast */}
  {notification && (
  <div className={`p-4 rounded-xl flex items-center justify-between shadow-sm border ${
- notification.type === 'success' 
- ? 'bg-success/10 border-success/20 text-success' 
+ notification.type === 'success'
+ ? 'bg-success/10 border-success/20 text-success'
  : 'bg-error/10 border-error/20 text-error'
  }`}>
  <p className="font-bold text-label-md">{notification.message}</p>
@@ -199,10 +199,10 @@ export function AccountantServiceRequestsPage() {
  requestToEdit={requestToEdit}
  onSuccess={() => {
  fetchRequests(filters)
- setNotification({ 
- type: 'success', 
- message: requestToEdit 
- ? (isRTL ? 'تم تعديل الطلب بنجاح' : 'Request updated successfully') 
+ setNotification({
+ type: 'success',
+ message: requestToEdit
+ ? (isRTL ? 'تم تعديل الطلب بنجاح' : 'Request updated successfully')
  : (isRTL ? 'تم إضافة الطلب بنجاح' : 'Request created successfully')
  })
  }}

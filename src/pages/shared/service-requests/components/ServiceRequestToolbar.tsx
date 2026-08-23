@@ -105,5 +105,3 @@ export function ServiceRequestToolbar({ filters, onFilterChange, hideAssignmentF
  </div>
  )
 }
-
-

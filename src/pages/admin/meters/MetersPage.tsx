@@ -1,59 +1,129 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MeterStats } from './components/MeterStats'
 import { MeterToolbar } from './components/MeterToolbar'
 import { MeterTable } from './components/MeterTable'
 import { MeterDetailsDrawer } from './components/MeterDetailsDrawer'
 import { AddMeterModal } from './components/AddMeterModal'
-import { MOCK_METERS } from './data/mockData'
+import { fetchMeterById, mapMeter } from '@/services/meters.service'
+import type { Meter } from './types'
 
 export default function MetersPage() {
- const { t } = useTranslation('meters')
- 
- // Local state for UI interactions
- const [isAddModalOpen, setIsAddModalOpen] = useState(false)
- const [selectedMeterId, setSelectedMeterId] = useState<number | null>(null)
- 
- const selectedMeter = useMemo(() => {
- return MOCK_METERS.find(m => m.id === selectedMeterId) || null
- }, [selectedMeterId])
+  const { t } = useTranslation('meters')
 
- return (
- <div className="space-y-6">
- {/* Header */}
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
- <div>
- <nav className="flex gap-2 text-label-sm text-text-primary-variant mb-1">
- <span>{t('breadcrumb.home')}</span>
- <span>/</span>
- <span className="text-primary font-semibold">{t('breadcrumb.meters')}</span>
- </nav>
- <h1 className="font-headline-md text-headline-md text-primary ">
- {t('title')}
- </h1>
- </div>
- </div>
+  // Toolbar filters
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('')
 
- {/* Stats Cards */}
- <MeterStats />
+  // Forces MeterTable + MeterStats to refetch
+  const [refreshKey, setRefreshKey] = useState(0)
+  const triggerRefresh = () => setRefreshKey((k) => k + 1)
 
- {/* Workspace (Toolbar + Table) */}
- <div className="bg-surface rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] overflow-hidden">
- <MeterToolbar onAddClick={() => setIsAddModalOpen(true)} />
- <MeterTable onRowClick={(id) => setSelectedMeterId(id)} />
- </div>
+  // Details drawer
+  const [selectedMeter, setSelectedMeter] = useState<Meter | null>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [isDrawerLoading, setIsDrawerLoading] = useState(false)
 
- {/* Drawers & Modals */}
- <MeterDetailsDrawer 
- meter={selectedMeter} 
- isOpen={selectedMeterId !== null} 
- onClose={() => setSelectedMeterId(null)} 
- />
- 
- <AddMeterModal 
- isOpen={isAddModalOpen} 
- onClose={() => setIsAddModalOpen(false)} 
- />
- </div>
- )
+  // Add/Edit modal
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingMeter, setEditingMeter] = useState<Meter | null>(null)
+
+  const openDrawer = async (id: number) => {
+    setIsDrawerOpen(true)
+    setIsDrawerLoading(true)
+    try {
+      const raw = await fetchMeterById(id)
+      setSelectedMeter(mapMeter(raw))
+    } catch {
+      setIsDrawerOpen(false)
+      window.alert(t('errors.loadDetailsFailed'))
+    } finally {
+      setIsDrawerLoading(false)
+    }
+  }
+
+  const closeDrawer = () => {
+    setIsDrawerOpen(false)
+    setSelectedMeter(null)
+  }
+
+  const openAddModal = () => {
+    setEditingMeter(null)
+    setIsModalOpen(true)
+  }
+
+  const openEditModal = async (id: number) => {
+    setIsDrawerLoading(true)
+    try {
+      const raw = await fetchMeterById(id)
+      setEditingMeter(mapMeter(raw))
+      setIsModalOpen(true)
+    } catch {
+      window.alert(t('errors.loadDetailsFailed'))
+    } finally {
+      setIsDrawerLoading(false)
+    }
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setEditingMeter(null)
+  }
+
+  const handleSaved = () => {
+    triggerRefresh()
+  }
+
+  const handleDeleted = () => {
+    triggerRefresh()
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="font-headline-lg text-headline-lg text-primary dark:text-on-dark font-bold">
+          {t('title')}
+        </h1>
+      </div>
+
+      {/* Stats */}
+      <MeterStats key={`stats-${refreshKey}`} />
+
+      {/* Table Card */}
+      <div className="bg-surface-white dark:bg-surface-container-low rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] overflow-hidden">
+        <MeterToolbar
+          onAddClick={openAddModal}
+          search={search}
+          onSearchChange={setSearch}
+          status={status}
+          onStatusChange={setStatus}
+          onRefresh={triggerRefresh}
+        />
+        <MeterTable
+          onRowClick={openDrawer}
+          onEditClick={openEditModal}
+          search={search}
+          status={status}
+          refreshKey={refreshKey}
+          onDeleted={handleDeleted}
+        />
+      </div>
+
+      {/* Details Drawer */}
+      <MeterDetailsDrawer
+        meter={isDrawerLoading ? null : selectedMeter}
+        isOpen={isDrawerOpen}
+        onClose={closeDrawer}
+      />
+
+      {/* Add / Edit Modal */}
+      <AddMeterModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onSaved={handleSaved}
+        meter={editingMeter}
+      />
+    </div>
+  )
 }

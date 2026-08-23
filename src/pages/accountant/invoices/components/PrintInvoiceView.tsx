@@ -18,7 +18,7 @@ export function PrintInvoiceView({ invoice }: PrintInvoiceViewProps) {
 
  return (
  <div id="print-section" className="bg-surface text-text-primary p-8 mx-auto w-full max-w-[210mm] min-h-[297mm] font-sans" dir="rtl">
- 
+
  {/* COMPANY HEADER */}
  <div className="flex justify-between items-start border-b-2 border-black pb-6 mb-8">
  <div className="flex flex-col">

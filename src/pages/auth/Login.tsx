@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 export default function Login() {
  const { t } = useTranslation('auth')
  const { isRTL } = useLanguage()
- 
+
  const {
  values,
  errors,
@@ -30,7 +30,7 @@ export default function Login() {
  }, [t])
 
  return (
- <div 
+ <div
  className={cn(
  'flex min-h-screen items-center justify-center p-4 sm:p-8',
  'bg-[var(--color-surface-bright,#f8f9fb)]'
@@ -50,7 +50,7 @@ export default function Login() {
  />
 
  {/* Footer */}
- <footer 
+ <footer
  className="mt-8 text-center text-sm opacity-60"
  style={{
  fontFamily: 'Cairo, sans-serif',

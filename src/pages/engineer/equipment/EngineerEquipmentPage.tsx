@@ -16,7 +16,7 @@ export function EngineerEquipmentPage() {
 
  const [isLoading, setIsLoading] = useState(true)
  const [error, setError] = useState<string | null>(null)
- 
+
  const [data, setData] = useState<Equipment[]>([])
  const [total, setTotal] = useState(0)
  const [currentPage, setCurrentPage] = useState(1)
@@ -67,11 +67,11 @@ export function EngineerEquipmentPage() {
 
  const handleStatusUpdate = async (id: number, status: EquipmentStatus) => {
  await equipmentService.updateEquipmentStatus(id, status)
- 
+
  if (selectedEquipment && selectedEquipment.id === id) {
  setSelectedEquipment({ ...selectedEquipment, status })
  }
- 
+
  fetchEquipment(filters)
  }
 

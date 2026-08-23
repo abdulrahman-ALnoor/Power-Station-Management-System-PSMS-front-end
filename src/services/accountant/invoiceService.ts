@@ -128,12 +128,12 @@ class InvoiceService {
  async createInvoice(data: Partial<Invoice>): Promise<Invoice> {
  await new Promise(resolve => setTimeout(resolve, 800))
  const newId = Math.max(...mockInvoices.map(i => i.id)) + 1
- 
+
  // Server calculates remaining balance
  const outstanding = data.outstanding_before_payment || 0
  const paid = data.paid_amount || 0
  const remaining = Math.max(0, outstanding - paid)
- 
+
  let status: 'paid' | 'partially_paid' | null = null
  if (paid >= outstanding && outstanding > 0) status = 'paid'
  else if (paid > 0) status = 'partially_paid'
@@ -169,7 +169,7 @@ class InvoiceService {
  const outstanding = data.outstanding_before_payment !== undefined ? data.outstanding_before_payment : existing.outstanding_before_payment
  const paid = data.paid_amount !== undefined ? data.paid_amount : existing.paid_amount
  const remaining = Math.max(0, outstanding - paid)
- 
+
  let status: 'paid' | 'partially_paid' | null = null
  if (paid >= outstanding && outstanding > 0) status = 'paid'
  else if (paid > 0) status = 'partially_paid'

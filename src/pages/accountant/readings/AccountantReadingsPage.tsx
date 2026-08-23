@@ -39,7 +39,7 @@ export function AccountantReadingsPage() {
  const [readingToEdit, setReadingToEdit] = useState<MeterReading | undefined>()
  const [readingToDelete, setReadingToDelete] = useState<MeterReading | null>(null)
  const [readingToChangeStatus, setReadingToChangeStatus] = useState<MeterReading | null>(null)
- 
+
  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -80,10 +80,8 @@ export function AccountantReadingsPage() {
  setIsDetailsOpen(true)
  }
 
- const handleAddReading = (newReadingData: Omit<MeterReading, 'id' | 'created_at' | 'updated_at' | 'status' | 'created_by'>) => {
+ const handleSavedReading = () => {
  fetchReadings(filters)
- setIsAddModalOpen(false)
- setReadingToEdit(undefined)
  setNotification({ type: 'success', message: readingToEdit ? (isRTL ? 'تم تعديل القراءة بنجاح' : 'Reading updated successfully') : t('notifications.added') })
  }
 
@@ -122,8 +120,8 @@ export function AccountantReadingsPage() {
  {/* Notification Toast */}
  {notification && (
  <div className={`p-4 rounded-xl flex items-center justify-between shadow-sm border ${
- notification.type === 'success' 
- ? 'bg-success/10 border-success/20 text-success' 
+ notification.type === 'success'
+ ? 'bg-success/10 border-success/20 text-success'
  : 'bg-error/10 border-error/20 text-error'
  }`}>
  <p className="font-bold text-label-md">{notification.message}</p>
@@ -143,7 +141,7 @@ export function AccountantReadingsPage() {
  <MeterReadingStats stats={stats} />
 
  {/* Toolbar */}
- <MeterReadingToolbar 
+ <MeterReadingToolbar
  searchQuery={filters.search || ''}
  onSearchChange={handleSearchChange}
  statusFilter={filters.status || 'all'}
@@ -156,7 +154,7 @@ export function AccountantReadingsPage() {
  />
 
  {/* Table */}
- <MeterReadingTable 
+ <MeterReadingTable
  data={data}
  onViewDetails={handleViewDetails}
  />
@@ -175,21 +173,21 @@ export function AccountantReadingsPage() {
  )}
 
  {/* Details Drawer */}
- <MeterReadingDetailsDrawer 
+ <MeterReadingDetailsDrawer
  reading={selectedReading}
  isOpen={isDetailsOpen}
  onClose={() => setIsDetailsOpen(false)}
  />
 
  {/* Add/Edit Reading Modal */}
- <AddMeterReadingModal 
+ <AddMeterReadingModal
  isOpen={isAddModalOpen}
  onClose={() => {
  setIsAddModalOpen(false)
  setReadingToEdit(undefined)
  }}
- onAdd={handleAddReading}
- readingToEdit={readingToEdit}
+ onSaved={handleSavedReading}
+ reading={readingToEdit}
  />
 
  <ChangeReadingStatusModal
@@ -202,7 +200,7 @@ export function AccountantReadingsPage() {
  {/* Delete Confirmation Modal */}
  {isDeleteModalOpen && createPortal(
  <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
- <div 
+ <div
  onClick={() => setIsDeleteModalOpen(false)}
  style={{
  position: 'absolute',
@@ -211,12 +209,12 @@ export function AccountantReadingsPage() {
  zIndex: 0,
  }}
  />
- <aside 
+ <aside
  className="absolute inset-0 flex items-center justify-center p-4 sm:p-6"
  style={{ zIndex: 1 }}
  dir={isRTL ? 'rtl' : 'ltr'}
  >
- <div 
+ <div
  className="w-full max-w-sm rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden"
  style={{
  backgroundColor: '#ffffff',
@@ -229,7 +227,7 @@ export function AccountantReadingsPage() {
  {isRTL ? 'تأكيد الحذف' : 'Confirm Deletion'}
  </h2>
  <p className="text-sm text-text-muted ">
- {isRTL 
+ {isRTL
  ? 'هل أنت متأكد أنك تريد حذف هذه القراءة؟ لا يمكن التراجع عن هذا الإجراء.'
  : 'Are you sure you want to delete this reading? This action cannot be undone.'}
  </p>

@@ -27,8 +27,8 @@ export function ReaderLayout() {
  }
 
  const pageTitle = getPageTitle(location.pathname)
- const pageSubtitle = location.pathname === '/reader/dashboard' 
- ? t('header.subtitle') 
+ const pageSubtitle = location.pathname === '/reader/dashboard'
+ ? t('header.subtitle')
  : undefined
 
  return (

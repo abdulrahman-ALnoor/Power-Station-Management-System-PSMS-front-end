@@ -33,33 +33,33 @@ export function EmployeePreviewDrawer({ employee, isOpen, onClose }: EmployeePre
  return (
  <>
  {/* Backdrop */}
- <div 
+ <div
  className={cn(
  "fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300",
  isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
  )}
  onClick={onClose}
  />
- 
+
  {/* Drawer */}
- <div 
+ <div
  className={cn(
  "fixed top-0 bottom-0 w-full sm:w-[500px] bg-surface shadow-2xl z-[60] overflow-y-auto transition-transform duration-300 ",
  isRTL ? "left-0" : "right-0",
- isOpen 
- ? "translate-x-0" 
+ isOpen
+ ? "translate-x-0"
  : isRTL ? "-translate-x-full" : "translate-x-full"
  )}
  >
- <button 
+ <button
  className="absolute top-4 inset-inline-start-4 w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low hover:bg-surface-container-high transition-colors z-10 :bg-surface-high"
  onClick={onClose}
  >
  <X className="text-primary " size={24} />
  </button>
- 
+
  <div className="p-8 pt-12">
- 
+
  {/* Header / Avatar */}
  <div className="flex flex-col items-center text-center mb-8">
  <div className="relative">
@@ -74,14 +74,14 @@ export function EmployeePreviewDrawer({ employee, isOpen, onClose }: EmployeePre
  </div>
  <h2 className="font-headline-md text-headline-md font-bold text-primary ">{employee.name}</h2>
  <p className="text-steel-blue font-bold">
- {employee.roles && employee.roles.length > 0 
- ? t(`toolbar.roles.${employee.roles[0]}`) 
+ {employee.roles && employee.roles.length > 0
+ ? t(`toolbar.roles.${employee.roles[0]}`)
  : '-'}
  </p>
  </div>
- 
+
  <div className="space-y-6">
- 
+
  {/* Personal Info */}
  <section>
  <h4 className="font-label-sm text-label-sm text-text-muted uppercase tracking-wider mb-3 border-b border-border-muted pb-1 ">
@@ -100,7 +100,7 @@ export function EmployeePreviewDrawer({ employee, isOpen, onClose }: EmployeePre
  )}
  </div>
  </section>
- 
+
  {/* Permissions */}
  {employee.permissions && (
  <section>
@@ -113,7 +113,7 @@ export function EmployeePreviewDrawer({ employee, isOpen, onClose }: EmployeePre
  <span className="text-body-md text-text-primary ">{t(`permissions.${perm.nameKey}`)}</span>
  <span className={cn(
  "text-[10px] px-2 py-0.5 rounded-full font-bold",
- perm.active 
+ perm.active
  ? "bg-green-100 text-green-700 "
  : "bg-surface-dim text-text-primary-variant "
  )}>
@@ -124,7 +124,7 @@ export function EmployeePreviewDrawer({ employee, isOpen, onClose }: EmployeePre
  </div>
  </section>
  )}
- 
+
  {/* Equipment */}
  {employee.equipment && (
  <section>
@@ -133,8 +133,8 @@ export function EmployeePreviewDrawer({ employee, isOpen, onClose }: EmployeePre
  </h4>
  <div className="flex flex-wrap gap-2">
  {employee.equipment.map(item => (
- <span 
- key={item.id} 
+ <span
+ key={item.id}
  className="bg-surface-container px-3 py-1 rounded-full text-xs text-primary flex items-center gap-1 border border-border "
  >
  <DynamicIcon name={item.type} />
@@ -144,9 +144,9 @@ export function EmployeePreviewDrawer({ employee, isOpen, onClose }: EmployeePre
  </div>
  </section>
  )}
- 
+
  </div>
- 
+
  {/* Action Buttons */}
  <div className="mt-12 flex gap-3">
  <button className="flex-1 bg-primary text-on-primary py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors ">
@@ -156,7 +156,7 @@ export function EmployeePreviewDrawer({ employee, isOpen, onClose }: EmployeePre
  {t('drawer.suspendAccount')}
  </button>
  </div>
- 
+
  </div>
  </div>
  </>

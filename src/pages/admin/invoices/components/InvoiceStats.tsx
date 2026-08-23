@@ -1,118 +1,57 @@
 import { useTranslation } from 'react-i18next'
-import { getInvoiceStats, MOCK_INVOICES } from '../data/mockData'
 import { formatCurrency } from '@/utils/currency'
 import { useLanguage } from '@/hooks/useLanguage'
 import { FileText, CheckCircle2, AlertCircle, DollarSign, TrendingUp, CreditCard } from 'lucide-react'
+import type { InvoiceStatsResponse } from '@/services/invoices.service'
 
-export function InvoiceStats() {
- const { t } = useTranslation('invoices')
- const { isRTL } = useLanguage()
- const stats = getInvoiceStats(MOCK_INVOICES)
+interface InvoiceStatsProps {
+  stats: InvoiceStatsResponse | null
+}
 
- const kpis = [
- {
- id: 'totalInvoices',
- label: t('stats.totalInvoices'),
- value: stats.totalInvoices.toString(),
- icon: FileText,
- colors: {
- bg: 'bg-surface-low ',
- iconBg: 'bg-primary/10 ',
- iconText: 'text-primary ',
- border: 'border-b-4 border-primary '
- }
- },
- {
- id: 'paidInvoices',
- label: t('stats.paidInvoices'),
- value: stats.paidInvoices.toString(),
- icon: CheckCircle2,
- colors: {
- bg: 'bg-surface-low ',
- iconBg: 'bg-green-100 ',
- iconText: 'text-green-600 ',
- border: 'border-b-4 border-green-500 '
- }
- },
- {
- id: 'partiallyPaidInvoices',
- label: t('stats.partiallyPaidInvoices'),
- value: stats.partiallyPaidInvoices.toString(),
- icon: AlertCircle,
- colors: {
- bg: 'bg-surface-low ',
- iconBg: 'bg-amber-100 ',
- iconText: 'text-amber-600 ',
- border: 'border-b-4 border-amber-500 '
- }
- },
- {
- id: 'totalInvoicedAmount',
- label: t('stats.totalInvoicedAmount'),
- value: formatCurrency(stats.totalInvoicedAmount, isRTL),
- icon: DollarSign,
- colors: {
- bg: 'bg-surface-low ',
- iconBg: 'bg-primary/10 ',
- iconText: 'text-primary ',
- border: 'border-b-4 border-primary '
- }
- },
- {
- id: 'totalCollections',
- label: t('stats.totalCollections'),
- value: formatCurrency(stats.totalCollections, isRTL),
- icon: TrendingUp,
- colors: {
- bg: 'bg-surface-low ',
- iconBg: 'bg-green-100 ',
- iconText: 'text-green-600 ',
- border: 'border-b-4 border-green-500 '
- }
- },
- {
- id: 'totalOutstanding',
- label: t('stats.totalOutstanding'),
- value: formatCurrency(stats.totalOutstanding, isRTL),
- icon: CreditCard,
- colors: {
- bg: 'bg-surface-low ',
- iconBg: 'bg-amber-100 ',
- iconText: 'text-amber-600 ',
- border: 'border-b-4 border-amber-500 '
- }
- }
- ]
+export function InvoiceStats({ stats }: InvoiceStatsProps) {
+  const { t } = useTranslation('invoices')
+  const { isRTL } = useLanguage()
+  const values = stats ?? {
+    total_revenue: 0,
+    total_invoices: 0,
+    paid_invoices_count: 0,
+    partially_paid_count: 0,
+    overdue_amount: 0,
+    this_month_collect: 0,
+  }
 
- return (
- <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
- {kpis.map((kpi) => {
- const Icon = kpi.icon
+  const kpis = [
+    { id: 'totalInvoices', label: t('stats.totalInvoices'), value: String(values.total_invoices), icon: FileText, color: 'primary' },
+    { id: 'paidInvoices', label: t('stats.paidInvoices'), value: String(values.paid_invoices_count), icon: CheckCircle2, color: 'green' },
+    { id: 'partiallyPaidInvoices', label: t('stats.partiallyPaidInvoices'), value: String(values.partially_paid_count), icon: AlertCircle, color: 'amber' },
+    { id: 'totalCollections', label: t('stats.totalCollections'), value: formatCurrency(values.total_revenue, isRTL), icon: TrendingUp, color: 'green' },
+    { id: 'totalOutstanding', label: t('stats.totalOutstanding'), value: formatCurrency(values.overdue_amount, isRTL), icon: CreditCard, color: 'amber' },
+    { id: 'monthlyCollections', label: t('stats.monthlyCollections', { defaultValue: 'تحصيلات الشهر' }), value: formatCurrency(values.this_month_collect, isRTL), icon: DollarSign, color: 'primary' },
+  ]
 
- return (
- <div 
- key={kpi.id} 
- className={`p-6 rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] flex flex-col justify-between ${kpi.colors.bg} ${kpi.colors.border}`}
- >
- <div className="flex items-start justify-between mb-4">
- <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${kpi.colors.iconBg} ${kpi.colors.iconText}`}>
- <Icon size={24} />
- </div>
- </div>
- 
- <div>
- <p className="text-label-md text-text-muted font-bold mb-1">
- {kpi.label}
- </p>
- <div className="flex items-baseline gap-2">
- <h3 className="font-display-sm text-display-sm font-bold text-text-primary break-words">
- {kpi.value}
- </h3>
- </div>
- </div>
- </div>
- )
- })}
- </div>
- )
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      {kpis.map((kpi) => {
+        const Icon = kpi.icon
+        const styles = kpi.color === 'green'
+          ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-500 border-green-500'
+          : kpi.color === 'amber'
+            ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-500 border-amber-500'
+            : 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-fixed border-primary'
+        return (
+          <div key={kpi.id} className={`p-6 rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] flex flex-col justify-between bg-surface-container-lowest dark:bg-surface-container-low border-b-4 ${styles.split(' ').pop()}`}>
+            <div className="flex items-start justify-between mb-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${styles.split(' ').slice(0, 5).join(' ')}`}>
+                <Icon size={24} />
+              </div>
+            </div>
+            <div>
+              <p className="text-label-md text-outline dark:text-outline font-bold mb-1">{kpi.label}</p>
+              <h3 className="font-display-sm text-display-sm font-bold text-on-surface dark:text-on-dark break-words">{kpi.value}</h3>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
 }

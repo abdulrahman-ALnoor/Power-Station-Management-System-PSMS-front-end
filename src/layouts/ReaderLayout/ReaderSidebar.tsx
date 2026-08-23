@@ -123,7 +123,7 @@ export function ReaderSidebar({ isMobileOpen, onMobileClose }: ReaderSidebarProp
  cn(
  'flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all relative',
  isRTL ? 'flex-row-reverse text-right' : 'flex-row text-left',
- isActive 
+ isActive
  ? 'bg-surface/10 text-white after:absolute after:inset-block-0 after:inset-inline-start-0 after:w-1 after:rounded-r-full after:bg-[var(--color-sidebar-accent)]'
  : 'text-white/60 hover:text-white hover:bg-surface/5',
  collapsed && 'justify-center px-2'

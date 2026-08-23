@@ -166,4 +166,3 @@ export const ACCOUNTANT_NAV_GROUPS: NavGroup[] = [
  ],
  },
 ]
-

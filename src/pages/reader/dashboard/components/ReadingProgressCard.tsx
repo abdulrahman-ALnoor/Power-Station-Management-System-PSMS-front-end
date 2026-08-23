@@ -17,7 +17,7 @@ export function ReadingProgressCard({ progress }: ReadingProgressCardProps) {
  return (
  <div className="card flex flex-col h-full">
  <h2 className="text-headline mb-4">{t('progress.title')}</h2>
- 
+
  <div className="flex-1 flex flex-col items-center justify-center relative min-h-[200px]">
  <div className="absolute inset-0">
  <ResponsiveContainer width="100%" height="100%">
@@ -34,16 +34,16 @@ export function ReadingProgressCard({ progress }: ReadingProgressCardProps) {
  stroke="none"
  >
  {data.map((entry, index) => (
- <Cell 
- key={`cell-${index}`} 
- fill={index === 0 ? 'var(--color-success)' : 'var(--color-surface-container)'} 
+ <Cell
+ key={`cell-${index}`}
+ fill={index === 0 ? 'var(--color-success)' : 'var(--color-surface-container)'}
  />
  ))}
  </Pie>
  </PieChart>
  </ResponsiveContainer>
  </div>
- 
+
  {/* Center Text */}
  <div className="absolute flex flex-col items-center justify-center pointer-events-none">
  <span className="text-4xl font-bold text-text">
@@ -51,7 +51,7 @@ export function ReadingProgressCard({ progress }: ReadingProgressCardProps) {
  </span>
  </div>
  </div>
- 
+
  <div className="text-center mt-4">
  <p className="text-sm font-medium text-text-muted">
  {progress.completed} {t('progress.outOf')} {progress.total} {t('progress.meter')}

@@ -44,7 +44,7 @@ export interface GetInvoicesParams {
  date_to?: string
 }
 
-// Reuse PaginatedResponse from shared types if needed, 
+// Reuse PaginatedResponse from shared types if needed,
 // but redefining here or importing from shared is fine.
 import { PaginatedResponse } from '@/pages/shared/service-requests/types'
 export type { PaginatedResponse }

@@ -13,7 +13,7 @@ export interface Invoice {
  payment_notes: string | null
  created_at: string
  updated_at: string
- 
+
  // Optional relationships
  customer?: {
  id: number

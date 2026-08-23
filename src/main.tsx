@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { Toaster } from 'sonner'
 import './index.css'
 import App from './App.tsx'
 
@@ -9,7 +10,10 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
- <StrictMode>
- <App />
- </StrictMode>,
+  <StrictMode>
+    <>
+      <App />
+      <Toaster position="top-right" richColors />
+    </>
+  </StrictMode>
 )

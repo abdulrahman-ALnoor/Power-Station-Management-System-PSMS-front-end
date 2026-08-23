@@ -50,8 +50,8 @@ export function EquipmentTable({ data, isLoading, onRowClick }: EquipmentTablePr
  </thead>
  <tbody className="divide-y divide-border">
  {data.map((item) => (
- <tr 
- key={item.id} 
+ <tr
+ key={item.id}
  onClick={() => onRowClick(item)}
  className="hover:bg-surface-low transition-colors cursor-pointer group"
  >

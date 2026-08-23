@@ -12,31 +12,31 @@ export function ReaderStatsCards({ stats }: ReaderStatsCardsProps) {
 
  return (
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
- <StatCard 
- title={t('stats.totalReadings')} 
- value={stats.totalReadings} 
- icon={<ClipboardList size={24} />} 
+ <StatCard
+ title={t('stats.totalReadings')}
+ value={stats.totalReadings}
+ icon={<ClipboardList size={24} />}
  colorClass="text-info"
  bgClass="bg-info-light"
  />
- <StatCard 
- title={t('stats.todayReadings')} 
- value={stats.todayReadings} 
- icon={<Gauge size={24} />} 
+ <StatCard
+ title={t('stats.todayReadings')}
+ value={stats.todayReadings}
+ icon={<Gauge size={24} />}
  colorClass="text-success"
  bgClass="bg-success-light"
  />
- <StatCard 
- title={t('stats.overdueReadings')} 
- value={stats.overdueReadings} 
- icon={<ClockAlert size={24} />} 
+ <StatCard
+ title={t('stats.overdueReadings')}
+ value={stats.overdueReadings}
+ icon={<ClockAlert size={24} />}
  colorClass="text-warning"
  bgClass="bg-warning-light"
  />
- <StatCard 
- title={t('stats.serviceRequests')} 
- value={stats.serviceRequests} 
- icon={<Wrench size={24} />} 
+ <StatCard
+ title={t('stats.serviceRequests')}
+ value={stats.serviceRequests}
+ icon={<Wrench size={24} />}
  colorClass="text-danger"
  bgClass="bg-danger-light"
  />
@@ -44,13 +44,13 @@ export function ReaderStatsCards({ stats }: ReaderStatsCardsProps) {
  )
 }
 
-function StatCard({ 
- title, 
- value, 
- icon, 
- colorClass, 
- bgClass 
-}: { 
+function StatCard({
+ title,
+ value,
+ icon,
+ colorClass,
+ bgClass
+}: {
  title: string
  value: number
  icon: React.ReactNode

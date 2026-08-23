@@ -6,8 +6,8 @@ import { cn } from '@/utils/cn'
 import { MeterQrScanner } from '../../../shared/readings/components/MeterQrScanner'
 import { parseMeterQrData } from '../../../shared/readings/utils/qrMeterParser'
 
-import { 
- MockMeterInfo, 
+import {
+ MockMeterInfo,
  ReadingMethod,
  CreateMeterReadingPayload
 } from '../../dashboard/types/readerForms.types'
@@ -44,10 +44,10 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
 
  // Computed / Derived state
  const selectedMeter = meters.find(m => m.id === selectedMeterId)
- 
+
  const currentReadingNum = currentReading ? Number(currentReading) : null
  const previousReadingNum = selectedMeter ? selectedMeter.previousReading : null
- 
+
  const consumption = (currentReadingNum !== null && previousReadingNum !== null)
  ? Math.max(0, currentReadingNum - previousReadingNum)
  : 0
@@ -55,7 +55,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  const readingCost = selectedMeter ? consumption * selectedMeter.pricePerKwh : 0
 
  // Validation
- const hasValidationError = (currentReadingNum !== null && previousReadingNum !== null) 
+ const hasValidationError = (currentReadingNum !== null && previousReadingNum !== null)
  ? currentReadingNum < previousReadingNum
  : false
 
@@ -82,7 +82,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  const handleScanSuccess = (decodedText: string) => {
  setIsScannerOpen(false)
  const parsed = parseMeterQrData(decodedText)
- 
+
  if (!parsed) {
  setQrError('رمز QR غير صالح. حاول مسح رمز QR آخر')
  return
@@ -107,7 +107,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
 
  const handleSubmit = async (e: React.FormEvent) => {
  e.preventDefault()
- 
+
  if (hasValidationError || isSubmitting || !selectedMeter || currentReadingNum === null) {
  return
  }
@@ -145,8 +145,8 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'YER' }).format(val)
 
  return (
- <Modal 
- open={isOpen} 
+ <Modal
+ open={isOpen}
  onClose={isSubmitting ? () => {} : onClose}
  size="md"
  closeOnOverlayClick={!isSubmitting}
@@ -172,7 +172,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  </div>
  ) : (
  <form id="add-reading-form" onSubmit={handleSubmit} className="space-y-6">
- 
+
  {/* Section: Method Selection */}
  <div className="space-y-3 mb-6">
  <label className="block text-sm font-medium text-text text-center">
@@ -184,7 +184,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  onClick={() => setSelectionMethod('manual')}
  className={cn(
  "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all",
- selectionMethod === 'manual' 
+ selectionMethod === 'manual'
  ? "bg-surface shadow-sm text-primary"
  : "text-text-muted hover:text-text"
  )}
@@ -197,7 +197,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  onClick={() => setSelectionMethod('qr_scan')}
  className={cn(
  "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all",
- selectionMethod === 'qr_scan' 
+ selectionMethod === 'qr_scan'
  ? "bg-surface shadow-sm text-primary"
  : "text-text-muted hover:text-text"
  )}
@@ -211,13 +211,13 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  {/* Section 1: Meter Selection */}
  <div className="space-y-4">
  <h3 className="text-sm font-semibold text-primary dark:text-info">العداد</h3>
- 
+
  {selectionMethod === 'manual' ? (
  <div className="space-y-2">
  <label className="block text-sm font-medium text-text">
  اختر العداد <span className="text-danger">*</span>
  </label>
- 
+
  <div className="relative">
  <select
  required
@@ -250,7 +250,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  <div className="p-4 bg-primary/10 rounded-full text-primary mb-2">
  <QrCode size={32} />
  </div>
- 
+
  {selectedMeter && readingMethod === 'qr_scan' ? (
  <div className="w-full flex items-center justify-between p-4 bg-success/10 border border-success/20 rounded-lg">
  <span className="font-medium text-success flex flex-col items-start gap-1">
@@ -284,7 +284,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  <Camera size={20} />
  مسح QR بالكاميرا
  </button>
- 
+
  {qrError && (
  <div className="mt-4 p-3 rounded-lg bg-danger/10 border border-danger/20 w-full">
  <p className="text-sm text-danger font-medium flex items-center justify-center gap-1.5">
@@ -303,7 +303,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  <div className="grid grid-cols-2 gap-2">
  <div className="text-text-muted">رقم العداد:</div>
  <div className="text-text font-medium text-end">{selectedMeter.meterNumber}</div>
- 
+
  <div className="text-text-muted">اسم العميل:</div>
  <div className="text-text font-medium text-end">{selectedMeter.customer.name}</div>
  </div>
@@ -315,9 +315,9 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  {selectedMeter && (
  <div className="space-y-4 pt-6 border-t border-border dark:border-border-subtle">
  <h3 className="text-sm font-semibold text-primary dark:text-info">بيانات القراءة</h3>
- 
+
  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
- 
+
  <div className="space-y-2">
  <label className="block text-sm font-medium text-text">
  القراءة السابقة
@@ -346,8 +346,8 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  dir="ltr"
  className={cn(
  "w-full bg-surface dark:bg-surface-elevated border text-sm rounded-lg min-h-[44px] py-2.5 px-4 text-start focus:ring-2 focus:ring-primary/20 transition-shadow",
- hasValidationError 
- ? "border-danger text-danger focus:border-danger" 
+ hasValidationError
+ ? "border-danger text-danger focus:border-danger"
  : "border-border dark:border-border-subtle text-text focus:border-primary dark:focus:border-info"
  )}
  />
@@ -396,7 +396,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  {selectedMeter && (
  <div className="space-y-4 pt-6 border-t border-border dark:border-border-subtle">
  <h3 className="text-sm font-semibold text-primary dark:text-info">ملخص الاستهلاك (معاينة)</h3>
- 
+
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
  <div className="bg-surface-low dark:bg-surface-elevated border border-border dark:border-border-subtle rounded-xl p-4">
  <p className="text-sm font-medium text-text-muted mb-2">الاستهلاك</p>
@@ -404,7 +404,7 @@ export function AddReadingModal({ isOpen, onClose, onSuccess }: AddReadingModalP
  {formatNumber(consumption)} <span className="text-sm text-text-muted">kWh</span>
  </p>
  </div>
- 
+
  <div className="bg-surface-low dark:bg-surface-elevated border border-border dark:border-border-subtle rounded-xl p-4">
  <p className="text-sm font-medium text-text-muted mb-2">
  تكلفة القراءة

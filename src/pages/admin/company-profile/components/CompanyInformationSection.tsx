@@ -11,11 +11,11 @@ interface CompanyInformationSectionProps {
  onLogoChange: (file: File | null, previewUrl: string | null) => void
 }
 
-export function CompanyInformationSection({ 
- data, 
+export function CompanyInformationSection({
+ data,
  logoPreview,
- onChange, 
- onLogoChange 
+ onChange,
+ onLogoChange
 }: CompanyInformationSectionProps) {
  const { t } = useTranslation('settings')
 
@@ -31,11 +31,11 @@ export function CompanyInformationSection({
  </div>
 
  <div className="space-y-8">
- <CompanyLogoUpload 
- logoUrl={logoPreview ?? data.logo} 
- onChange={onLogoChange} 
+ <CompanyLogoUpload
+ logoUrl={logoPreview ?? data.logo}
+ onChange={onLogoChange}
  />
- 
+
  <hr className="border-border" />
 
  <div className="grid grid-cols-1 gap-6">

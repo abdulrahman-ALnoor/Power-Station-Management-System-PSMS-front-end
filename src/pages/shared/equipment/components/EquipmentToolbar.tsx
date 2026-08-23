@@ -22,7 +22,7 @@ export function EquipmentToolbar({ filters, onFilterChange }: EquipmentToolbarPr
 
  return (
  <div className="bg-surface p-4 rounded-xl border border-border shadow-sm flex flex-col md:flex-row gap-3">
- 
+
  {/* Search Input */}
  <div className="flex-1 w-full min-w-[280px]">
  <Input

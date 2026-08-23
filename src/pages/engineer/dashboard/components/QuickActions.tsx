@@ -11,7 +11,7 @@ export function QuickActions() {
  {t('dashboard.quickActions.title')}
  </h4>
  <div className="flex flex-col gap-3">
- <Link 
+ <Link
  to="/engineer/service-requests/create"
  className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-[var(--color-surface-container-low)] transition-colors text-primary font-medium group"
  >
@@ -20,7 +20,7 @@ export function QuickActions() {
  </div>
  <span>{t('dashboard.quickActions.addRequest')}</span>
  </Link>
- <Link 
+ <Link
  to="/engineer/equipment"
  className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-[var(--color-surface-container-low)] transition-colors text-primary font-medium group"
  >
@@ -29,7 +29,7 @@ export function QuickActions() {
  </div>
  <span>{t('dashboard.quickActions.requestEquipment')}</span>
  </Link>
- <Link 
+ <Link
  to="/engineer/reports"
  className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-[var(--color-surface-container-low)] transition-colors text-primary font-medium group"
  >

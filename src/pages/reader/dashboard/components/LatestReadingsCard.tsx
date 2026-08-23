@@ -15,14 +15,14 @@ export function LatestReadingsCard({ readings }: LatestReadingsCardProps) {
  <div className="card overflow-hidden p-0 flex flex-col">
  <div className="p-4 border-b border-border flex justify-between items-center bg-surface">
  <h2 className="text-headline">{t('latestReadings.title')}</h2>
- <Link 
- to="/reader/readings" 
+ <Link
+ to="/reader/readings"
  className="text-sm font-medium text-info hover:underline"
  >
  {t('latestReadings.viewAll')}
  </Link>
  </div>
- 
+
  <div className="overflow-x-auto">
  <table className="w-full text-sm text-right whitespace-nowrap">
  <thead className="bg-surface-low text-text-muted border-b border-border">

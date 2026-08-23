@@ -9,45 +9,45 @@ interface AccountantStatsCardsProps {
 export function AccountantStatsCards({ stats }: AccountantStatsCardsProps) {
  return (
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
- <StatCard 
- title="إجمالي الفواتير" 
- value={stats.totalInvoices} 
- icon={<Receipt size={24} />} 
+ <StatCard
+ title="إجمالي الفواتير"
+ value={stats.totalInvoices}
+ icon={<Receipt size={24} />}
  colorClass="text-info"
  bgClass="bg-info-light"
  />
- <StatCard 
- title="الفواتير المدفوعة" 
- value={stats.paidInvoices} 
- icon={<CheckCircle size={24} />} 
+ <StatCard
+ title="الفواتير المدفوعة"
+ value={stats.paidInvoices}
+ icon={<CheckCircle size={24} />}
  colorClass="text-success"
  bgClass="bg-success-light"
  />
- <StatCard 
- title="الفواتير المتأخرة" 
- value={stats.overdueInvoices} 
- icon={<Clock size={24} />} 
+ <StatCard
+ title="الفواتير المتأخرة"
+ value={stats.overdueInvoices}
+ icon={<Clock size={24} />}
  colorClass="text-danger"
  bgClass="bg-danger-light"
  />
- <StatCard 
- title="إجمالي المبالغ المستحقة" 
- value={`${stats.totalDueAmount.toLocaleString()} ر.س`} 
- icon={<TrendingUp size={24} />} 
+ <StatCard
+ title="إجمالي المبالغ المستحقة"
+ value={`${stats.totalDueAmount.toLocaleString()} ر.س`}
+ icon={<TrendingUp size={24} />}
  colorClass="text-primary"
  bgClass="bg-primary/10"
  />
- <StatCard 
- title="إجمالي المبالغ المحصلة" 
- value={`${stats.totalCollectedAmount.toLocaleString()} ر.س`} 
- icon={<Wallet size={24} />} 
+ <StatCard
+ title="إجمالي المبالغ المحصلة"
+ value={`${stats.totalCollectedAmount.toLocaleString()} ر.س`}
+ icon={<Wallet size={24} />}
  colorClass="text-success"
  bgClass="bg-success-light"
  />
- <StatCard 
- title="إجمالي المتبقي" 
- value={`${stats.totalRemainingAmount.toLocaleString()} ر.س`} 
- icon={<DollarSign size={24} />} 
+ <StatCard
+ title="إجمالي المتبقي"
+ value={`${stats.totalRemainingAmount.toLocaleString()} ر.س`}
+ icon={<DollarSign size={24} />}
  colorClass="text-warning"
  bgClass="bg-warning-light"
  />
@@ -55,13 +55,13 @@ export function AccountantStatsCards({ stats }: AccountantStatsCardsProps) {
  )
 }
 
-function StatCard({ 
- title, 
- value, 
- icon, 
- colorClass, 
- bgClass 
-}: { 
+function StatCard({
+ title,
+ value,
+ icon,
+ colorClass,
+ bgClass
+}: {
  title: string
  value: string | number
  icon: React.ReactNode

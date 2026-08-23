@@ -95,7 +95,7 @@ export function MonthlyRevenueChart({ data, isLoading, error }: MonthlyRevenueCh
  return (
  <div className="card h-full flex flex-col min-h-[400px]">
  <Header />
- 
+
  <div className="h-[360px] w-full mt-4" dir="ltr">
  <ResponsiveContainer width="100%" height="100%">
  <BarChart
@@ -108,14 +108,14 @@ export function MonthlyRevenueChart({ data, isLoading, error }: MonthlyRevenueCh
  }}
  >
  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
- <XAxis 
- dataKey="day" 
+ <XAxis
+ dataKey="day"
  axisLine={false}
  tickLine={false}
  tick={{ fill: '#64748B', fontSize: 12 }}
  dy={10}
  />
- <YAxis 
+ <YAxis
  axisLine={false}
  tickLine={false}
  tick={{ fill: '#64748B', fontSize: 12 }}

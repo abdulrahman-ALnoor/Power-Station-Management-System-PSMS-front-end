@@ -25,7 +25,7 @@ class ReaderDashboardErrorBoundary extends React.Component<{ children: React.Rea
  <div className="p-8 bg-surface text-center rounded-xl border border-border shadow-sm">
  <AlertCircle className="w-12 h-12 text-danger mx-auto mb-4" />
  <h2 className="text-xl font-bold mb-2 text-text">{i18n.t('errors.failedToLoad', { ns: 'reader' })}</h2>
- <button 
+ <button
  onClick={() => window.location.reload()}
  className="px-4 py-2 bg-primary text-on-primary rounded-lg mt-4"
  >
@@ -79,11 +79,11 @@ function DashboardContent() {
  <div className="space-y-6 max-w-[1440px] mx-auto pb-12 animate-pulse">
  <div className="h-8 w-48 bg-surface-container rounded mb-2"></div>
  <div className="h-4 w-64 bg-surface-container rounded"></div>
- 
+
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
  {[1,2,3,4].map(i => <div key={i} className="h-24 bg-surface rounded-xl"></div>)}
  </div>
- 
+
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
  <div className="lg:col-span-2 space-y-6">
  <div className="h-[250px] bg-surface rounded-xl"></div>
@@ -119,7 +119,7 @@ function DashboardContent() {
  <LatestReadingsCard readings={data.latestReadings} />
  </div>
  <div className="lg:col-span-1">
- <ReaderQuickActions 
+ <ReaderQuickActions
  onAddReadingClick={() => setIsAddReadingOpen(true)}
  onCreateRequestClick={() => setIsServiceRequestOpen(true)}
  />
@@ -127,12 +127,12 @@ function DashboardContent() {
  </div>
 
  {/* Modals */}
- <AddReadingModal 
+ <AddReadingModal
  isOpen={isAddReadingOpen}
  onClose={() => setIsAddReadingOpen(false)}
  onSuccess={() => console.log('AddReadingModal success!')}
  />
- <CreateServiceRequestModal 
+ <CreateServiceRequestModal
  isOpen={isServiceRequestOpen}
  onClose={() => setIsServiceRequestOpen(false)}
  onSuccess={() => console.log('CreateServiceRequestModal success!')}

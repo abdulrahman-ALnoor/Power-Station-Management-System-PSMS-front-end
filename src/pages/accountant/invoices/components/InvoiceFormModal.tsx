@@ -43,7 +43,7 @@ export function InvoiceFormModal({ isOpen, onClose, onSave, initialData, custome
 
  const handleSubmit = async (e: React.FormEvent) => {
  e.preventDefault()
- 
+
  if (!formData.customer_id) {
  setError('يرجى اختيار العميل')
  return
@@ -83,13 +83,13 @@ export function InvoiceFormModal({ isOpen, onClose, onSave, initialData, custome
  return (
  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in" dir="rtl">
  <div className="bg-surface rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
- 
+
  {/* Header */}
  <div className="flex items-center justify-between p-6 border-b border-border bg-surface-container/30">
  <h2 className="text-xl font-bold text-text">
  {initialData ? `تعديل الفاتورة - ${initialData.invoice_number}` : 'إنشاء فاتورة جديدة'}
  </h2>
- <button 
+ <button
  onClick={onClose}
  className="p-2 hover:bg-surface-container rounded-full text-text-muted transition-colors"
  disabled={loading}
@@ -108,7 +108,7 @@ export function InvoiceFormModal({ isOpen, onClose, onSave, initialData, custome
  )}
 
  <form id="invoice-form" onSubmit={handleSubmit} className="space-y-6">
- 
+
  {/* بيانات الفاتورة */}
  <div>
  <h3 className="text-sm font-bold text-primary mb-4 pb-2 border-b border-border">بيانات الفاتورة</h3>

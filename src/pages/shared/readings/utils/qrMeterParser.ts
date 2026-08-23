@@ -1,6 +1,6 @@
 /**
  * qrMeterParser.ts
- * 
+ *
  * Utility for parsing a scanned QR code string into a standardized format.
  * This abstracts the exact QR format (plain text, prefixed text, JSON) away from the UI,
  * allowing future backend changes without touching the scanner component.
@@ -13,7 +13,7 @@ export interface ParsedMeterInfo {
 
 export function parseMeterQrData(scannedText: string): ParsedMeterInfo | null {
  if (!scannedText) return null
- 
+
  const text = scannedText.trim()
 
  // 1. Try parsing as JSON first

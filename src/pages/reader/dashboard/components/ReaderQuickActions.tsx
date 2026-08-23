@@ -15,45 +15,45 @@ export function ReaderQuickActions({ onAddReadingClick, onCreateRequestClick }: 
  <div className="card border border-border/20 shadow-sm h-full">
  <h2 className="text-headline mb-4 ">{t('quickActions.title')}</h2>
  <div className="flex flex-col gap-3">
- <QuickActionButton 
+ <QuickActionButton
  onClick={onAddReadingClick}
- icon={<Plus size={20} />} 
- label={t('quickActions.addReading')} 
- isPrimary 
+ icon={<Plus size={20} />}
+ label={t('quickActions.addReading')}
+ isPrimary
  />
- <QuickActionLink 
- to="/reader/readings" 
- icon={<List size={20} />} 
- label={t('quickActions.viewReadings')} 
+ <QuickActionLink
+ to="/reader/readings"
+ icon={<List size={20} />}
+ label={t('quickActions.viewReadings')}
  />
- <QuickActionButton 
+ <QuickActionButton
  onClick={onCreateRequestClick}
- icon={<Wrench size={20} />} 
- label={t('quickActions.requestService')} 
+ icon={<Wrench size={20} />}
+ label={t('quickActions.requestService')}
  />
  </div>
  </div>
  )
 }
 
-function QuickActionLink({ 
- to, 
- icon, 
- label, 
- isPrimary 
-}: { 
+function QuickActionLink({
+ to,
+ icon,
+ label,
+ isPrimary
+}: {
  to: string
  icon: React.ReactNode
  label: string
- isPrimary?: boolean 
+ isPrimary?: boolean
 }) {
  return (
- <Link 
+ <Link
  to={to}
  className={cn(
  "flex flex-row items-center justify-start px-4 py-3 gap-3 rounded-lg transition-colors group",
- isPrimary 
- ? "bg-primary text-on-primary hover:bg-primary-hover shadow-sm " 
+ isPrimary
+ ? "bg-primary text-on-primary hover:bg-primary-hover shadow-sm "
  : "bg-surface-low border border-border/30 hover:border-border/60 hover:bg-surface-hover :bg-surface/10 :border-white/20"
  )}
  >
@@ -73,25 +73,25 @@ function QuickActionLink({
  )
 }
 
-function QuickActionButton({ 
- onClick, 
- icon, 
- label, 
- isPrimary 
-}: { 
+function QuickActionButton({
+ onClick,
+ icon,
+ label,
+ isPrimary
+}: {
  onClick: () => void
  icon: React.ReactNode
  label: string
- isPrimary?: boolean 
+ isPrimary?: boolean
 }) {
  return (
- <button 
+ <button
  onClick={onClick}
  type="button"
  className={cn(
  "flex flex-row items-center justify-start px-4 py-3 gap-3 rounded-lg transition-colors group w-full text-start",
- isPrimary 
- ? "bg-primary text-on-primary hover:bg-primary-dark shadow-sm " 
+ isPrimary
+ ? "bg-primary text-on-primary hover:bg-primary-dark shadow-sm "
  : "bg-surface-low border border-border/30 hover:border-border/60 hover:bg-surface-hover :bg-surface/10 :border-white/20"
  )}
  >

@@ -56,7 +56,7 @@ class EquipmentService {
 
  async createEquipment(data: Partial<Equipment>): Promise<Equipment> {
  await new Promise(resolve => setTimeout(resolve, 600))
- 
+
  // Check for duplicate serial number (if provided)
  if (data.serial_number) {
  const isDuplicate = mockEquipment.some(e => e.serial_number === data.serial_number)
@@ -93,7 +93,7 @@ class EquipmentService {
 
  async updateEquipmentStatus(id: number, status: EquipmentStatus): Promise<Equipment> {
  await new Promise(resolve => setTimeout(resolve, 600))
- 
+
  const index = mockEquipment.findIndex(e => e.id === id)
  if (index === -1) {
  throw new Error('Equipment not found')

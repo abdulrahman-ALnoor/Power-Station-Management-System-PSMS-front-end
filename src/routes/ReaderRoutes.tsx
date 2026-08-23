@@ -16,7 +16,7 @@ export function ReaderRoutes() {
  <Route element={<AuthGuard />}>
  <Route element={<ReaderLayout />}>
  <Route path="dashboard" element={<ReaderDashboardPage />} />
- 
+
  <Route path="equipment" element={<ReaderEquipmentPage />} />
  <Route path="readings" element={<ReaderReadingsPage />} />
  <Route path="service-requests" element={<ReaderServiceRequestsPage />} />

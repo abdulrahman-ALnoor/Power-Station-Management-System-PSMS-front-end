@@ -63,7 +63,7 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
  return createPortal(
  <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
  {/* BACKDROP */}
- <div 
+ <div
  onClick={onClose}
  style={{
  position: 'absolute',
@@ -72,11 +72,11 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
  zIndex: 0,
  }}
  />
- 
+
  {/* DRAWER */}
- <aside 
+ <aside
  className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} bottom-0 w-full max-w-md shadow-2xl flex flex-col transition-transform transform bg-surface`}
- style={{ 
+ style={{
  zIndex: 1,
  opacity: 1,
  filter: 'none'
@@ -90,7 +90,7 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
  {t('details.title')} #{reading.id}
  </h2>
  </div>
- <button 
+ <button
  onClick={onClose}
  className="p-2 rounded-full hover:bg-surface-container dark:hover:bg-surface-hover transition-colors text-text-muted dark:text-text-secondary"
  >
@@ -99,7 +99,7 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
  </div>
 
  <div className="flex-1 overflow-y-auto p-6 space-y-8">
- 
+
  <div className="flex items-center justify-between">
  <div>
  <p className="text-label-sm font-bold text-text-muted dark:text-text-secondary mb-1">
@@ -178,7 +178,7 @@ export function MeterReadingDetailsDrawer({ reading, isOpen, onClose }: MeterRea
  {t('details.updatedAt')}: {new Date(reading.updated_at).toLocaleString()}
  </div>
  </div>
- 
+
  </div>
  </aside>
  </div>,

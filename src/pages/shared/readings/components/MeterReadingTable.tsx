@@ -78,7 +78,7 @@ export function MeterReadingTable({ data, onViewDetails, onChangeStatus, onEdit,
  </thead>
  <tbody className="divide-y divide-outline/10">
  {data.map((reading) => (
- <tr 
+ <tr
  key={reading.id}
  className="hover:bg-surface-low :bg-surface-container/20 transition-colors group"
  >
@@ -112,11 +112,11 @@ export function MeterReadingTable({ data, onViewDetails, onChangeStatus, onEdit,
  <ReadingStatusBadge status={reading.status} />
  </td>
  <td className="px-6 py-4 text-end relative">
- <button 
+ <button
  onClick={() => setActiveMenu(activeMenu === reading.id ? null : reading.id)}
  className={`p-2 rounded-lg transition-colors ${
- activeMenu === reading.id 
- ? 'text-primary bg-primary/10' 
+ activeMenu === reading.id
+ ? 'text-primary bg-primary/10'
  : 'text-text-muted hover:text-primary hover:bg-primary/10'
  }`}
  title={t('actions.options', 'الخيارات')}
@@ -126,7 +126,7 @@ export function MeterReadingTable({ data, onViewDetails, onChangeStatus, onEdit,
 
  {/* Dropdown Menu */}
  {activeMenu === reading.id && (
- <div 
+ <div
  ref={menuRef}
  className={`absolute z-50 mt-2 w-48 bg-surface rounded-xl shadow-lg border border-border py-1 ${
  isRTL ? 'left-8' : 'right-8'
@@ -143,7 +143,7 @@ export function MeterReadingTable({ data, onViewDetails, onChangeStatus, onEdit,
  <Eye size={16} className="text-text-muted" />
  {t('actions.viewDetails', 'عرض التفاصيل')}
  </button>
- 
+
  {onChangeStatus && (
  <button
  onClick={() => {
@@ -156,7 +156,7 @@ export function MeterReadingTable({ data, onViewDetails, onChangeStatus, onEdit,
  {t('actions.changeStatus', 'تغيير الحالة')}
  </button>
  )}
- 
+
  {onEdit && (
  <button
  onClick={() => {

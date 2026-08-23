@@ -23,7 +23,7 @@ class DashboardService {
 
  const totalInvoices = mockInvoices.length
  const paidInvoices = mockInvoices.filter(inv => inv.status === 'paid').length
- 
+
  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000)
  const overdueInvoices = mockInvoices.filter(inv => inv.status !== 'paid' && new Date(inv.created_at) < thirtyDaysAgo).length
 
@@ -43,10 +43,10 @@ class DashboardService {
 
  async getMonthlyRevenue(): Promise<{ month: string; month_label: string; days: { day: number; revenue: number }[] }> {
  await new Promise(resolve => setTimeout(resolve, 500))
- 
+
  const today = new Date()
  const daysInMonth = getDaysInMonth(today)
- 
+
  const days = Array.from({ length: daysInMonth }, (_, i) => ({
  day: i + 1,
  // Random mock revenue between 0 and 5000
@@ -67,7 +67,7 @@ class DashboardService {
  .filter(inv => inv.paid_amount > 0)
  .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
  .slice(0, 5)
- 
+
  return collections
  }
 }

@@ -16,7 +16,7 @@ export interface Equipment {
  created_by: number | null
  created_at: string
  updated_at: string
- 
+
  // Optional relationships populated by backend
  user?: UserReference
  createdBy?: UserReference

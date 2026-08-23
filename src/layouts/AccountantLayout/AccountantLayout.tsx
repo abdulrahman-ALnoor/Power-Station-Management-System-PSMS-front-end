@@ -23,10 +23,10 @@ export function AccountantLayout() {
 
  // Resolve page title from current route
  const pageTitle = PAGE_TITLE_MAP[location.pathname]
- 
+
  // Optional: Provide subtitle for specific pages (like dashboard)
- const pageSubtitle = location.pathname === '/accountant/dashboard' 
- ? 'متابعة الفواتير والتحصيلات والمهام المحاسبية.' 
+ const pageSubtitle = location.pathname === '/accountant/dashboard'
+ ? 'متابعة الفواتير والتحصيلات والمهام المحاسبية.'
  : undefined
 
  return (

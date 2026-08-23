@@ -33,9 +33,9 @@ export function CompanyLogoUpload({ logoUrl, onChange }: CompanyLogoUploadProps)
  <div className="shrink-0 w-32 h-32 rounded-2xl border-2 border-dashed border-border bg-surface-container-low flex flex-col items-center justify-center relative overflow-hidden group">
  {logoUrl ? (
  <>
- <img 
- src={logoUrl} 
- alt={t('fields.companyLogo')} 
+ <img
+ src={logoUrl}
+ alt={t('fields.companyLogo')}
  className="w-full h-full object-contain p-2"
  />
  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
@@ -68,12 +68,12 @@ export function CompanyLogoUpload({ logoUrl, onChange }: CompanyLogoUploadProps)
  </div>
 
  <div className="flex gap-3">
- <input 
- type="file" 
- ref={fileInputRef} 
- onChange={handleFileChange} 
- accept="image/png, image/jpeg" 
- className="hidden" 
+ <input
+ type="file"
+ ref={fileInputRef}
+ onChange={handleFileChange}
+ accept="image/png, image/jpeg"
+ className="hidden"
  />
  <button
  type="button"

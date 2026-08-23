@@ -4,8 +4,8 @@ import { Modal } from '@/components/overlays/Modal'
 import { useLanguage } from '@/hooks/useLanguage'
 import { cn } from '@/utils/cn'
 
-import { 
- MockMeterInfo, 
+import {
+ MockMeterInfo,
  ServiceRequestType,
  ServiceRequestPriority,
  CreateServiceRequestPayload
@@ -57,7 +57,7 @@ export function CreateServiceRequestModal({ isOpen, onClose, onSuccess }: Create
 
  const handleSubmit = async (e: React.FormEvent) => {
  e.preventDefault()
- 
+
  if (isSubmitting || !selectedMeter || !requestType) {
  return
  }
@@ -88,8 +88,8 @@ export function CreateServiceRequestModal({ isOpen, onClose, onSuccess }: Create
  }
 
  return (
- <Modal 
- open={isOpen} 
+ <Modal
+ open={isOpen}
  onClose={isSubmitting ? () => {} : onClose}
  size="md"
  closeOnOverlayClick={!isSubmitting}
@@ -115,16 +115,16 @@ export function CreateServiceRequestModal({ isOpen, onClose, onSuccess }: Create
  </div>
  ) : (
  <form id="service-request-form" onSubmit={handleSubmit} className="space-y-6">
- 
+
  {/* Section 1: Meter Selection */}
  <div className="space-y-4">
  <h3 className="text-sm font-semibold text-primary">العداد والعميل</h3>
- 
+
  <div className="space-y-2">
  <label className="block text-sm font-medium text-text">
  اختر العداد <span className="text-danger">*</span>
  </label>
- 
+
  <div className="relative">
  <select
  required
@@ -158,10 +158,10 @@ export function CreateServiceRequestModal({ isOpen, onClose, onSuccess }: Create
  <div className="grid grid-cols-2 gap-2">
  <div className="text-text-muted">رقم العداد:</div>
  <div className="text-text font-medium text-end">{selectedMeter.meterNumber}</div>
- 
+
  <div className="text-text-muted">العميل المرتبط:</div>
  <div className="text-text font-medium text-end">{selectedMeter.customer.name}</div>
- 
+
  <div className="text-text-muted">رقم التواصل:</div>
  <div className="text-text font-medium text-end" dir="ltr">{selectedMeter.customer.phone}</div>
  </div>
@@ -173,9 +173,9 @@ export function CreateServiceRequestModal({ isOpen, onClose, onSuccess }: Create
  {selectedMeter && (
  <div className="space-y-4 pt-6 border-t border-border">
  <h3 className="text-sm font-semibold text-primary">تفاصيل الطلب</h3>
- 
+
  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
- 
+
  <div className="space-y-2">
  <label className="block text-sm font-medium text-text">
  نوع طلب الخدمة <span className="text-danger">*</span>

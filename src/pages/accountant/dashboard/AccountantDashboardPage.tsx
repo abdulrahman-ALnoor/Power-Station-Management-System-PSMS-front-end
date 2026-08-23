@@ -30,7 +30,7 @@ class DashboardErrorBoundary extends React.Component<{ children: React.ReactNode
  <div className="p-8 bg-surface text-center rounded-xl border border-border shadow-sm">
  <AlertCircle className="w-12 h-12 text-danger mx-auto mb-4" />
  <h2 className="text-xl font-bold mb-2 text-text">تعذر تحميل لوحة القيادة</h2>
- <button 
+ <button
  onClick={() => window.location.reload()}
  className="px-4 py-2 bg-primary text-on-primary rounded-lg mt-4"
  >
@@ -67,7 +67,7 @@ function DashboardContent() {
  dashboardService.getDashboardStats(),
  dashboardService.getLatestCollections()
  ])
- 
+
  let revenue = null
  let rError = null
  try {
@@ -86,7 +86,7 @@ function DashboardContent() {
  } catch (err) {
  if (mounted) {
  setLoading(false)
- throw err 
+ throw err
  }
  }
  }
@@ -118,7 +118,7 @@ function DashboardContent() {
 
  return (
  <div className="space-y-6 max-w-[1440px] mx-auto pb-12 animate-fade-in" dir="rtl">
- 
+
  <div className="flex justify-between items-center">
  <div>
  <h1 className="text-2xl font-bold text-text mb-1">لوحة تحكم المحاسب</h1>
@@ -131,9 +131,9 @@ function DashboardContent() {
 
  {/* Monthly Revenue Chart */}
  <div className="w-full">
- <MonthlyRevenueChart 
- data={revenueData} 
- isLoading={loading} 
+ <MonthlyRevenueChart
+ data={revenueData}
+ isLoading={loading}
  error={revenueError}
  />
  </div>

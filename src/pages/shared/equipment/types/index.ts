@@ -21,7 +21,7 @@ export interface Equipment {
  created_by: number | null
  created_at: string
  updated_at?: string
- 
+
  // Relations
  user?: UserSnippet | null
  creator?: UserSnippet | null

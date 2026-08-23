@@ -27,7 +27,7 @@ export function RecentActivities() {
  "absolute top-2 bottom-2 w-px bg-border",
  isRTL ? "right-3.5" : "left-3.5"
  )}></div>
- 
+
  {mockEngineerActivities.map((activity) => (
  <div key={activity.id} className="flex gap-4 relative z-10">
  <div className="w-8 h-8 rounded-full bg-surface border border-border flex items-center justify-center shrink-0">

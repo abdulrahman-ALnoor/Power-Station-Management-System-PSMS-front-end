@@ -29,15 +29,15 @@ export function PermissionsOverview() {
  {t('permissions.sectionTitle')}
  </h3>
  </div>
- 
+
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
  {MOCK_PERMISSIONS.map((group) => {
  // Admin gets a slightly different styling based on Stitch design (primary-container/5)
  const isAdmin = group.id === 'pg1'
- 
+
  return (
- <div 
- key={group.id} 
+ <div
+ key={group.id}
  className={cn(
  "border border-border rounded-lg p-4 transition-colors",
  isAdmin ? "bg-primary-container/5 " : "bg-transparent"
@@ -47,15 +47,15 @@ export function PermissionsOverview() {
  <DynamicIcon name={group.icon} />
  {t(group.titleKey)}
  </h4>
- 
+
  <ul className="space-y-2 text-[12px] text-text-primary-variant ">
  {group.items.map((item) => (
  <li key={item.id} className="flex items-center gap-2">
- <span 
+ <span
  className={cn(
- "w-1.5 h-1.5 rounded-full shrink-0", 
+ "w-1.5 h-1.5 rounded-full shrink-0",
  item.granted ? "bg-green-500" : "bg-red-400"
- )} 
+ )}
  />
  <span>{t(item.textKey)}</span>
  </li>

@@ -1,6 +1,6 @@
 /**
  * meterLookupService.ts
- * 
+ *
  * Mock service to look up meter details (like previous reading).
  * To be replaced with actual Axios calls to Laravel backend.
  */

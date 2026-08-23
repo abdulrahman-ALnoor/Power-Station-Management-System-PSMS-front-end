@@ -19,7 +19,7 @@ export function EquipmentSummary() {
  {t('dashboard.equipmentSummary.title')}
  </h4>
  <div className="flex flex-col gap-6 flex-1 justify-center">
- 
+
  <div>
  <div className={cn("flex justify-between text-xs font-semibold mb-2 text-text", isRTL ? "flex-row-reverse" : "flex-row")}>
  <span>{t('dashboard.equipmentSummary.available')}</span>

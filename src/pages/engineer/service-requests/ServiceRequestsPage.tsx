@@ -49,7 +49,7 @@ function ServiceRequestsPageContent() {
 
  const [isLoading, setIsLoading] = useState(true)
  const [error, setError] = useState<string | null>(null)
- 
+
  const [data, setData] = useState<ServiceRequest[]>([])
  const [total, setTotal] = useState(0)
  const [currentPage, setCurrentPage] = useState(1)
@@ -127,23 +127,23 @@ function ServiceRequestsPageContent() {
 
  const handleStatusUpdate = async (requestId: number, newStatus: string) => {
  await serviceRequestService.updateServiceRequestStatus(requestId, newStatus as any)
- 
+
  // Update local selected request state if drawer is open
  if (selectedRequest && selectedRequest.id === requestId) {
  setSelectedRequest({ ...selectedRequest, status: newStatus as any })
  }
- 
+
  fetchRequests(filters)
  }
 
  const handleAssignToMe = async (requestId: number) => {
  const updated = await serviceRequestService.assignServiceRequestToMe(requestId)
- 
+
  // Update local selected request state if drawer is open
  if (selectedRequest && selectedRequest.id === requestId) {
  setSelectedRequest(updated)
  }
- 
+
  fetchRequests(filters)
  }
 

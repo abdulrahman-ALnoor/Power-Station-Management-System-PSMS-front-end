@@ -93,7 +93,7 @@ class ServiceRequestService {
 
  async createServiceRequest(data: any): Promise<ServiceRequest> {
  await new Promise(resolve => setTimeout(resolve, 600))
- 
+
  // Auto-assigned by the backend based on auth
  const creator = mockCurrentUser
 
@@ -134,7 +134,7 @@ class ServiceRequestService {
  }
  async updateServiceRequestStatus(id: number, status: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled'): Promise<ServiceRequest> {
  await new Promise(resolve => setTimeout(resolve, 600))
- 
+
  const requestIndex = mockServiceRequests.findIndex(r => r.id === id)
  if (requestIndex === -1) {
  throw new Error('Service request not found')
@@ -153,19 +153,19 @@ class ServiceRequestService {
 
  async assignServiceRequestToMe(id: number): Promise<ServiceRequest> {
  await new Promise(resolve => setTimeout(resolve, 600))
- 
+
  const requestIndex = mockServiceRequests.findIndex(r => r.id === id)
  if (requestIndex === -1) {
  throw new Error('Service request not found')
  }
 
  const currentRequest = mockServiceRequests[requestIndex]
- 
+
  // Auto-assigned by the backend based on auth
  const engineer = { id: 1, name: 'Eng. Ahmed Al-Asiri' }
 
- const updatedRequest = { 
- ...currentRequest, 
+ const updatedRequest = {
+ ...currentRequest,
  assigned_engineer_id: engineer.id,
  assignedEngineer: engineer,
  status: 'assigned' as const
@@ -183,7 +183,7 @@ class ServiceRequestService {
  }
 
  const currentRequest = mockServiceRequests[requestIndex]
- 
+
  // Ownership check for the current user
  if (mockCurrentUser.role === 'reader' && currentRequest.created_by !== mockCurrentUser.id) {
  throw new Error('Unauthorized to edit this request')
@@ -214,14 +214,14 @@ class ServiceRequestService {
  if (requestIndex === -1) {
  throw new Error('Service request not found')
  }
- 
+
  const currentRequest = mockServiceRequests[requestIndex]
- 
+
  // Ownership check for the current user
  if (mockCurrentUser.role === 'reader' && currentRequest.created_by !== mockCurrentUser.id) {
  throw new Error('Unauthorized to delete this request')
  }
- 
+
  // In mock, we just remove it to simulate soft delete filtering
  mockServiceRequests.splice(requestIndex, 1)
  }

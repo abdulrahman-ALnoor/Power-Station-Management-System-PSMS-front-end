@@ -18,7 +18,7 @@ export function EngineerRoutes() {
  <Route path="dashboard" element={<EngineerDashboardPage />} />
  <Route path="service-requests" element={<ServiceRequestsPage />} />
  <Route path="equipment" element={<EngineerEquipmentPage />} />
- 
+
  {/* Placeholder routes for the rest of engineer navigation */}
  <Route path="reports/*" element={<div>Reports Placeholder</div>} />
  <Route path="activity-log/*" element={<div>Activity Log Placeholder</div>} />

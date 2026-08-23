@@ -24,7 +24,7 @@ class InvoicesErrorBoundary extends React.Component<{ children: React.ReactNode 
  <div className="p-8 bg-surface text-center rounded-xl border border-border shadow-sm">
  <AlertCircle className="w-12 h-12 text-danger mx-auto mb-4" />
  <h2 className="text-xl font-bold mb-2 text-text">تعذر تحميل صفحة الفواتير</h2>
- <button 
+ <button
  onClick={() => window.location.reload()}
  className="px-4 py-2 bg-primary text-on-primary rounded-lg mt-4"
  >
@@ -50,7 +50,7 @@ function InvoicesContent() {
  const [loading, setLoading] = useState(true)
  const [filters, setFilters] = useState<GetInvoicesParams>({ page: 1, per_page: 10 })
  const [successMessage, setSuccessMessage] = useState<string | null>(null)
- 
+
  // Modals state
  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
@@ -60,7 +60,7 @@ function InvoicesContent() {
 
  const [isFormOpen, setIsFormOpen] = useState(false)
  const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null)
- 
+
  const [printingInvoice, setPrintingInvoice] = useState<Invoice | null>(null)
 
  // Mock reference data for the form
@@ -166,16 +166,16 @@ function InvoicesContent() {
  {successMessage}
  </div>
  )}
- 
+
  <div className="flex justify-between items-center">
  <div>
  <h1 className="text-2xl font-bold text-text mb-1">الفواتير</h1>
  </div>
  </div>
 
- <InvoiceToolbar 
- filters={filters} 
- onFilterChange={handleFilterChange} 
+ <InvoiceToolbar
+ filters={filters}
+ onFilterChange={handleFilterChange}
  onCreateClick={handleCreate}
  />
 
@@ -185,7 +185,7 @@ function InvoicesContent() {
  </div>
  ) : (
  <>
- <InvoiceTable 
+ <InvoiceTable
  invoices={data?.data || []}
  onView={handleView}
  onPrint={handlePrint}
@@ -196,7 +196,7 @@ function InvoicesContent() {
  {/* Simple Pagination */}
  {data && data.last_page > 1 && (
  <div className="flex justify-center mt-6 gap-2">
- <button 
+ <button
  disabled={filters.page === 1}
  onClick={() => handleFilterChange({ ...filters, page: (filters.page || 1) - 1 })}
  className="px-4 py-2 rounded-lg bg-surface border border-border disabled:opacity-50 text-sm font-medium hover:bg-surface-container transition-colors"
@@ -206,7 +206,7 @@ function InvoicesContent() {
  <span className="px-4 py-2 text-sm text-text-muted font-medium flex items-center">
  صفحة {data.current_page} من {data.last_page}
  </span>
- <button 
+ <button
  disabled={filters.page === data.last_page}
  onClick={() => handleFilterChange({ ...filters, page: (filters.page || 1) + 1 })}
  className="px-4 py-2 rounded-lg bg-surface border border-border disabled:opacity-50 text-sm font-medium hover:bg-surface-container transition-colors"
@@ -219,7 +219,7 @@ function InvoicesContent() {
  )}
 
  {/* Modals */}
- <InvoiceDetailsModal 
+ <InvoiceDetailsModal
  isOpen={isDetailsOpen}
  onClose={() => setIsDetailsOpen(false)}
  invoice={selectedInvoice}

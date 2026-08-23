@@ -73,7 +73,7 @@ export const getMockStats = (): StatItem[] => [
  icon: 'money_off',
  iconColor: 'var(--color-danger)',
  iconBg: 'rgba(186,26,26,0.1)',
- trend: { direction: 'down', value: '2%' }, 
+ trend: { direction: 'down', value: '2%' },
  },
  {
  id: 'monthlyRevenue',

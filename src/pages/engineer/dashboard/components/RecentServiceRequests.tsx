@@ -36,7 +36,7 @@ export function RecentServiceRequests() {
  {t('dashboard.recentRequests.title')}
  </h4>
  </div>
- 
+
  <div className="overflow-x-auto">
  <table className={cn("w-full text-sm", isRTL ? "text-right" : "text-left")} dir={isRTL ? "rtl" : "ltr"}>
  <thead>

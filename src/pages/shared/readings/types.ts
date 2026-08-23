@@ -17,7 +17,7 @@ export interface MeterReading {
  notes: string | null
  created_at: string
  updated_at: string
- 
+
  // Relationships based on Laravel
  meter?: {
  id: number

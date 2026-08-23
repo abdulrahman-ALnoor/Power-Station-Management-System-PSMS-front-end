@@ -38,7 +38,7 @@ export function ChangeReadingStatusModal({ isOpen, onClose, reading, onSave }: C
  return createPortal(
  <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
  {/* BACKDROP */}
- <div 
+ <div
  onClick={onClose}
  style={{
  position: 'absolute',
@@ -47,14 +47,14 @@ export function ChangeReadingStatusModal({ isOpen, onClose, reading, onSave }: C
  zIndex: 0,
  }}
  />
- 
+
  {/* MODAL */}
- <aside 
+ <aside
  className="absolute inset-0 flex items-center justify-center p-4 sm:p-6"
  style={{ zIndex: 1 }}
  dir={isRTL ? 'rtl' : 'ltr'}
  >
- <div 
+ <div
  className="w-full max-w-md rounded-2xl shadow-2xl border border-border flex flex-col max-h-[calc(100vh-32px)] overflow-hidden"
  style={{
  backgroundColor: '#ffffff',
@@ -70,7 +70,7 @@ export function ChangeReadingStatusModal({ isOpen, onClose, reading, onSave }: C
  {isRTL ? 'تغيير حالة القراءة' : 'Change Reading Status'}
  </h2>
  </div>
- <button 
+ <button
  onClick={onClose}
  aria-label={isRTL ? 'إغلاق' : 'Close'}
  className="p-2 rounded-full hover:bg-surface-container :bg-surface-container transition-colors text-text-muted"
@@ -101,14 +101,14 @@ export function ChangeReadingStatusModal({ isOpen, onClose, reading, onSave }: C
  <h3 className="text-sm font-semibold text-primary ">
  {isRTL ? 'الحالة الجديدة' : 'New Status'}
  </h3>
- 
+
  <div className="space-y-3">
  {(['pending', 'approved', 'rejected'] as ReadingStatus[]).map((statusValue) => (
- <label 
- key={statusValue} 
+ <label
+ key={statusValue}
  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
- selectedStatus === statusValue 
- ? 'border-primary bg-primary/5 ' 
+ selectedStatus === statusValue
+ ? 'border-primary bg-primary/5 '
  : 'border-border hover:border-border hover:bg-surface-low :bg-surface-container/30'
  }`}
  >
@@ -127,7 +127,7 @@ export function ChangeReadingStatusModal({ isOpen, onClose, reading, onSave }: C
  ))}
  </div>
  </div>
- 
+
  {isSameStatus && (
  <p className="text-xs text-text-muted italic text-center">
  {isRTL ? 'الحالة الحالية هي نفسها الحالة الجديدة.' : 'The new status is the same as the current status.'}

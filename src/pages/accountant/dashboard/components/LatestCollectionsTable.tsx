@@ -50,7 +50,7 @@ export function LatestCollectionsTable({ data, isLoading }: LatestCollectionsTab
  <p className="text-sm text-text-muted">آخر عمليات تحصيل الدفعات</p>
  </div>
  </div>
- 
+
  <div className="flex-1 overflow-x-auto" dir="rtl">
  {data && data.length > 0 ? (
  <table className="w-full text-right border-collapse">

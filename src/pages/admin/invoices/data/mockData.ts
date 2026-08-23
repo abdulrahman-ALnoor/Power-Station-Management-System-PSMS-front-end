@@ -126,7 +126,7 @@ export const getMonthlyChartData = (invoices: Invoice[], isRTL: boolean) => {
  const d = new Date(invoice.created_at)
  // Create a key 'YYYY-MM'
  const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
- 
+
  // Format the month display name
  const monthStr = d.toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', { month: 'short' })
 

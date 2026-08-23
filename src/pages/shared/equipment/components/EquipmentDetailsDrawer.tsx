@@ -81,7 +81,7 @@ export function EquipmentDetailsDrawer({ equipment, isOpen, onClose, onStatusUpd
  </div>
 
  <div className="flex-1 overflow-y-auto p-6 space-y-6">
- 
+
  <div className="flex flex-wrap gap-3">
  <EquipmentStatusBadge status={equipment.status} className="px-3 py-1 text-sm" />
  </div>
@@ -102,7 +102,7 @@ export function EquipmentDetailsDrawer({ equipment, isOpen, onClose, onStatusUpd
  <p className="text-sm text-text font-medium">{equipment.serial_number || t('equipment.details.notSpecified')}</p>
  </div>
  </div>
- 
+
  <div className="flex items-start gap-3">
  <User size={18} className="text-text-muted mt-0.5 shrink-0" />
  <div>
@@ -151,9 +151,9 @@ export function EquipmentDetailsDrawer({ equipment, isOpen, onClose, onStatusUpd
  placeholder={t('equipment.details.statusChange.newStatus')}
  fullWidth
  />
- 
- <Button 
- className="w-full mt-2" 
+
+ <Button
+ className="w-full mt-2"
  disabled={!newStatus || isUpdating}
  onClick={handleStatusSave}
  >

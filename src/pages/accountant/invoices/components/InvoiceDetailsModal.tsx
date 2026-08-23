@@ -30,16 +30,16 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice }: InvoiceDetails
  }
 
  return createPortal(
- <div 
+ <div
  className="fixed inset-0 flex items-center justify-center p-4 sm:p-6"
  style={{ zIndex: 9999 }}
  dir="rtl"
  >
- <div 
+ <div
  className="absolute inset-0 bg-black/60 backdrop-blur-sm"
  onClick={onClose}
  />
- 
+
  <div className="relative bg-surface w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-border">
  {/* Header */}
  <div className="flex items-center justify-between p-6 border-b border-border bg-surface-container/30 shrink-0">
@@ -52,7 +52,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice }: InvoiceDetails
  <p className="text-sm text-text-muted mt-1">{invoice.invoice_number}</p>
  </div>
  </div>
- <button 
+ <button
  onClick={onClose}
  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container text-text-muted hover:text-text transition-colors"
  >
@@ -63,7 +63,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice }: InvoiceDetails
  {/* Content */}
  <div className="p-6 overflow-y-auto custom-scrollbar">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- 
+
  {/* Info Group 1 */}
  <div className="space-y-4">
  <div className="flex items-start gap-3">
@@ -112,13 +112,13 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice }: InvoiceDetails
  {/* Financial Details */}
  <div className="md:col-span-2 mt-4">
  <h3 className="text-sm font-bold text-text mb-4 border-b border-border pb-2">التفاصيل المالية</h3>
- 
+
  <div className="bg-surface-container/30 rounded-xl p-4 space-y-3">
  <div className="flex justify-between items-center pb-3 border-b border-border/50">
  <span className="text-sm text-text-muted">المبلغ قبل السداد</span>
  <span className="text-sm font-bold text-text">{invoice.outstanding_before_payment.toLocaleString()} ر.س</span>
  </div>
- 
+
  <div className="flex justify-between items-center pb-3 border-b border-border/50">
  <span className="text-sm text-text-muted">المبلغ المدفوع</span>
  <span className="text-sm font-bold text-success">{invoice.paid_amount.toLocaleString()} ر.س</span>

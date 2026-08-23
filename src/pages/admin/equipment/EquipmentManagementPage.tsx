@@ -6,24 +6,32 @@ import { EquipmentToolbar } from './components/EquipmentToolbar'
 import { EquipmentTable } from './components/EquipmentTable'
 import { EquipmentDetailsDrawer } from './components/EquipmentDetailsDrawer'
 import { AddEquipmentModal } from './components/AddEquipmentModal'
-import { MOCK_EQUIPMENT } from './data/mockData'
+import { fetchEquipmentById, mapEquipment } from '@/services/equipment.service'
+import type { Equipment } from './types'
 
 export function EquipmentManagementPage() {
  const { t } = useTranslation('equipment')
  const { isRTL } = useLanguage()
 
- const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<number | null>(null)
 
- // Laravel $table->id() is numeric.
- // Keep the frontend ID type consistent with the backend.
- const [selectedEquipmentId, setSelectedEquipmentId] = useState<number | null>(null)
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
 
- const selectedEquipment =
- selectedEquipmentId !== null
- ? MOCK_EQUIPMENT.find(
- (equipment) => equipment.id === selectedEquipmentId
- ) ?? null
- : null
+  const handleRowClick = (id: number) => {
+    setSelectedEquipmentId(id)
+    fetchEquipmentById(id)
+      .then((raw) => setSelectedEquipment(mapEquipment(raw)))
+      .catch(() => setSelectedEquipment(null))
+  }
+
+  const handleCreated = () => {
+    setIsAddModalOpen(false)
+    setRefreshKey((k) => k + 1)
+  }
 
  return (
  <>
@@ -41,31 +49,46 @@ export function EquipmentManagementPage() {
  {/* Statistics */}
  <EquipmentStats />
 
- {/* Toolbar */}
- <EquipmentToolbar
- onAddClick={() => setIsAddModalOpen(true)}
- />
+        {/* Statistics */}
+        <EquipmentStats key={`stats-${refreshKey}`} />
 
- {/* Equipment Table */}
- <EquipmentTable
- onRowClick={(id: number) => {
- setSelectedEquipmentId(id)
- }}
- />
- </div>
+        {/* Toolbar */}
+        <EquipmentToolbar
+          onAddClick={() => setIsAddModalOpen(true)}
+          search={search}
+          onSearchChange={setSearch}
+          status={status}
+          onStatusChange={setStatus}
+          onRefresh={() => setRefreshKey((k) => k + 1)}
+        />
 
- {/* Equipment Details Drawer */}
- <EquipmentDetailsDrawer
- equipment={selectedEquipment}
- isOpen={selectedEquipmentId !== null}
- onClose={() => setSelectedEquipmentId(null)}
- />
+        {/* Equipment Table */}
+        <EquipmentTable
+          onRowClick={handleRowClick}
+          onEditClick={handleRowClick}
+          search={search}
+          status={status}
+          refreshKey={refreshKey}
+          onDeleted={() => setRefreshKey((k) => k + 1)}
+        />
+      </div>
 
- {/* Add Equipment Modal */}
- <AddEquipmentModal
- isOpen={isAddModalOpen}
- onClose={() => setIsAddModalOpen(false)}
- />
- </>
- )
+      {/* Equipment Details Drawer */}
+      <EquipmentDetailsDrawer
+        equipment={selectedEquipment}
+        isOpen={selectedEquipmentId !== null}
+        onClose={() => {
+          setSelectedEquipmentId(null)
+          setSelectedEquipment(null)
+        }}
+      />
+
+      {/* Add Equipment Modal */}
+      <AddEquipmentModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onCreated={handleCreated}
+      />
+    </>
+  )
 }
