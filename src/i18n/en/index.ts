@@ -10,20 +10,24 @@ import settings from './settings'
 import readings from './readings'
 import { customers } from './customers'
 import { serviceRequests } from './serviceRequests'
+import { engineer } from './engineer'
+import reader from './reader'
 
 const en = {
-  common,
-  navigation,
-  auth,
-  dashboard,
-  employees,
-  meters,
-  equipment,
-  invoices,
-  settings,
-  readings,
-  customers,
-  serviceRequests,
+ common,
+ navigation,
+ auth,
+ dashboard,
+ employees,
+ meters,
+ equipment,
+ invoices,
+ settings,
+ readings,
+ customers,
+ serviceRequests,
+ engineer,
+ reader,
 }
 
 export default en

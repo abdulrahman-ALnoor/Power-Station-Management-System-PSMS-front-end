@@ -20,94 +20,94 @@ import { AddServiceRequestModal } from '../service-requests/components/AddServic
 import { AddInvoiceModal } from '../invoices/components/AddInvoiceModal'
 
 export default function DashboardPage() {
-  const { t } = useTranslation('dashboard')
-  const navigate = useNavigate()
+ const { t } = useTranslation('dashboard')
+ const navigate = useNavigate()
 
-  const [activeAction, setActiveAction] = useState<QuickActionType | null>(null)
+ const [activeAction, setActiveAction] = useState<QuickActionType | null>(null)
 
-  useEffect(() => {
-    document.title = `${t('title')} | PSMS`
-  }, [t])
+ useEffect(() => {
+ document.title = `${t('title')} | PSMS`
+ }, [t])
 
-  const handleActionSelect = (action: QuickActionType) => {
-    if (action === 'viewReports') {
-      navigate('/admin/readings')
-      return
-    }
-    setActiveAction(action)
-  }
+ const handleActionSelect = (action: QuickActionType) => {
+ if (action === 'viewReports') {
+ navigate('/admin/readings')
+ return
+ }
+ setActiveAction(action)
+ }
 
-  const handleCloseModal = () => {
-    setActiveAction(null)
-  }
+ const handleCloseModal = () => {
+ setActiveAction(null)
+ }
 
-  return (
-    <>
-      <div className="flex flex-col animate-in fade-in duration-500">
-        <DashboardStats />
-        <DashboardCharts />
-        
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-          <QuickActions onActionSelect={handleActionSelect} />
-          <EquipmentStatus />
-        </div>
+ return (
+ <>
+ <div className="flex flex-col animate-in fade-in duration-500">
+ <DashboardStats />
+ <DashboardCharts />
+ 
+ <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+ <QuickActions onActionSelect={handleActionSelect} />
+ <EquipmentStatus />
+ </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-          <LatestServiceRequests />
-          <LatestReadings />
-        </div>
+ <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+ <LatestServiceRequests />
+ <LatestReadings />
+ </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <RecentCollections />
-          <SystemNotifications />
-        </div>
-      </div>
-      
-      {/* Render Modals based on activeAction */}
-      <AddEmployeeModal 
-        isOpen={activeAction === 'addEmployee'} 
-        onClose={handleCloseModal} 
-      />
-      <AddMeterModal 
-        isOpen={activeAction === 'addMeter'} 
-        onClose={handleCloseModal} 
-      />
-      <AddMeterReadingModal 
-        isOpen={activeAction === 'addReading'} 
-        onClose={handleCloseModal}
-        onAdd={(reading) => {
-          console.log('Reading Added from Dashboard:', reading)
-          handleCloseModal()
-        }}
-      />
-      <AddEquipmentModal 
-        isOpen={activeAction === 'addEquipment'} 
-        onClose={handleCloseModal} 
-      />
-      <AddCustomerModal
-        isOpen={activeAction === 'addCustomer'}
-        onClose={handleCloseModal}
-        onAdd={(data) => {
-          console.log('Customer Added from Dashboard:', data)
-          handleCloseModal()
-        }}
-      />
-      <AddServiceRequestModal
-        isOpen={activeAction === 'requestService'}
-        onClose={handleCloseModal}
-        onAdd={(data) => {
-          console.log('Service Request Added from Dashboard:', data)
-          handleCloseModal()
-        }}
-      />
-      <AddInvoiceModal
-        isOpen={activeAction === 'createInvoice'}
-        onClose={handleCloseModal}
-        onAdd={(data) => {
-          console.log('Invoice Added from Dashboard:', data)
-          handleCloseModal()
-        }}
-      />
-    </>
-  )
+ <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+ <RecentCollections />
+ <SystemNotifications />
+ </div>
+ </div>
+ 
+ {/* Render Modals based on activeAction */}
+ <AddEmployeeModal 
+ isOpen={activeAction === 'addEmployee'} 
+ onClose={handleCloseModal} 
+ />
+ <AddMeterModal 
+ isOpen={activeAction === 'addMeter'} 
+ onClose={handleCloseModal} 
+ />
+ <AddMeterReadingModal 
+ isOpen={activeAction === 'addReading'} 
+ onClose={handleCloseModal}
+ onAdd={(reading) => {
+ console.log('Reading Added from Dashboard:', reading)
+ handleCloseModal()
+ }}
+ />
+ <AddEquipmentModal 
+ isOpen={activeAction === 'addEquipment'} 
+ onClose={handleCloseModal} 
+ />
+ <AddCustomerModal
+ isOpen={activeAction === 'addCustomer'}
+ onClose={handleCloseModal}
+ onAdd={(data) => {
+ console.log('Customer Added from Dashboard:', data)
+ handleCloseModal()
+ }}
+ />
+ <AddServiceRequestModal
+ isOpen={activeAction === 'requestService'}
+ onClose={handleCloseModal}
+ onAdd={(data) => {
+ console.log('Service Request Added from Dashboard:', data)
+ handleCloseModal()
+ }}
+ />
+ <AddInvoiceModal
+ isOpen={activeAction === 'createInvoice'}
+ onClose={handleCloseModal}
+ onAdd={(data) => {
+ console.log('Invoice Added from Dashboard:', data)
+ handleCloseModal()
+ }}
+ />
+ </>
+ )
 }
