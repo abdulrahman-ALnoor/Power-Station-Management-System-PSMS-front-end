@@ -1,20 +1,3 @@
-// ============================================================
-// Meters service — backend routes (routes/api.php + MeterController):
-//   GET    /meters             -> flat Laravel paginator (each item shaped by MeterResource)
-//                                  NOTE: this requires the backend index() fix (see step 12) —
-//                                  the original controller wrapped a paginator in
-//                                  MeterResource::collection() *inside* the custom success()
-//                                  envelope, which silently drops pagination meta
-//                                  (total/last_page/current_page). The fixed version keeps
-//                                  the paginator object itself so it serializes with full meta,
-//                                  exactly like /users and /equipment.
-//   GET    /meters/{id}        -> MeterResource (single object)
-//   POST   /meters             -> MeterResource
-//   PUT    /meters/{id}        -> MeterResource
-//   DELETE /meters/{id}
-//   GET    /meters/stats       -> { total_meters, active, disconnected, maintenance, damaged }
-// ============================================================
-
 import apiClient from './api'
 import type { ApiResponse, LaravelPaginated } from '@/types/api'
 import type {
@@ -24,7 +7,6 @@ import type {
   UpdateMeterPayload,
 } from '@/pages/admin/meters/types'
 
-/** Raw shape for a single meter, as returned by MeterResource (list items and single show/store/update). */
 export interface MeterApiRecord {
   id: number
   customer: { id: number | null; full_name: string | null }
@@ -34,13 +16,13 @@ export interface MeterApiRecord {
   installation_date: string | null
   installation_location: string | null
   status: MeterStatus | null
+  readings_count?: number
   installer: { id: number | null; name: string | null }
   creator: { id: number | null; name: string | null }
   created_at: string
   updated_at: string
 }
 
-/** Maps the backend's MeterResource shape into the frontend's flat Meter type. */
 export function mapMeter(raw: MeterApiRecord): Meter {
   return {
     id: raw.id,
@@ -74,6 +56,14 @@ export interface MeterListParams {
   status?: MeterStatus
 }
 
+export interface MeterLastReadingResponse {
+  meter_id: number
+  meter_number: string
+  customer_name: string
+  previous_reading: number
+  last_reading_date: string | null
+}
+
 export async function fetchMeterList(
   params: MeterListParams = {},
 ): Promise<LaravelPaginated<MeterApiRecord>> {
@@ -86,6 +76,11 @@ export async function fetchMeterList(
 
 export async function fetchMeterById(id: number): Promise<MeterApiRecord> {
   const response = await apiClient.get<ApiResponse<MeterApiRecord>>(`/meters/${id}`)
+  return response.data.data
+}
+
+export async function fetchMeterLastReading(id: number): Promise<MeterLastReadingResponse> {
+  const response = await apiClient.get<ApiResponse<MeterLastReadingResponse>>(`/meters/${id}/last-reading`)
   return response.data.data
 }
 

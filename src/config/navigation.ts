@@ -30,6 +30,13 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
  permission: 'employees.view',
  },
  {
+ key: 'customers',
+ labelKey: 'navigation:customers',
+ icon: 'UserCheck',
+ path: '/admin/customers',
+ permission: 'customers.view',
+ },
+ {
  key: 'meters',
  labelKey: 'navigation:meters',
  icon: 'Gauge',
@@ -63,6 +70,13 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
  icon: 'Settings',
  path: '/admin/settings',
  permission: 'settings.view',
+ },
+ {
+ key: 'reports',
+ labelKey: 'navigation:reports',
+ icon: 'FileText',
+ path: '/admin/reports',
+ permission: 'reports.view',
  },
  ],
  },

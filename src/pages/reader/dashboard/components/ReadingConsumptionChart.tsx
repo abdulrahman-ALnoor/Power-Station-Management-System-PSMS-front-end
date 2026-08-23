@@ -18,6 +18,13 @@ export function ReadingConsumptionChart({ data }: ReadingConsumptionChartProps) 
  'الأربعاء': 'wednesday',
  'الخميس': 'thursday',
  'الجمعة': 'friday',
+ 'يوم 1': 'saturday',
+ 'يوم 2': 'sunday',
+ 'يوم 3': 'monday',
+ 'يوم 4': 'tuesday',
+ 'يوم 5': 'wednesday',
+ 'يوم 6': 'thursday',
+ 'يوم 7': 'friday',
  }
 
  return (

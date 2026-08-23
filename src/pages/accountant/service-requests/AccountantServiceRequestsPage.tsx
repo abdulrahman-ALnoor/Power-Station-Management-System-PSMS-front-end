@@ -27,16 +27,30 @@ export function AccountantServiceRequestsPage() {
  const [currentPage, setCurrentPage] = useState(1)
  const [lastPage, setLastPage] = useState(1)
 
- const [filters, setFilters] = useState<GetServiceRequestsParams>({
- page: 1,
- per_page: 10,
- search: '',
- status: 'all',
- request_type: 'all',
- priority: 'all',
- // Using mockCurrentUser for Accountant as well just like Reader
- created_by: mockCurrentUser.id,
- })
+  const [statsData, setStatsData] = useState<{
+    total: number
+    pending: number
+    assigned: number
+    in_progress: number
+    completed: number
+    cancelled: number
+  }>({
+    total: 0,
+    pending: 0,
+    assigned: 0,
+    in_progress: 0,
+    completed: 0,
+    cancelled: 0,
+  })
+
+  const [filters, setFilters] = useState<GetServiceRequestsParams>({
+    page: 1,
+    per_page: 10,
+    search: '',
+    status: 'all',
+    request_type: 'all',
+    priority: 'all',
+  })
 
  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null)
  const [requestToEdit, setRequestToEdit] = useState<ServiceRequest | undefined>()
@@ -48,21 +62,40 @@ export function AccountantServiceRequestsPage() {
 
  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
- const fetchRequests = async (currentFilters: GetServiceRequestsParams) => {
- setIsLoading(true)
- setError(null)
- try {
- const response = await serviceRequestService.getServiceRequests(currentFilters)
- setData(response.data)
- setTotal(response.total)
- setCurrentPage(response.current_page)
- setLastPage(response.last_page)
- } catch (err) {
- setError(t('serviceRequests.errorState', 'حدث خطأ أثناء جلب البيانات'))
- } finally {
- setIsLoading(false)
- }
- }
+  const fetchRequests = async (currentFilters: GetServiceRequestsParams) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const [response, statsResponse] = await Promise.all([
+        serviceRequestService.getServiceRequests(currentFilters),
+        serviceRequestService.getServiceRequestStats().catch(() => null),
+      ])
+
+      setData(response.data)
+      setTotal(response.total)
+      setCurrentPage(response.current_page)
+      setLastPage(response.last_page)
+
+      if (statsResponse) {
+        setStatsData(statsResponse)
+      }
+    } catch (err: any) {
+      const status = err?.response?.status || err?.status
+      if (status === 401) {
+        setError('انتهت جلسة الدخول، يرجى تسجيل الدخول مرة أخرى.')
+      } else if (status === 403) {
+        setError('ليس لديك صلاحية للوصول إلى طلبات الخدمة.')
+      } else if (status === 404) {
+        setError('لم يتم العثور على طلبات الخدمة.')
+      } else if (status === 500) {
+        setError('حدث خطأ في الخادم أثناء جلب طلبات الخدمة.')
+      } else {
+        setError(err?.message || 'تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
  useEffect(() => {
  fetchRequests(filters)
@@ -139,8 +172,8 @@ export function AccountantServiceRequestsPage() {
  </div>
  )}
 
- {/* Stats */}
- <ServiceRequestStats requests={data} />
+  {/* Stats */}
+  <ServiceRequestStats requests={data} stats={statsData} />
 
  {/* Error State */}
  {error && (

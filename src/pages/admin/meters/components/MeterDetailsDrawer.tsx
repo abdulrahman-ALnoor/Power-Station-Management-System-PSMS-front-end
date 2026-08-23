@@ -233,120 +233,75 @@ export function MeterDetailsDrawer({ meter, isOpen, onClose }: MeterDetailsDrawe
             "
           >
 
-            {/* معلومات العداد */}
-
-            <div
-              className="
-                flex
-                items-center
-                gap-4
-                rounded-xl
-                border
-                border-gray-100
-                bg-gray-50
-                p-4
-              "
-            >
-
-              {meter.qr_code_url ? (
-
+              {/* QR Display + Actions */}
+              <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 w-full">
                 <img
-                  src={meter.qr_code_url}
-                  alt={t('drawer.qrImage')}
-                  className="
-                    h-16
-                    w-16
-                    shrink-0
-                    rounded-lg
-                    border
-                    border-gray-200
-                    bg-white
-                    object-contain
-                  "
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(meter.qr_code || meter.meter_number)}`}
+                  alt={meter.meter_number}
+                  className="h-24 w-24 rounded-lg border border-gray-200 bg-white p-1 object-contain shrink-0"
                 />
 
-              ) : (
-
-                <div
-                  className="
-                    flex
-                    h-16
-                    w-16
-                    shrink-0
-                    items-center
-                    justify-center
-                    rounded-lg
-                    bg-primary/10
-                    text-primary
-                  "
-                >
-                  <Zap size={30} />
+                <div className="flex-1 min-w-0 text-center sm:text-right">
+                  <h4 className="font-bold text-lg text-gray-900 truncate">{meter.meter_number}</h4>
+                  <p className="text-xs text-gray-500 font-mono mt-0.5 flex items-center justify-center sm:justify-start gap-1">
+                    <QrCode size={14} />
+                    <span>{meter.qr_code || '-'}</span>
+                  </p>
+                  <div className="flex items-center justify-center sm:justify-start gap-2 mt-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const win = window.open('', '_blank')
+                        if (win) {
+                          win.document.write(`
+                            <div style="text-align:center;padding:40px;font-family:sans-serif;">
+                              <h2>رمز QR للعداد: ${meter.meter_number}</h2>
+                              <p>العميل: ${meter.customerName || 'غير محدد'}</p>
+                              <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(meter.qr_code || meter.meter_number)}" style="margin:20px 0;" />
+                              <p style="font-family:monospace;font-size:16px;">${meter.qr_code}</p>
+                              <script>window.print();</script>
+                            </div>
+                          `)
+                          win.document.close()
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      طباعة ملصق الـ QR
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(meter.qr_code || meter.meter_number)}`
+                          const res = await fetch(qrUrl)
+                          const blob = await res.blob()
+                          const url = URL.createObjectURL(blob)
+                          const a = document.createElement('a')
+                          a.href = url
+                          a.download = `QR-${meter.meter_number}.png`
+                          a.click()
+                          URL.revokeObjectURL(url)
+                        } catch {
+                          window.open(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(meter.qr_code || meter.meter_number)}`, '_blank')
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-gray-800 text-white text-xs font-bold rounded-lg hover:bg-gray-900 transition-colors"
+                    >
+                      تنزيل QR
+                    </button>
+                  </div>
                 </div>
 
-              )}
-
-
-              <div
-                className="
-                  min-w-0
-                  flex-1
-                "
-              >
-
-                <h4
-                  className="
-                    truncate
-                    text-lg
-                    font-bold
-                    text-gray-900
-                  "
+                <span
+                  className={cn(
+                    'shrink-0 rounded-full px-3 py-1 text-xs font-semibold self-center',
+                    getStatusStyle(meter.status || ''),
+                  )}
                 >
-                  {meter.meter_number}
-                </h4>
-
-                <p
-                  className="
-                    mt-1
-                    flex
-                    items-center
-                    gap-1
-                    truncate
-                    text-sm
-                    text-gray-500
-                  "
-                >
-                  <QrCode size={14} />
-
-                  {meter.qr_code || '-'}
-
-                </p>
-
+                  {meter.status ? t(`status.${meter.status}`) : '-'}
+                </span>
               </div>
-
-
-              <span
-                className={cn(
-                  `
-                    shrink-0
-                    rounded-full
-                    px-3
-                    py-1
-                    text-sm
-                    font-semibold
-                  `,
-                  getStatusStyle(
-                    meter.status || '',
-                  ),
-                )}
-              >
-                {meter.status
-                  ? t(
-                      `status.${meter.status}`,
-                    )
-                  : '-'}
-              </span>
-
-            </div>
 
 
             {/* معلومات العميل */}

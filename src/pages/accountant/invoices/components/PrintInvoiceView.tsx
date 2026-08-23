@@ -3,6 +3,8 @@ import { Invoice } from '../types'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
 
+import { ALBARQ_LOGO_URL, ALBARQ_LOGO_FALLBACK } from '@/components/common/BrandLogo'
+
 interface PrintInvoiceViewProps {
  invoice: Invoice
 }
@@ -25,7 +27,7 @@ export function PrintInvoiceView({ invoice }: PrintInvoiceViewProps) {
  <h1 className="text-3xl font-bold mb-2">نظام البرق</h1>
  <p className="text-gray-600 text-sm">طاقة مستدامة، خدمة أفضل</p>
  </div>
- <img src="/albarq-logo.jpg" alt="Company Logo" className="w-32 h-auto object-contain mix-blend-multiply" />
+ <img src={ALBARQ_LOGO_URL} onError={(e) => { (e.currentTarget as HTMLImageElement).src = ALBARQ_LOGO_FALLBACK }} alt="شعار نظام البرق" className="w-32 h-auto object-contain mix-blend-multiply" />
  </div>
 
  {/* INVOICE INFORMATION */}

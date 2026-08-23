@@ -37,8 +37,18 @@ export function AddMeterModal({ isOpen, onClose, onSaved, meter }: AddMeterModal
     fetchCustomers()
       .then(setCustomers)
       .catch(() => setCustomers([]))
-    fetchEmployees({ per_page: 100 })
-      .then((res) => setEmployees(res.data.map(mapEmployee)))
+    fetchEmployees({ per_page: 100, role: 'engineer' })
+      .then((res) => {
+        const mapped = res.data.map(mapEmployee)
+        if (mapped.length > 0) {
+          setEmployees(mapped)
+        } else {
+          // fallback to all employees if no specific engineers exist
+          fetchEmployees({ per_page: 100 })
+            .then((allRes) => setEmployees(allRes.data.map(mapEmployee)))
+            .catch(() => setEmployees([]))
+        }
+      })
       .catch(() => setEmployees([]))
   }, [isOpen])
 

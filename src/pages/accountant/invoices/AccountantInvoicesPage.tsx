@@ -5,7 +5,7 @@ import { Invoice, GetInvoicesParams, PaginatedResponse } from './types'
 import { InvoiceToolbar } from './components/InvoiceToolbar'
 import { InvoiceTable } from './components/InvoiceTable'
 import { InvoiceDetailsModal } from './components/InvoiceDetailsModal'
-import { InvoiceFormModal } from './components/InvoiceFormModal'
+import { AddInvoiceModal } from '@/pages/admin/invoices/components/AddInvoiceModal'
 import { PrintInvoiceView } from './components/PrintInvoiceView'
 import { ConfirmDialog } from '@/components/overlays/ConfirmDialog'
 
@@ -235,14 +235,14 @@ function InvoicesContent() {
  invoice={selectedInvoice}
  />
 
- <InvoiceFormModal
- isOpen={isFormOpen}
- onClose={() => setIsFormOpen(false)}
- onSave={handleSaveInvoice}
- initialData={invoiceToEdit}
- customers={customersList}
- consumptionCharges={consumptionChargesList}
- />
+ <AddInvoiceModal
+    isOpen={isFormOpen}
+    onClose={() => setIsFormOpen(false)}
+    onAdd={() => {
+      showSuccess('تم إنشاء الفاتورة بنجاح')
+      fetchInvoices()
+    }}
+  />
 
  <ConfirmDialog
  open={isDeleteOpen}

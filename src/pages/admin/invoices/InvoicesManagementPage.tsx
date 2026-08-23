@@ -227,39 +227,35 @@ export function InvoicesManagementPage() {
     setIsExporting(true)
 
     try {
-      const blob =
-        await downloadInvoicePdf(
-          invoice.id,
+      const result = await downloadInvoicePdf(invoice.id)
+
+      if (result && typeof result === 'object' && result.pdf_url) {
+        const invoiceNum = invoice.invoice_number || result.invoice_number || `INV-${invoice.id}`
+        
+        const link = document.createElement('a')
+        link.href = result.pdf_url
+        link.target = '_blank'
+        link.download = `${invoiceNum}.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        showSuccess(
+          `تم تصدير الفاتورة ${invoiceNum} بنجاح.`,
+          'تم التحميل بنجاح',
         )
-
-      const url =
-        window.URL.createObjectURL(
-          blob,
-        )
-
-      const link =
-        document.createElement('a')
-
-      link.href = url
-
-      link.download =
-        `invoice-${invoice.invoice_number}.pdf`
-
-      document.body.appendChild(link)
-
-      link.click()
-
-      document.body.removeChild(link)
-
-      window.URL.revokeObjectURL(url)
+      } else {
+        throw new Error('لم يتم إرجاع رابط فاتورة صالح.')
+      }
     } catch (requestError) {
+      console.error('PDF Export Error:', requestError)
       const apiError = requestError as {
         message?: string
       }
 
-      window.alert(
-        apiError.message ||
-          'تعذر تنزيل ملف PDF للفاتورة.',
+      showError(
+        apiError.message || 'تعذر تنزيل الفاتورة. يرجى المحاولة مرة أخرى.',
+        'فشلت عملية التنزيل',
       )
     } finally {
       setIsExporting(false)
@@ -565,6 +561,9 @@ const handleDelete = (
         onClose={() =>
           setSelectedInvoiceId(null)
         }
+        onDownloadPdf={(id, invoiceNumber) => {
+          void handleExport({ id, invoice_number: invoiceNumber } as InvoiceApiRecord)
+        }}
       />
 
       {/* Add Invoice Modal */}

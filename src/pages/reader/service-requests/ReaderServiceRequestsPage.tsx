@@ -34,7 +34,6 @@ export function ReaderServiceRequestsPage() {
  status: 'all',
  request_type: 'all',
  priority: 'all',
- created_by: mockCurrentUser.id,
  })
 
  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null)

@@ -1,8 +1,3 @@
-// ============================================================
-// useLoginForm — Login form state, validation, and submission
-// Separates form logic from the visual Login component
-// ============================================================
-
 import { useState, useCallback, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -12,26 +7,26 @@ import type { ApiError } from '@/types/api'
 import type { UserRole } from '@/types/common'
 
 export interface LoginFormValues {
- username: string
- password: string
- rememberMe: boolean
+  email: string
+  password: string
+  rememberMe: boolean
 }
 
 export interface LoginFormErrors {
- username?: string
- password?: string
- general?: string
+  email?: string
+  password?: string
+  general?: string
 }
 
 interface UseLoginFormReturn {
- values: LoginFormValues
- errors: LoginFormErrors
- isLoading: boolean
- showPassword: boolean
- handleChange: (field: keyof LoginFormValues, value: string | boolean) => void
- handleSubmit: (e: FormEvent) => Promise<void>
- toggleShowPassword: () => void
- clearError: (field: keyof LoginFormErrors) => void
+  values: LoginFormValues
+  errors: LoginFormErrors
+  isLoading: boolean
+  showPassword: boolean
+  handleChange: (field: keyof LoginFormValues, value: string | boolean) => void
+  handleSubmit: (e: FormEvent) => Promise<void>
+  toggleShowPassword: () => void
+  clearError: (field: keyof LoginFormErrors) => void
 }
 
 export function useLoginForm(): UseLoginFormReturn {
@@ -40,7 +35,7 @@ export function useLoginForm(): UseLoginFormReturn {
   const navigate = useNavigate()
 
   const [values, setValues] = useState<LoginFormValues>({
-    username: '',
+    email: '',
     password: '',
     rememberMe: false,
   })
@@ -52,7 +47,6 @@ export function useLoginForm(): UseLoginFormReturn {
   const handleChange = useCallback(
     (field: keyof LoginFormValues, value: string | boolean) => {
       setValues((prev) => ({ ...prev, [field]: value }))
-      // Clear field error on change
       if (errors[field as keyof LoginFormErrors]) {
         setErrors((prev) => ({ ...prev, [field]: undefined }))
       }
@@ -67,14 +61,16 @@ export function useLoginForm(): UseLoginFormReturn {
   const validate = useCallback((): boolean => {
     const newErrors: LoginFormErrors = {}
 
-    if (!values.username.trim()) {
-      newErrors.username = t('login.usernameRequired')
+    if (!values.email.trim()) {
+      newErrors.email = t('login.emailRequired', 'البريد الإلكتروني مطلوب')
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
+      newErrors.email = t('login.emailInvalid', 'يرجى إدخال بريد إلكتروني صحيح')
     }
 
     if (!values.password) {
-      newErrors.password = t('login.passwordRequired')
+      newErrors.password = t('login.passwordRequired', 'كلمة المرور مطلوبة')
     } else if (values.password.length < 6) {
-      newErrors.password = t('login.passwordMinLength')
+      newErrors.password = t('login.passwordMinLength', 'كلمة المرور يجب أن لا تقل عن 6 أحرف')
     }
 
     setErrors(newErrors)
@@ -91,27 +87,35 @@ export function useLoginForm(): UseLoginFormReturn {
       setErrors({})
 
       try {
-        // ── Backend integration ─────────────────────────────
-        // The username field is used as the email — the login form only
-        // has one identity field, and the backend's /login expects email.
         const result = await loginRequest({
-          email: values.username,
+          email: values.email.trim(),
           password: values.password,
         })
 
+        const userInfo = result.user_info || (result as any).user
+
         login(result.token, {
-          id: result.user_info.id,
-          name: result.user_info.name,
-          email: result.user_info.email,
-          role: result.user_info.role as UserRole,
-          permissions: result.user_info.permissions,
+          id: userInfo.id,
+          name: userInfo.name,
+          email: userInfo.email,
+          role: userInfo.role as UserRole,
+          permissions: userInfo.permissions || [],
         })
 
-        navigate('/admin/dashboard')
-      } catch (err) {
+        const userRole = (userInfo.role || '').toLowerCase()
+        if (userRole === 'accountant') {
+          navigate('/accountant/dashboard')
+        } else if (userRole === 'engineer') {
+          navigate('/engineer/dashboard')
+        } else if (userRole === 'reader') {
+          navigate('/reader/dashboard')
+        } else {
+          navigate('/admin/dashboard')
+        }
+      } catch (err: any) {
         const apiError = err as ApiError
         setErrors({
-          general: apiError.message || t('login.loginFailed'),
+          general: apiError?.message || err?.response?.data?.message || t('login.loginFailed', 'فشل في تسجيل الدخول. يرجى التأكد من البيانات.'),
         })
       } finally {
         setIsLoading(false)

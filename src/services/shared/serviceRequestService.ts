@@ -54,6 +54,7 @@ class ServiceRequestService {
 
       const data: ServiceRequest[] = rawList.map((item) => ({
         id: item.id,
+        request_number: item.request_number || `SR-${String(item.id).padStart(4, '0')}`,
         meter_id: item.meter_id,
         customer_id: item.customer_id,
         created_by: item.created_by || 1,
@@ -68,6 +69,11 @@ class ServiceRequestService {
         customer: item.customer ? { id: item.customer.id, full_name: item.customer.full_name || item.customer.name } : undefined,
         meter: item.meter ? { id: item.meter.id, meter_number: item.meter.meter_number } : undefined,
         creator: item.creator ? { id: item.creator.id, name: item.creator.name } : undefined,
+        assignedEngineer: item.assigned_engineer
+          ? { id: item.assigned_engineer.id, name: item.assigned_engineer.name }
+          : (item.assignedEngineer
+              ? { id: item.assignedEngineer.id, name: item.assignedEngineer.name }
+              : undefined),
       }))
 
       return {
@@ -77,19 +83,24 @@ class ServiceRequestService {
         per_page: perPage,
         total,
         from: (currentPage - 1) * perPage + 1,
+        from: (currentPage - 1) * perPage + 1,
         to: Math.min(currentPage * perPage, total),
       }
-    } catch {
-      return {
-        data: [],
-        current_page: 1,
-        last_page: 1,
-        per_page: params.per_page || 10,
-        total: 0,
-        from: 0,
-        to: 0,
-      }
+    } catch (error) {
+      throw error
     }
+  }
+
+  async getServiceRequestStats(): Promise<{
+    total: number
+    pending: number
+    assigned: number
+    in_progress: number
+    completed: number
+    cancelled: number
+  }> {
+    const response = await apiClient.get<ApiResponse<any>>('/service-requests/stats')
+    return response.data.data
   }
 
   async createServiceRequest(data: any): Promise<ServiceRequest> {
@@ -117,31 +128,68 @@ class ServiceRequestService {
     }
   }
 
-  async getCustomers() {
+  async getCustomers(): Promise<{ id: number; full_name: string }[]> {
     try {
-      const response = await apiClient.get<ApiResponse<any[]>>('/customers')
-      const raw = response.data.data || []
-      return raw.map((c) => ({ id: c.id, full_name: c.full_name || c.name }))
-    } catch {
-      return []
+      const response = await apiClient.get<ApiResponse<any>>('/customers', {
+        params: { per_page: 100 },
+      })
+      const rawPayload = response.data?.data
+      let list: any[] = []
+
+      if (Array.isArray(rawPayload)) {
+        list = rawPayload
+      } else if (rawPayload && Array.isArray(rawPayload.data)) {
+        list = rawPayload.data
+      }
+
+      return list.map((c) => ({
+        id: c.id,
+        full_name: c.full_name || c.name || `عميل #${c.id}`,
+      }))
+    } catch (error) {
+      throw error
     }
   }
 
-  async getMetersByCustomer(customerId: number) {
+  async getMetersByCustomer(customerId: number): Promise<{ id: number; meter_number: string; status?: string; installation_location?: string }[]> {
+    if (!customerId) return []
     try {
-      const response = await apiClient.get<ApiResponse<any[]>>('/meters')
-      const raw = response.data.data || []
-      return raw.filter((m) => m.customer_id === customerId).map((m) => ({ id: m.id, meter_number: m.meter_number }))
-    } catch {
-      return []
+      const response = await apiClient.get<ApiResponse<any>>('/meters', {
+        params: { customer_id: customerId, per_page: 100 },
+      })
+      const rawPayload = response.data?.data
+      let list: any[] = []
+
+      if (Array.isArray(rawPayload)) {
+        list = rawPayload
+      } else if (rawPayload && Array.isArray(rawPayload.data)) {
+        list = rawPayload.data
+      }
+
+      return list
+        .filter((m) => Number(m.customer_id) === Number(customerId))
+        .map((m) => ({
+          id: m.id,
+          meter_number: m.meter_number,
+          status: m.status,
+          installation_location: m.installation_location,
+        }))
+    } catch (error) {
+      throw error
     }
   }
 
-  async updateServiceRequestStatus(id: number, status: string): Promise<ServiceRequest> {
-    const response = await apiClient.put<ApiResponse<any>>(`/service-requests/${id}`, { status })
+  async updateServiceRequestStatus(
+    id: number,
+    status: string,
+    extraData?: { execution_notes?: string; completion_notes?: string; cancellation_reason?: string }
+  ): Promise<ServiceRequest> {
+    const payload = { status, ...extraData }
+    const response = await apiClient.patch<ApiResponse<any>>(`/service-requests/${id}/status`, payload)
     const item = response.data.data
     return {
       id: item.id,
+      request_number: item.request_number || `SR-${String(item.id).padStart(4, '0')}`,
       meter_id: item.meter_id,
       customer_id: item.customer_id,
       created_by: item.created_by || 1,
@@ -153,6 +201,14 @@ class ServiceRequestService {
       completed_at: item.completed_at || null,
       created_at: item.created_at,
       updated_at: item.updated_at || item.created_at,
+      customer: item.customer ? { id: item.customer.id, full_name: item.customer.full_name || item.customer.name } : undefined,
+      meter: item.meter ? { id: item.meter.id, meter_number: item.meter.meter_number } : undefined,
+      creator: item.creator ? { id: item.creator.id, name: item.creator.name } : undefined,
+      assignedEngineer: item.assigned_engineer
+        ? { id: item.assigned_engineer.id, name: item.assigned_engineer.name }
+        : (item.assignedEngineer
+            ? { id: item.assignedEngineer.id, name: item.assignedEngineer.name }
+            : undefined),
     }
   }
 

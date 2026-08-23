@@ -47,23 +47,47 @@ export function AccountantReadingsPage() {
 
  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
- const stats = useMemo(() => getMeterReadingStats(data), [data])
+ const [statsData, setStatsData] = useState<MeterReadingStatsData>({
+    totalReadings: 0,
+    approvedReadings: 0,
+    pendingReadings: 0,
+    rejectedReadings: 0,
+    totalConsumption: 0,
+    totalReadingCost: 0,
+  })
 
- const fetchReadings = async (currentFilters: GetReadingsParams) => {
- setIsLoading(true)
- setError(null)
- try {
- const response = await readingService.getReadings(currentFilters)
- setData(response.data)
- setTotal(response.total)
- setCurrentPage(response.current_page)
- setLastPage(response.last_page)
- } catch (err) {
- setError('حدث خطأ أثناء جلب البيانات')
- } finally {
- setIsLoading(false)
- }
- }
+  const fetchReadings = async (currentFilters: GetReadingsParams) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const [readingsRes, statsRes] = await Promise.all([
+        readingService.getReadings(currentFilters),
+        readingService.getStats().catch(() => null),
+      ])
+
+      setData(readingsRes.data)
+      setTotal(readingsRes.total)
+      setCurrentPage(readingsRes.current_page)
+      setLastPage(readingsRes.last_page)
+
+      if (statsRes) {
+        setStatsData({
+          totalReadings: statsRes.total_readings || 0,
+          approvedReadings: statsRes.approved_readings || 0,
+          pendingReadings: statsRes.pending_readings || 0,
+          rejectedReadings: statsRes.rejected_readings || 0,
+          totalConsumption: statsRes.total_consumption || 0,
+          totalReadingCost: statsRes.expected_revenue || 0,
+        })
+      } else {
+        setStatsData(getMeterReadingStats(readingsRes.data))
+      }
+    } catch (err) {
+      setError('حدث خطأ أثناء جلب البيانات')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
  useEffect(() => {
  fetchReadings(filters)
@@ -138,7 +162,7 @@ export function AccountantReadingsPage() {
  )}
 
  {/* Stats */}
- <MeterReadingStats stats={stats} />
+ <MeterReadingStats stats={statsData} />
 
  {/* Toolbar */}
  <MeterReadingToolbar

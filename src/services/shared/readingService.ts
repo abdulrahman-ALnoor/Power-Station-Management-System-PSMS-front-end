@@ -23,13 +23,7 @@ class ReadingService {
     if (params.method && params.method !== 'all') queryParams.method = params.method
     if (params.date && params.date !== 'all') queryParams.date = params.date
 
-    let response
-    try {
-      response = await apiClient.get<ApiResponse<any>>('/reader/readings', { params: queryParams })
-    } catch {
-      response = await apiClient.get<ApiResponse<any>>('/meter-readings', { params: queryParams })
-    }
-
+    const response = await apiClient.get<ApiResponse<any>>('/meter-readings', { params: queryParams })
     const raw = response.data.data
 
     let rawList: any[] = []
@@ -92,6 +86,42 @@ class ReadingService {
       from: (currentPage - 1) * perPage + 1,
       to: Math.min(currentPage * perPage, total),
     }
+  }
+
+  async getMeterByQr(qrCode: string): Promise<{
+    id: number
+    meter_number: string
+    qr_code: string
+    status: string
+    installation_location?: string
+    customer?: { id: number; full_name: string }
+    previous_reading: number
+  }> {
+    const response = await apiClient.get<ApiResponse<any>>(`/meters/by-qr/${encodeURIComponent(qrCode)}`)
+    return response.data.data
+  }
+
+  async getMeterForReading(meterId: number): Promise<{
+    meter_id: number
+    meter_number: string
+    customer_name: string
+    previous_reading: number
+  }> {
+    const response = await apiClient.get<ApiResponse<any>>(`/meters/${meterId}/last-reading`)
+    return response.data.data
+  }
+  async getStats(): Promise<{
+    total_readings: number
+    total_consumption: number
+    expected_revenue: number
+    approved_readings: number
+    pending_readings: number
+    rejected_readings: number
+    this_month_consumption: number
+    this_month_revenue: number
+  }> {
+    const response = await apiClient.get<ApiResponse<any>>('/meter-readings/stats')
+    return response.data.data
   }
 }
 

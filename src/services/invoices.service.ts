@@ -88,6 +88,63 @@ export async function fetchInvoiceStats(): Promise<InvoiceStatsResponse> {
   return response.data.data
 }
 
+export interface CustomerOption {
+  id: number
+  full_name: string
+  customer_number?: string
+}
+
+export interface MeterOption {
+  id: number
+  meter_number: string
+  installation_location?: string
+  status?: string
+}
+
+export async function fetchCustomersDropdown(): Promise<CustomerOption[]> {
+  const response = await apiClient.get<ApiResponse<any>>('/customers', {
+    params: { per_page: 100 },
+  })
+  const raw = response.data?.data
+  const items = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : []
+  return items.map((c: any) => ({
+    id: c.id,
+    full_name: c.full_name || c.name || `عميل #${c.id}`,
+    customer_number: c.customer_number,
+  }))
+}
+
+export async function fetchCustomerMeters(customerId: number): Promise<MeterOption[]> {
+  const response = await apiClient.get<ApiResponse<any>>('/meters', {
+    params: { customer_id: customerId, per_page: 100 },
+  })
+  const raw = response.data?.data
+  const items = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : []
+  return items.map((m: any) => ({
+    id: m.id,
+    meter_number: m.meter_number,
+    installation_location: m.installation_location,
+    status: m.status,
+  }))
+}
+
+export async function fetchMeterConsumptionCharges(
+  customerId: number,
+  meterId: number,
+): Promise<ConsumptionChargeRecord[]> {
+  const response = await apiClient.get<ApiResponse<ConsumptionChargeRecord[]>>(
+    '/consumption-charges',
+    {
+      params: {
+        customer_id: customerId,
+        meter_id: meterId,
+        status: 'unpaid',
+      },
+    },
+  )
+  return response.data.data || []
+}
+
 export async function fetchConsumptionCharges(): Promise<ConsumptionChargeRecord[]> {
   const response = await apiClient.get<ApiResponse<ConsumptionChargeRecord[]>>(
     '/consumption-charges',
@@ -128,17 +185,20 @@ export async function deleteInvoice(id: number): Promise<void> {
   await apiClient.delete(`/invoices/${id}`)
 }
 
+export interface InvoicePdfExportResult {
+  pdf_url: string
+  invoice_number?: string
+  invoice_id?: number
+}
+
 export async function downloadInvoicePdf(
   invoiceId: number,
-): Promise<Blob> {
-  const response = await apiClient.get(
+): Promise<InvoicePdfExportResult> {
+  const response = await apiClient.get<ApiResponse<InvoicePdfExportResult>>(
     `/invoices/${invoiceId}/pdf`,
-    {
-      responseType: 'blob',
-    },
   )
 
-  return response.data
+  return response.data.data
 }
 export interface MonthlyRevenueItem {
   month: number

@@ -84,6 +84,7 @@ class InvoiceService {
       const paid = Number(inv.paid_amount) || 0
       const remaining = Number(inv.remaining_balance) || 0
       const totalCharge = inv.consumption_charge?.total_amount ? Number(inv.consumption_charge.total_amount) : (paid + remaining)
+      const meterNum = (inv as any).meter_number || (inv as any).consumption_charge?.meter_number || (inv as any).consumption_charge?.meter?.meter_number || '-'
 
       return {
         id: inv.id,
@@ -102,7 +103,11 @@ class InvoiceService {
         customer: inv.customer ? {
           id: inv.customer.id || 0,
           full_name: inv.customer.name || inv.customer.full_name || 'عميل'
-        } : undefined
+        } : undefined,
+        meter: {
+          id: 0,
+          meter_number: meterNum
+        }
       }
     })
 

@@ -29,9 +29,22 @@ export function CompanyProfilePage() {
         setFormData(data)
         setOriginalData(data)
       })
-      .catch(() => {
+      .catch((err) => {
         if (!cancelled) {
-          setNotification({ type: 'error', message: 'تعذر تحميل بيانات الشركة. تأكد من تشغيل الخادم الخلفي.' })
+          const apiError = err as ApiError
+          let errorMsg = 'تعذر تحميل بيانات الشركة. يرجى المحاولة لاحقاً.'
+          if (apiError?.status === 401) {
+            errorMsg = 'انتهت جلسة الدخول، يرجى تسجيل الدخول مرة أخرى.'
+          } else if (apiError?.status === 403) {
+            errorMsg = 'ليس لديك صلاحية للوصول إلى إعدادات الشركة.'
+          } else if (apiError?.status === 404) {
+            errorMsg = 'لم يتم العثور على ملف الشركة.'
+          } else if (apiError?.status === 500) {
+            errorMsg = 'حدث خطأ في الخادم أثناء تحميل بيانات الشركة.'
+          } else if (apiError?.message) {
+            errorMsg = apiError.message
+          }
+          setNotification({ type: 'error', message: errorMsg })
         }
       })
       .finally(() => {

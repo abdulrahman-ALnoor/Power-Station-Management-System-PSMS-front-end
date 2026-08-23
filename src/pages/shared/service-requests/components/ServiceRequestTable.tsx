@@ -13,6 +13,7 @@ interface ServiceRequestTableProps {
  onViewDetails: (request: ServiceRequest) => void
  onStartExecution?: (request: ServiceRequest) => void
  onCompleteRequest?: (request: ServiceRequest) => void
+ onCancelRequest?: (request: ServiceRequest) => void
  onEdit?: (request: ServiceRequest) => void
  onDelete?: (request: ServiceRequest) => void
 }
@@ -23,6 +24,7 @@ export function ServiceRequestTable({
  onViewDetails,
  onStartExecution,
  onCompleteRequest,
+ onCancelRequest,
  onEdit,
  onDelete,
 }: ServiceRequestTableProps) {
@@ -74,7 +76,7 @@ export function ServiceRequestTable({
  <tbody className="divide-y divide-[var(--color-border)]">
  {data.map((req) => (
  <tr key={req.id} className="hover:bg-[var(--color-surface-container-lowest)] transition-colors">
- <td className="p-4 font-bold text-primary whitespace-nowrap">REQ-#{req.id}</td>
+ <td className="p-4 font-bold text-primary whitespace-nowrap">{req.request_number || `SR-${String(req.id).padStart(4, '0')}`}</td>
  <td className="p-4 text-text whitespace-nowrap">{req.customer?.full_name || '-'}</td>
  <td className="p-4 text-text whitespace-nowrap">{req.meter?.meter_number || '-'}</td>
  <td className="p-4 text-text whitespace-nowrap">{t(`serviceRequests.type.${req.request_type}`)}</td>
@@ -126,7 +128,7 @@ export function ServiceRequestTable({
  }}
  >
  <Calendar size={16} className="text-text-muted" />
- {t('serviceRequests.actions.startExecution')}
+ {t('serviceRequests.actions.startExecution', 'بدء التنفيذ')}
  </button>
  )}
 
@@ -140,11 +142,25 @@ export function ServiceRequestTable({
  }}
  >
  <CheckCircle2 size={16} className="text-text-muted" />
- {t('serviceRequests.actions.completeRequest')}
+ {t('serviceRequests.actions.completeRequest', 'إكمال الطلب')}
  </button>
  )}
 
- {onEdit && (
+ {onCancelRequest && req.status !== 'completed' && req.status !== 'cancelled' && (
+ <button
+ type="button"
+ className={cn("w-full px-4 py-2 text-sm flex items-center gap-3 hover:bg-surface-low transition-colors text-red-600", isRTL ? "text-right" : "text-left")}
+ onClick={() => {
+ setOpenMenuId(null)
+ onCancelRequest(req)
+ }}
+ >
+ <Trash2 size={16} className="text-red-500" />
+ <span>إلغاء الطلب</span>
+ </button>
+ )}
+
+ {onEdit && req.status !== 'completed' && req.status !== 'cancelled' && (
  <button
  type="button"
  className={cn("w-full px-4 py-2 text-sm flex items-center gap-3 hover:bg-surface-low transition-colors text-text", isRTL ? "text-right" : "text-left")}

@@ -12,17 +12,25 @@ import {
 
 interface ServiceRequestStatsProps {
  requests: ServiceRequest[]
+ stats?: {
+   total: number
+   pending: number
+   assigned: number
+   in_progress: number
+   completed: number
+   cancelled: number
+ }
 }
 
-export function ServiceRequestStats({ requests }: ServiceRequestStatsProps) {
+export function ServiceRequestStats({ requests, stats }: ServiceRequestStatsProps) {
  const { t } = useTranslation('engineer')
 
- const total = requests.length
- const pending = requests.filter((r) => r.status === 'pending').length
- const assigned = requests.filter((r) => r.status === 'assigned').length
- const inProgress = requests.filter((r) => r.status === 'in_progress').length
- const completed = requests.filter((r) => r.status === 'completed').length
- const cancelled = requests.filter((r) => r.status === 'cancelled').length
+ const total = stats ? stats.total : requests.length
+ const pending = stats ? stats.pending : requests.filter((r) => r.status === 'pending').length
+ const assigned = stats ? stats.assigned : requests.filter((r) => r.status === 'assigned').length
+ const inProgress = stats ? stats.in_progress : requests.filter((r) => r.status === 'in_progress').length
+ const completed = stats ? stats.completed : requests.filter((r) => r.status === 'completed').length
+ const cancelled = stats ? stats.cancelled : requests.filter((r) => r.status === 'cancelled').length
 
  return (
  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

@@ -27,6 +27,7 @@ import { DebugBoundary } from '@/DebugBoundary'
 // Lazy-loaded pages
 // ============================================================
 
+const AdminReportsPage = lazy(() => import('@/pages/admin/reports/AdminReportsPage'))
 const AdminPlaceholder = lazy(
  () => import('@/pages/admin/AdminPlaceholder'),
 )
@@ -50,6 +51,10 @@ const MetersPage = lazy(
     import(
       '@/pages/admin/meters/MetersPage'
     ),
+)
+
+const CustomersPage = lazy(
+  () => import('@/pages/admin/customers/CustomersPage'),
 )
 
 const Login = lazy(
@@ -162,9 +167,7 @@ export function AdminRoutes() {
               <Suspense
                 fallback={<PageLoader />}
               >
-                <AdminPlaceholder
-                  page="customers"
-                />
+                <CustomersPage />
               </Suspense>
             }
           />
@@ -273,6 +276,14 @@ export function AdminRoutes() {
             }
           />
 
+<Route
+  path="reports"
+  element={
+    <Suspense fallback={<PageLoader />}>
+      <AdminReportsPage />
+    </Suspense>
+  }
+/>
 <Route
   path="reports/overdue-invoices"
   element={

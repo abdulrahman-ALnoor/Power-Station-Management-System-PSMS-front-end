@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Zap, X } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { useLanguage } from '@/hooks/useLanguage'
 import { useAuth } from '@/hooks/useAuth'
+import { BrandLogo } from '@/components/common/BrandLogo'
 import { STORAGE_KEYS } from '@/config/constants'
 import { READER_NAV_GROUPS } from '@/config/navigation'
 import { NavLink } from 'react-router-dom'
@@ -63,48 +64,23 @@ export function ReaderSidebar({ isMobileOpen, onMobileClose }: ReaderSidebarProp
  aria-label={t('common:appName')}
  >
  {/* ── Logo area ────────────────────────────────────── */}
- <div
- className={cn(
- 'flex items-center h-16 shrink-0 border-b px-4 gap-3',
- 'border-white/10',
- collapsed ? 'justify-center' : isRTL ? 'flex-row-reverse' : 'flex-row',
- )}
- >
- {/* Brand icon */}
- <div
- className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
- style={{ background: 'var(--color-accent)' }}
- >
- <Zap size={20} className="text-white" strokeWidth={2.5} />
- </div>
+ <div className="flex items-center h-16 shrink-0 border-b px-4 border-white/10 relative">
+    <BrandLogo
+      collapsed={collapsed}
+      subtitle="لوحة القارئ"
+      isRTL={isRTL}
+      size="sm"
+    />
 
- {/* Brand name */}
- {!collapsed && (
- <div className={cn('min-w-0', isRTL ? 'text-right' : 'text-left')}>
- <p
- className="font-bold text-sm leading-tight truncate"
- style={{ color: 'var(--color-on-primary)' }}
- >
- {t('header.brand', { ns: 'reader' })}
- </p>
- <p
- className="text-xs leading-tight truncate mt-0.5"
- style={{ color: 'var(--color-sidebar-text-muted)' }}
- >
- {t('header.dashboard', { ns: 'reader' })}
- </p>
- </div>
- )}
-
- {/* Mobile close button */}
- <button
- className="ms-auto lg:hidden p-1 rounded-lg hover:bg-surface/10 transition-colors text-white/70 hover:text-white"
- onClick={onMobileClose}
- aria-label="Close navigation"
- >
- <X size={18} />
- </button>
- </div>
+    {/* Mobile close button */}
+    <button
+      className="ms-auto lg:hidden p-1 rounded-lg hover:bg-surface/10 transition-colors text-white/70 hover:text-white"
+      onClick={onMobileClose}
+      aria-label="Close navigation"
+    >
+      <X size={18} />
+    </button>
+  </div>
 
  {/* ── Navigation groups ────────────────────────────── */}
  <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2">

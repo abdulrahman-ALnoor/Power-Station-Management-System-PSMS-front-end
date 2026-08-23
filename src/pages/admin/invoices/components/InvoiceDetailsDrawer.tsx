@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, Calendar } from 'lucide-react'
+import { X, Calendar, Download } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { Invoice } from '../types'
 import { formatCurrency } from '@/utils/currency'
@@ -10,9 +10,10 @@ interface InvoiceDetailsDrawerProps {
  invoice: Invoice | null
  isOpen: boolean
  onClose: () => void
+ onDownloadPdf?: (invoiceId: number, invoiceNumber: string) => void
 }
 
-export function InvoiceDetailsDrawer({ invoice, isOpen, onClose }: InvoiceDetailsDrawerProps) {
+export function InvoiceDetailsDrawer({ invoice, isOpen, onClose, onDownloadPdf }: InvoiceDetailsDrawerProps) {
  const { t } = useTranslation('invoices')
  const { isRTL } = useLanguage()
  const [shouldRender, setShouldRender] = useState(false)
@@ -142,8 +143,12 @@ export function InvoiceDetailsDrawer({ invoice, isOpen, onClose }: InvoiceDetail
 
  {/* Footer Actions */}
  <div className="p-6 border-t border-border-variant bg-surface-low flex gap-3 shrink-0">
- <button className="flex-1 bg-primary text-on-primary py-3 rounded-lg font-bold hover:bg-primary-container :bg-primary :text-white transition-colors">
- {t('drawer.editData')}
+ <button 
+  onClick={() => invoice && onDownloadPdf?.(invoice.id, invoice.invoice_number)}
+  className="flex-1 bg-primary text-on-primary py-3 rounded-lg font-bold hover:bg-primary-container transition-colors flex items-center justify-center gap-2"
+ >
+  <Download size={18} />
+  {t('drawer.downloadPdf')}
  </button>
  </div>
  </div>

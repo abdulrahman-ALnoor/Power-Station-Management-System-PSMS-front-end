@@ -1,54 +1,65 @@
-// ============================================================
-// Root router — main application routes
-// ============================================================
-
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AdminRoutes } from './AdminRoutes'
 import { EngineerRoutes } from './EngineerRoutes'
 import { ReaderRoutes } from './ReaderRoutes'
-
 import { AccountantRoutes } from './AccountantRoutes'
+import { GuestGuard } from './guards/GuestGuard'
 
-/**
- * Root-level route configuration.
- * - / → redirects to /admin
- * - /admin/* → AdminRoutes (protected, with layout)
- * - /engineer/* → EngineerRoutes (protected, with layout)
- * - /reader/* → ReaderRoutes (protected, with layout)
- * - /accountant/* → AccountantRoutes (protected, with layout)
- */
+const Login = lazy(() => import('@/pages/auth/Login'))
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+    </div>
+  )
+}
+
 export function AppRouter() {
- return (
- <Routes>
- {/* Root redirect to admin */}
- <Route path="/" element={<Navigate to="/admin" replace />} />
+  return (
+    <Routes>
+      {/* Public Login Route (Unified for all roles) */}
+      <Route element={<GuestGuard />}>
+        <Route
+          path="/login"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <Login />
+            </Suspense>
+          }
+        />
+      </Route>
 
- {/* Admin module — all sub-routes handled by AdminRoutes */}
- <Route path="/admin/*" element={<AdminRoutes />} />
+      {/* Root redirect */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
 
- {/* Engineer module — all sub-routes handled by EngineerRoutes */}
- <Route path="/engineer/*" element={<EngineerRoutes />} />
+      {/* Admin module */}
+      <Route path="/admin/*" element={<AdminRoutes />} />
 
- {/* Reader module — all sub-routes handled by ReaderRoutes */}
- <Route path="/reader/*" element={<ReaderRoutes />} />
+      {/* Engineer module */}
+      <Route path="/engineer/*" element={<EngineerRoutes />} />
 
- {/* Accountant module — all sub-routes handled by AccountantRoutes */}
- <Route path="/accountant/*" element={<AccountantRoutes />} />
+      {/* Reader module */}
+      <Route path="/reader/*" element={<ReaderRoutes />} />
 
- {/* 404 fallback */}
- <Route
- path="*"
- element={
- <div className="flex flex-col items-center justify-center min-h-screen gap-4">
- <h1 className="text-display" style={{ color: 'var(--color-primary)' }}>
- 404
- </h1>
- <p className="text-body" style={{ color: 'var(--color-text-muted)' }}>
- Page not found
- </p>
- </div>
- }
- />
- </Routes>
- )
+      {/* Accountant module */}
+      <Route path="/accountant/*" element={<AccountantRoutes />} />
+
+      {/* 404 fallback */}
+      <Route
+        path="*"
+        element={
+          <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+            <h1 className="text-display" style={{ color: 'var(--color-primary)' }}>
+              404
+            </h1>
+            <p className="text-body" style={{ color: 'var(--color-text-muted)' }}>
+              Page not found
+            </p>
+          </div>
+        }
+      />
+    </Routes>
+  )
 }

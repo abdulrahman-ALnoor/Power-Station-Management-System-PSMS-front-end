@@ -18,9 +18,12 @@ import {
   createReading,
   updateReading,
 } from '@/services/meterReadings.service'
+import { readingService } from '@/services/shared/readingService'
 
+import { fetchCompanyProfile } from '@/services/companyProfile.service'
 import {
   fetchMeterList,
+  fetchMeterLastReading,
   mapMeter,
 } from '@/services/meters.service'
 
@@ -83,12 +86,20 @@ export function AddMeterReadingModal({
   const [qrError, setQrError] = useState<string | null>(null)
 
   // ==============================
-  // تحميل العدادات عند الإضافة
+  // تحميل العدادات وتعرفه الكهرباء عند الإضافة
   // ==============================
   useEffect(() => {
-    if (!isOpen || isEditMode) {
-      return
-    }
+    if (!isOpen) return
+
+    fetchCompanyProfile()
+      .then((prof) => {
+        if (prof && prof.price_per_kwh) {
+          setPricePerKwh(Number(prof.price_per_kwh))
+        }
+      })
+      .catch(() => setPricePerKwh(0.18))
+
+    if (isEditMode) return
 
     fetchMeterList({ page: 1 })
       .then((res) => {
@@ -129,6 +140,21 @@ export function AddMeterReadingModal({
   }, [isOpen, reading])
 
   // ==============================
+  // جلب آخر قراءة سابقة للعداد تلقائياً فور اختياره
+  // ==============================
+  useEffect(() => {
+    if (!isOpen || isEditMode || !meterId) return
+
+    fetchMeterLastReading(Number(meterId))
+      .then((res) => {
+        setPreviousReading(res.previous_reading)
+      })
+      .catch(() => {
+        setPreviousReading(0)
+      })
+  }, [isOpen, isEditMode, meterId])
+
+  // ==============================
   // معاينة الاستهلاك والتكلفة (تقديرية فقط — الباك اند يحسبها فعلياً عند الحفظ)
   // ==============================
   const numericPreviousReading = typeof previousReading === 'number' ? previousReading : 0
@@ -143,33 +169,43 @@ export function AddMeterReadingModal({
   // ==============================
   // نتيجة مسح QR
   // ==============================
-  const handleScanSuccess = (decodedText: string) => {
-    const parsed = parseMeterQrData(decodedText)
+  const handleScanSuccess = async (decodedText: string) => {
+    const rawQr = decodedText.trim()
+    const parsed = parseMeterQrData(rawQr)
+    const targetQrOrNumber = parsed?.meterNumber || parsed?.qrCode || rawQr
 
-    if (!parsed) {
-      setQrError(isRTL ? 'رمز QR غير صالح.' : 'Invalid QR code.')
+    const matchedMeter = meters.find(
+      (m) =>
+        m.qr_code === targetQrOrNumber ||
+        m.meter_number.toLowerCase() === targetQrOrNumber.toLowerCase() ||
+        (parsed?.meterId && m.id === parsed.meterId),
+    )
+
+    if (matchedMeter) {
+      setMeterId(String(matchedMeter.id))
+      setMethod('qr_scan')
+      setQrError(null)
+      setIsScannerOpen(false)
       return
     }
 
-    const matchedMeter = parsed.meterId
-      ? meters.find((m) => m.id === parsed.meterId)
-      : meters.find(
-          (m) => m.meter_number.toLowerCase() === (parsed.meterNumber ?? '').toLowerCase(),
-        )
-
-    if (!matchedMeter) {
+    try {
+      const serverMeter = await readingService.getMeterByQr(targetQrOrNumber)
+      if (serverMeter && serverMeter.id) {
+        setMeterId(String(serverMeter.id))
+        setPreviousReading(serverMeter.previous_reading || 0)
+        setMethod('qr_scan')
+        setQrError(null)
+        setIsScannerOpen(false)
+        return
+      }
+    } catch {
       setQrError(
         isRTL
           ? 'لم يتم العثور على عداد مطابق لرمز QR الممسوح.'
           : 'No matching meter found for the scanned QR code.',
       )
-      return
     }
-
-    setMeterId(String(matchedMeter.id))
-    setMethod('qr_scan')
-    setQrError(null)
-    setIsScannerOpen(false)
   }
 
   if (!isOpen) {
@@ -467,19 +503,18 @@ export function AddMeterReadingModal({
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
-                      {t('table.columns.previousReading')}
+                      {t('table.columns.previousReading')} <span className="text-xs text-outline">(تلقائي من النظام)</span>
                     </label>
 
                     <input
+                      readOnly
+                      disabled
                       type="number"
                       step="0.01"
                       min="0"
                       value={previousReading}
-                      onChange={(e) =>
-                        setPreviousReading(e.target.value ? Number(e.target.value) : '')
-                      }
                       dir="ltr"
-                      className="min-h-[44px] w-full rounded-lg border border-outline/20 bg-surface-container-lowest px-4 py-2.5 text-start text-sm text-on-surface transition-shadow focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-outline/10 dark:bg-surface-container/30 dark:text-on-dark"
+                      className="min-h-[44px] w-full rounded-lg border border-outline/20 bg-surface-container-low px-4 py-2.5 text-start text-sm font-bold text-on-surface opacity-80 cursor-not-allowed dark:border-outline/10 dark:bg-surface-container/50 dark:text-on-dark"
                     />
                   </div>
 
@@ -532,19 +567,17 @@ export function AddMeterReadingModal({
 
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
-                      {t('table.columns.pricePerKwh')}{' '}
-                      <span className="text-error">*</span>
+                      {t('table.columns.pricePerKwh')} <span className="text-xs text-outline">(تعرفة الشركة)</span>
                     </label>
 
                     <input
-                      required
+                      readOnly
+                      disabled
                       type="number"
                       step="0.01"
-                      min="0"
                       value={pricePerKwh}
-                      onChange={(e) => setPricePerKwh(Number(e.target.value))}
                       dir="ltr"
-                      className="min-h-[44px] w-full rounded-lg border border-outline/20 bg-surface-container-lowest px-4 py-2.5 text-start text-sm text-on-surface transition-shadow focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-outline/10 dark:bg-surface-container/30 dark:text-on-dark"
+                      className="min-h-[44px] w-full rounded-lg border border-outline/20 bg-surface-container-low px-4 py-2.5 text-start text-sm font-bold text-on-surface opacity-80 cursor-not-allowed dark:border-outline/10 dark:bg-surface-container/50 dark:text-on-dark"
                     />
                   </div>
 
