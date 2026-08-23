@@ -1,114 +1,113 @@
-import { ServiceRequest, Meter, Reading } from '@/types/common'
+import apiClient from './api'
+import type { ApiResponse } from '@/types/api'
+import type { ReaderDashboardResponse, ReaderReading } from '@/pages/reader/dashboard/types/readerDashboard.types'
+import { getDaysInMonth } from 'date-fns'
 
-export interface ReaderDashboardStats {
- totalReadings: number
- todayReadings: number
- overdueReadings: number
- serviceRequests: number
+interface LaravelReaderStats {
+  total_readings: number
+  current_month_readings: number
 }
 
-export interface ReaderDashboardResponse {
- stats: ReaderDashboardStats
- recentReadings: Reading[]
- pendingMeters: Meter[]
- recentServiceRequests: ServiceRequest[]
+interface LaravelReaderProgress {
+  assigned_meters: number
+  completed_readings: number
+  progress_percentage: number
 }
 
-// Mock service data
-const mockDashboardData: ReaderDashboardResponse = {
- stats: {
- totalReadings: 1245,
- todayReadings: 42,
- overdueReadings: 8,
- serviceRequests: 12,
- },
- recentReadings: [
- {
- id: 101,
- meter_id: 1,
- user_id: 2,
- reading_date: new Date().toISOString(),
- previous_reading: 1000,
- current_reading: 1050,
- consumption: 50,
- status: 'completed',
- reading_image: null,
- notes: null,
- created_at: new Date().toISOString(),
- updated_at: new Date().toISOString(),
- },
- {
- id: 102,
- meter_id: 2,
- user_id: 2,
- reading_date: new Date(Date.now() - 86400000).toISOString(), // yesterday
- previous_reading: 2000,
- current_reading: 2120,
- consumption: 120,
- status: 'under_review',
- reading_image: null,
- notes: null,
- created_at: new Date(Date.now() - 86400000).toISOString(),
- updated_at: new Date(Date.now() - 86400000).toISOString(),
- }
- ],
- pendingMeters: [
- {
- id: 3,
- meter_number: 'MTR-789012',
- customer_id: 3,
- location: 'شارع الملك فهد, العمارة أ',
- installation_date: '2022-03-10',
- status: 'active',
- created_at: '2022-03-10T10:00:00Z',
- updated_at: '2023-01-01T10:00:00Z',
- },
- {
- id: 4,
- meter_number: 'MTR-345678',
- customer_id: 4,
- location: 'حي النفل, المنطقة ب',
- installation_date: '2023-01-15',
- status: 'active',
- created_at: '2023-01-15T09:00:00Z',
- updated_at: '2023-01-15T09:00:00Z',
- }
- ],
- recentServiceRequests: [
- {
- id: 201,
- meter_id: 1,
- customer_id: 1,
- created_by: 2,
- assigned_engineer_id: 3,
- request_type: 'maintenance',
- priority: 'high',
- status: 'in_progress',
- description: 'عداد يفصل الكهرباء باستمرار',
- created_at: new Date(Date.now() - 10000000).toISOString(),
- updated_at: new Date(Date.now() - 5000000).toISOString(),
- completed_at: null,
- customer: {
- id: 1,
- full_name: 'أحمد محمود',
- phone_number: '0501234567',
- email: 'ahmed@example.com',
- address: 'حي الملك فهد'
- } as any,
- meter: {
- id: 1,
- meter_number: 'MTR-123456'
- } as any,
- }
- ]
+interface LaravelReaderConsumption {
+  total_consumption: number
+  average_consumption: number
+}
+
+interface LaravelMeterReadingItem {
+  id: number
+  meter?: { meter_number?: string; customer?: { full_name?: string } }
+  previous_reading: number | string
+  current_reading: number | string
+  consumption: number | string
+  reading_date: string
+  status: string
 }
 
 class ReaderDashboardService {
- async getDashboardData(): Promise<ReaderDashboardResponse> {
- // Simulate API delay
- await new Promise(resolve => setTimeout(resolve, 800))
- return mockDashboardData
- }
+  async getDashboardData(): Promise<ReaderDashboardResponse> {
+    try {
+      const [statsRes, progressRes, consumptionRes, latestRes, serviceRequestsRes] = await Promise.all([
+        apiClient.get<ApiResponse<LaravelReaderStats>>('/reader/dashboard/stats').catch(() => null),
+        apiClient.get<ApiResponse<LaravelReaderProgress>>('/reader/dashboard/progress').catch(() => null),
+        apiClient.get<ApiResponse<LaravelReaderConsumption>>('/reader/dashboard/consumption').catch(() => null),
+        apiClient.get<ApiResponse<LaravelMeterReadingItem[]>>('/reader/dashboard/latest-readings').catch(() => null),
+        apiClient.get<ApiResponse<any>>('/service-requests').catch(() => null),
+      ])
+
+      const statsData = statsRes?.data?.data
+      const progressData = progressRes?.data?.data
+      const consumptionData = consumptionRes?.data?.data
+      const latestData = latestRes?.data?.data || []
+      const serviceRequestsData = serviceRequestsRes?.data?.data
+
+      let serviceRequestsCount = 0
+      if (Array.isArray(serviceRequestsData)) {
+        serviceRequestsCount = serviceRequestsData.length
+      } else if (serviceRequestsData && Array.isArray(serviceRequestsData.data)) {
+        serviceRequestsCount = serviceRequestsData.total || serviceRequestsData.data.length
+      }
+
+      const totalReadings = Number(statsData?.total_readings) || 0
+      const currentMonthReadings = Number(statsData?.current_month_readings) || 0
+
+      const assignedMeters = Number(progressData?.assigned_meters) || 0
+      const completedReadings = Number(progressData?.completed_readings) || 0
+      const progressPercentage = Number(progressData?.progress_percentage) || 0
+
+      const totalConsumption = Number(consumptionData?.total_consumption) || 0
+      const avgConsumption = Number(consumptionData?.average_consumption) || 0
+
+      const mappedLatestReadings: ReaderReading[] = latestData.map((item) => ({
+        id: String(item.id),
+        meterNumber: item.meter?.meter_number || `عداد #${item.id}`,
+        customerName: item.meter?.customer?.full_name || 'عميل غير معروف',
+        previousReading: Number(item.previous_reading) || 0,
+        currentReading: Number(item.current_reading) || 0,
+        consumption: `${Number(item.consumption) || 0} kWh`,
+        date: item.reading_date || new Date().toISOString(),
+        status: item.status === 'approved' ? 'completed' : item.status === 'pending' ? 'review' : 'late',
+      }))
+
+      // Create consumption chart dataset
+      const today = new Date()
+      const daysCount = getDaysInMonth(today)
+      const consumptionChart = Array.from({ length: Math.min(7, daysCount) }, (_, i) => ({
+        day: `يوم ${i + 1}`,
+        consumption: Math.round(avgConsumption > 0 ? avgConsumption : totalConsumption / 7),
+      }))
+
+      return {
+        stats: {
+          totalReadings,
+          todayReadings: currentMonthReadings,
+          overdueReadings: Math.max(0, assignedMeters - completedReadings),
+          serviceRequests: serviceRequestsCount,
+        },
+        progress: {
+          completed: completedReadings,
+          total: assignedMeters,
+          percentage: progressPercentage,
+        },
+        latestReadings: mappedLatestReadings,
+        notifications: [],
+        consumptionChart,
+      }
+    } catch {
+      return {
+        stats: { totalReadings: 0, todayReadings: 0, overdueReadings: 0, serviceRequests: 0 },
+        progress: { completed: 0, total: 0, percentage: 0 },
+        latestReadings: [],
+        notifications: [],
+        consumptionChart: [],
+      }
+    }
+  }
 }
 
 export const readerDashboardService = new ReaderDashboardService()

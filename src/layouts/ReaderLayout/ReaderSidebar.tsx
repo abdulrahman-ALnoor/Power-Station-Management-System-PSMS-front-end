@@ -148,9 +148,10 @@ export function ReaderSidebar({ isMobileOpen, onMobileClose }: ReaderSidebarProp
 
  {/* ── User profile area ────────────────────────────── */}
  <div className="shrink-0 border-t border-white/10 p-3">
- <div
+ <NavLink
+ to="/reader/profile"
  className={cn(
- 'flex items-center gap-3 px-3 py-2 rounded-lg',
+ 'flex items-center gap-3 px-3 py-2 rounded-lg block',
  'hover:bg-surface/5 transition-colors cursor-pointer',
  collapsed ? 'justify-center' : isRTL ? 'flex-row-reverse' : 'flex-row',
  )}
@@ -182,7 +183,7 @@ export function ReaderSidebar({ isMobileOpen, onMobileClose }: ReaderSidebarProp
  </p>
  </div>
  )}
- </div>
+ </NavLink>
 
  {/* Logout button */}
  {!collapsed && (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { AlertCircle, Receipt, Plus } from 'lucide-react'
-import { invoiceService } from '../../../services/accountant/invoiceService'
+import { invoiceService, CustomerOption, ConsumptionChargeOption } from '../../../services/accountant/invoiceService'
 import { Invoice, GetInvoicesParams, PaginatedResponse } from './types'
 import { InvoiceToolbar } from './components/InvoiceToolbar'
 import { InvoiceTable } from './components/InvoiceTable'
@@ -8,7 +8,6 @@ import { InvoiceDetailsModal } from './components/InvoiceDetailsModal'
 import { InvoiceFormModal } from './components/InvoiceFormModal'
 import { PrintInvoiceView } from './components/PrintInvoiceView'
 import { ConfirmDialog } from '@/components/overlays/ConfirmDialog'
-import { mockCustomers } from '@/pages/engineer/service-requests/data/mockData'
 
 class InvoicesErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
  constructor(props: { children: React.ReactNode }) {
@@ -63,13 +62,24 @@ function InvoicesContent() {
 
  const [printingInvoice, setPrintingInvoice] = useState<Invoice | null>(null)
 
- // Mock reference data for the form
- const customersList = mockCustomers.map(c => ({ id: c.id, name: c.full_name }))
- const consumptionChargesList = [
- { id: 101, meter_number: 'MTR-8932' },
- { id: 102, meter_number: 'MTR-1024' },
- { id: 103, meter_number: 'MTR-5511' }
- ]
+ const [customersList, setCustomersList] = useState<CustomerOption[]>([])
+ const [consumptionChargesList, setConsumptionChargesList] = useState<ConsumptionChargeOption[]>([])
+
+ useEffect(() => {
+   const loadFormDropdowns = async () => {
+     try {
+       const [custs, charges] = await Promise.all([
+         invoiceService.getCustomers(),
+         invoiceService.getConsumptionCharges()
+       ])
+       setCustomersList(custs)
+       setConsumptionChargesList(charges)
+     } catch (err) {
+       console.error('Failed to load invoice form dropdown data:', err)
+     }
+   }
+   loadFormDropdowns()
+ }, [])
 
  const fetchInvoices = async () => {
  setLoading(true)

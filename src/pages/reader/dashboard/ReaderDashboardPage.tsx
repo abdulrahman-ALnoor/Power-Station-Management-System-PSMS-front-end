@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import i18n from '@/i18n'
 import { AlertCircle } from 'lucide-react'
 import { ReaderDashboardResponse } from './types/readerDashboard.types'
-import { readerDashboardMockData } from './data/readerDashboardMockData'
+import { readerDashboardService } from '@/services/readerDashboardService'
 import { ReaderStatsCards } from './components/ReaderStatsCards'
 import { ReadingProgressCard } from './components/ReadingProgressCard'
 import { ReadingConsumptionChart } from './components/ReadingConsumptionChart'
@@ -57,10 +57,9 @@ function DashboardContent() {
  let mounted = true
  const fetchData = async () => {
  try {
- // Simulate API call using the isolated mock data
- await new Promise(resolve => setTimeout(resolve, 800))
+ const dashboardData = await readerDashboardService.getDashboardData()
  if (mounted) {
- setData(readerDashboardMockData)
+ setData(dashboardData)
  setLoading(false)
  }
  } catch (err) {

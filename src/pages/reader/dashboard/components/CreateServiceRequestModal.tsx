@@ -16,9 +16,10 @@ interface CreateServiceRequestModalProps {
  isOpen: boolean
  onClose: () => void
  onSuccess?: () => void
+ initialMeterId?: number
 }
 
-export function CreateServiceRequestModal({ isOpen, onClose, onSuccess }: CreateServiceRequestModalProps) {
+export function CreateServiceRequestModal({ isOpen, onClose, onSuccess, initialMeterId }: CreateServiceRequestModalProps) {
  const { isRTL } = useLanguage()
 
  // Data fetching state
@@ -26,7 +27,7 @@ export function CreateServiceRequestModal({ isOpen, onClose, onSuccess }: Create
  const [isFetchingMeters, setIsFetchingMeters] = useState(false)
 
  // Form state
- const [selectedMeterId, setSelectedMeterId] = useState<number | ''>('')
+ const [selectedMeterId, setSelectedMeterId] = useState<number | ''>(initialMeterId || '')
  const [requestType, setRequestType] = useState<ServiceRequestType | ''>('')
  const [priority, setPriority] = useState<ServiceRequestPriority>('medium')
  const [description, setDescription] = useState('')
@@ -44,7 +45,7 @@ export function CreateServiceRequestModal({ isOpen, onClose, onSuccess }: Create
  setIsFetchingMeters(true)
  setIsSuccess(false)
  // Reset form
- setSelectedMeterId('')
+ setSelectedMeterId(initialMeterId || '')
  setRequestType('')
  setPriority('medium')
  setDescription('')
@@ -53,7 +54,7 @@ export function CreateServiceRequestModal({ isOpen, onClose, onSuccess }: Create
  .then(data => setMeters(data))
  .finally(() => setIsFetchingMeters(false))
  }
- }, [isOpen])
+ }, [isOpen, initialMeterId])
 
  const handleSubmit = async (e: React.FormEvent) => {
  e.preventDefault()

@@ -1,208 +1,244 @@
-import { Invoice, GetInvoicesParams, PaginatedResponse } from '@/pages/accountant/invoices/types'
-import { mockCustomers, mockMeters } from '@/pages/engineer/service-requests/data/mockData'
+import apiClient from '../api'
+import type { ApiResponse } from '@/types/api'
+import type { Invoice, GetInvoicesParams, PaginatedResponse } from '@/pages/accountant/invoices/types'
 
-// Mock Data for Invoices
-export const mockInvoices: Invoice[] = [
- {
- id: 1,
- invoice_number: 'INV-2023-001',
- customer_id: 1,
- accountant_id: 3,
- consumption_charge_id: 101,
- outstanding_before_payment: 1500.00,
- paid_amount: 1500.00,
- remaining_balance: 0.00,
- status: 'paid',
- payment_notes: 'Paid in full via bank transfer',
- pdf_path: null,
- created_at: new Date(Date.now() - 5 * 86400000).toISOString(), // 5 days ago
- updated_at: new Date(Date.now() - 4 * 86400000).toISOString(),
- customer: mockCustomers.find(c => c.id === 1),
- meter: mockMeters.find(m => m.id === 1),
- accountant: { id: 3, name: 'Accountant User' },
- },
- {
- id: 2,
- invoice_number: 'INV-2023-002',
- customer_id: 2,
- accountant_id: 3,
- consumption_charge_id: 102,
- outstanding_before_payment: 3200.00,
- paid_amount: 1000.00,
- remaining_balance: 2200.00,
- status: 'partially_paid',
- payment_notes: 'First installment received',
- pdf_path: null,
- created_at: new Date(Date.now() - 15 * 86400000).toISOString(),
- updated_at: new Date(Date.now() - 10 * 86400000).toISOString(),
- customer: mockCustomers.find(c => c.id === 2),
- meter: mockMeters.find(m => m.id === 2),
- accountant: { id: 3, name: 'Accountant User' },
- },
- {
- id: 3,
- invoice_number: 'INV-2023-003',
- customer_id: 1,
- accountant_id: 3,
- consumption_charge_id: 103,
- outstanding_before_payment: 850.00,
- paid_amount: 0.00,
- remaining_balance: 850.00,
- status: null,
- payment_notes: null,
- pdf_path: null,
- created_at: new Date(Date.now() - 35 * 86400000).toISOString(), // Overdue
- updated_at: new Date(Date.now() - 35 * 86400000).toISOString(),
- customer: mockCustomers.find(c => c.id === 1),
- meter: mockMeters.find(m => m.id === 1),
- accountant: { id: 3, name: 'Accountant User' },
- }
-]
+interface LaravelInvoiceResource {
+  id: number
+  invoice_number: string
+  customer?: { id: number | null; name: string | null; full_name?: string | null }
+  consumption_charge?: {
+    id: number | null
+    total_amount: number | string | null
+    remaining_amount: number | string | null
+  }
+  paid_amount: number | string
+  remaining_balance: number | string
+  status: string
+  payment_notes: string | null
+  created_at: string
+  updated_at?: string
+}
+
+interface LaravelPaginatedData<T> {
+  data: T[]
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+}
+
+export interface ConsumptionChargeOption {
+  id: number
+  customer_id?: number
+  total_amount?: number | string
+  remaining_amount?: number | string
+  status?: string
+  meter_number?: string
+  customer_name?: string
+}
+
+export interface CustomerOption {
+  id: number
+  name: string;
+}
 
 class InvoiceService {
- /**
- * Mock API call to get paginated invoices with filtering.
- */
- async getInvoices(params: GetInvoicesParams): Promise<PaginatedResponse<Invoice>> {
- await new Promise(resolve => setTimeout(resolve, 600)) // network delay
+  /**
+   * Fetch paginated invoices from Laravel API with backend search/filters.
+   */
+  async getInvoices(params: GetInvoicesParams): Promise<PaginatedResponse<Invoice>> {
+    const queryParams: Record<string, any> = {
+      page: params.page || 1,
+      per_page: params.per_page || 10,
+    }
 
- let filtered = [...mockInvoices]
+    if (params.search) queryParams.search = params.search
+    if (params.status && params.status !== 'all') queryParams.status = params.status
+    if (params.date_from) queryParams.date_from = params.date_from
+    if (params.date_to) queryParams.date_to = params.date_to
 
- if (params.search) {
- const q = params.search.toLowerCase()
- filtered = filtered.filter(inv =>
- inv.invoice_number.toLowerCase().includes(q) ||
- inv.customer?.full_name.toLowerCase().includes(q) ||
- inv.meter?.meter_number.toLowerCase().includes(q)
- )
- }
+    const response = await apiClient.get<ApiResponse<LaravelPaginatedData<LaravelInvoiceResource> | LaravelInvoiceResource[]>>('/invoices', {
+      params: queryParams
+    })
 
- if (params.status && params.status !== 'all') {
- if (params.status === 'overdue') {
- // Mock logic for overdue: status is null (unpaid) and created > 30 days ago
- const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000)
- filtered = filtered.filter(inv => inv.status !== 'paid' && new Date(inv.created_at) < thirtyDaysAgo)
- } else if (params.status === 'unpaid') {
- filtered = filtered.filter(inv => inv.status === null)
- } else {
- filtered = filtered.filter(inv => inv.status === params.status)
- }
- }
+    const responseData = response.data.data
 
- if (params.date_from) {
- const fromDate = new Date(params.date_from)
- filtered = filtered.filter(inv => new Date(inv.created_at) >= fromDate)
- }
+    let rawList: LaravelInvoiceResource[] = []
+    let currentPage = 1
+    let lastPage = 1
+    let perPage = params.per_page || 10
+    let total = 0
 
- if (params.date_to) {
- const toDate = new Date(params.date_to)
- // Include the end of the day
- toDate.setHours(23, 59, 59, 999)
- filtered = filtered.filter(inv => new Date(inv.created_at) <= toDate)
- }
+    if (Array.isArray(responseData)) {
+      rawList = responseData
+      total = rawList.length
+    } else if (responseData && Array.isArray(responseData.data)) {
+      rawList = responseData.data
+      currentPage = responseData.current_page || 1
+      lastPage = responseData.last_page || 1
+      perPage = responseData.per_page || 10
+      total = responseData.total || rawList.length
+    }
 
- // Pagination
- const page = params.page || 1
- const perPage = params.per_page || 10
- const start = (page - 1) * perPage
- const paginatedItems = filtered.slice(start, start + perPage)
+    const mappedInvoices: Invoice[] = rawList.map(inv => {
+      const paid = Number(inv.paid_amount) || 0
+      const remaining = Number(inv.remaining_balance) || 0
+      const totalCharge = inv.consumption_charge?.total_amount ? Number(inv.consumption_charge.total_amount) : (paid + remaining)
 
- return {
- data: paginatedItems,
- current_page: page,
- last_page: Math.ceil(filtered.length / perPage) || 1,
- per_page: perPage,
- total: filtered.length,
- from: start + 1,
- to: start + paginatedItems.length,
- }
- }
+      return {
+        id: inv.id,
+        invoice_number: inv.invoice_number,
+        customer_id: inv.customer?.id ?? 0,
+        accountant_id: 1,
+        consumption_charge_id: inv.consumption_charge?.id ?? 0,
+        outstanding_before_payment: totalCharge,
+        paid_amount: paid,
+        remaining_balance: remaining,
+        status: (inv.status as any) || null,
+        payment_notes: inv.payment_notes || null,
+        pdf_path: null,
+        created_at: inv.created_at,
+        updated_at: inv.updated_at || inv.created_at,
+        customer: inv.customer ? {
+          id: inv.customer.id || 0,
+          full_name: inv.customer.name || inv.customer.full_name || 'عميل'
+        } : undefined
+      }
+    })
 
- async getInvoice(id: number): Promise<Invoice> {
- await new Promise(resolve => setTimeout(resolve, 300))
- const inv = mockInvoices.find(i => i.id === id)
- if (!inv) throw new Error('Invoice not found')
- return inv
- }
+    return {
+      data: mappedInvoices,
+      current_page: currentPage,
+      last_page: lastPage,
+      per_page: perPage,
+      total,
+      from: (currentPage - 1) * perPage + 1,
+      to: Math.min(currentPage * perPage, total)
+    }
+  }
 
- async createInvoice(data: Partial<Invoice>): Promise<Invoice> {
- await new Promise(resolve => setTimeout(resolve, 800))
- const newId = Math.max(...mockInvoices.map(i => i.id)) + 1
+  async getInvoice(id: number): Promise<Invoice> {
+    const response = await apiClient.get<ApiResponse<LaravelInvoiceResource>>(`/invoices/${id}`)
+    const inv = response.data.data
 
- // Server calculates remaining balance
- const outstanding = data.outstanding_before_payment || 0
- const paid = data.paid_amount || 0
- const remaining = Math.max(0, outstanding - paid)
+    const paid = Number(inv.paid_amount) || 0
+    const remaining = Number(inv.remaining_balance) || 0
 
- let status: 'paid' | 'partially_paid' | null = null
- if (paid >= outstanding && outstanding > 0) status = 'paid'
- else if (paid > 0) status = 'partially_paid'
+    return {
+      id: inv.id,
+      invoice_number: inv.invoice_number,
+      customer_id: inv.customer?.id ?? 0,
+      accountant_id: 1,
+      consumption_charge_id: inv.consumption_charge?.id ?? 0,
+      outstanding_before_payment: paid + remaining,
+      paid_amount: paid,
+      remaining_balance: remaining,
+      status: (inv.status as any) || null,
+      payment_notes: inv.payment_notes || null,
+      pdf_path: null,
+      created_at: inv.created_at,
+      updated_at: inv.updated_at || inv.created_at,
+      customer: inv.customer ? {
+        id: inv.customer.id || 0,
+        full_name: inv.customer.name || inv.customer.full_name || 'عميل'
+      } : undefined
+    }
+  }
 
- const newInvoice: Invoice = {
- id: newId,
- invoice_number: `INV-${new Date().getFullYear()}-${String(newId).padStart(3, '0')}`,
- customer_id: data.customer_id || 1,
- accountant_id: 3, // Mock authenticated user
- consumption_charge_id: data.consumption_charge_id || 0,
- outstanding_before_payment: outstanding,
- paid_amount: paid,
- remaining_balance: remaining,
- status: status,
- payment_notes: data.payment_notes || null,
- pdf_path: null,
- created_at: new Date().toISOString(),
- updated_at: new Date().toISOString(),
- customer: mockCustomers.find(c => c.id === data.customer_id) || mockCustomers[0],
- meter: mockMeters[0], // Mock association
- }
+  async createInvoice(data: Partial<Invoice>): Promise<Invoice> {
+    const payload = {
+      consumption_charge_id: data.consumption_charge_id,
+      paid_amount: data.paid_amount,
+      payment_notes: data.payment_notes || undefined,
+    }
 
- mockInvoices.unshift(newInvoice)
- return newInvoice
- }
+    const response = await apiClient.post<ApiResponse<LaravelInvoiceResource>>('/invoices', payload)
+    const inv = response.data.data
 
- async updateInvoice(id: number, data: Partial<Invoice>): Promise<Invoice> {
- await new Promise(resolve => setTimeout(resolve, 800))
- const index = mockInvoices.findIndex(inv => inv.id === id)
- if (index === -1) throw new Error('Invoice not found')
+    return {
+      id: inv.id,
+      invoice_number: inv.invoice_number,
+      customer_id: inv.customer?.id ?? 0,
+      accountant_id: 1,
+      consumption_charge_id: inv.consumption_charge?.id ?? 0,
+      outstanding_before_payment: Number(inv.paid_amount) + Number(inv.remaining_balance),
+      paid_amount: Number(inv.paid_amount) || 0,
+      remaining_balance: Number(inv.remaining_balance) || 0,
+      status: (inv.status as any) || null,
+      payment_notes: inv.payment_notes || null,
+      pdf_path: null,
+      created_at: inv.created_at,
+      updated_at: inv.created_at,
+      customer: inv.customer ? { id: inv.customer.id || 0, full_name: inv.customer.name || '' } : undefined,
+    }
+  }
 
- const existing = mockInvoices[index]
- const outstanding = data.outstanding_before_payment !== undefined ? data.outstanding_before_payment : existing.outstanding_before_payment
- const paid = data.paid_amount !== undefined ? data.paid_amount : existing.paid_amount
- const remaining = Math.max(0, outstanding - paid)
+  async updateInvoice(id: number, data: Partial<Invoice>): Promise<Invoice> {
+    const payload: Record<string, any> = {}
+    if (data.paid_amount !== undefined) payload.paid_amount = data.paid_amount
+    if (data.payment_notes !== undefined) payload.payment_notes = data.payment_notes
+    if (data.status !== undefined) payload.status = data.status
 
- let status: 'paid' | 'partially_paid' | null = null
- if (paid >= outstanding && outstanding > 0) status = 'paid'
- else if (paid > 0) status = 'partially_paid'
+    const response = await apiClient.put<ApiResponse<LaravelInvoiceResource>>(`/invoices/${id}`, payload)
+    const inv = response.data.data
 
- const updated = {
- ...existing,
- ...data,
- id: existing.id, // Ensure immutable IDs
- invoice_number: existing.invoice_number,
- accountant_id: existing.accountant_id,
- outstanding_before_payment: outstanding,
- paid_amount: paid,
- remaining_balance: remaining,
- status: status,
- updated_at: new Date().toISOString(),
- customer: data.customer_id ? mockCustomers.find(c => c.id === data.customer_id) || existing.customer : existing.customer
- }
+    return {
+      id: inv.id,
+      invoice_number: inv.invoice_number,
+      customer_id: inv.customer?.id ?? 0,
+      accountant_id: 1,
+      consumption_charge_id: inv.consumption_charge?.id ?? 0,
+      outstanding_before_payment: Number(inv.paid_amount) + Number(inv.remaining_balance),
+      paid_amount: Number(inv.paid_amount) || 0,
+      remaining_balance: Number(inv.remaining_balance) || 0,
+      status: (inv.status as any) || null,
+      payment_notes: inv.payment_notes || null,
+      pdf_path: null,
+      created_at: inv.created_at,
+      updated_at: inv.created_at,
+    }
+  }
 
- mockInvoices[index] = updated
- return updated
- }
+  async deleteInvoice(id: number): Promise<void> {
+    await apiClient.delete(`/invoices/${id}`)
+  }
 
- /**
- * Mock API call to delete an invoice.
- */
- async deleteInvoice(id: number): Promise<void> {
- await new Promise(resolve => setTimeout(resolve, 800))
- const index = mockInvoices.findIndex(inv => inv.id === id)
- if (index === -1) {
- throw new Error('Invoice not found')
- }
- mockInvoices.splice(index, 1)
- }
+  /**
+   * Get active consumption charges for creation dropdown.
+   */
+  async getConsumptionCharges(): Promise<ConsumptionChargeOption[]> {
+    try {
+      const response = await apiClient.get<ApiResponse<any[]>>('/consumption-charges')
+      const raw = response.data.data || []
+      return raw.map(item => ({
+        id: item.id,
+        customer_id: item.customer_id || item.customer?.id,
+        total_amount: item.total_amount,
+        remaining_amount: item.remaining_amount,
+        status: item.status,
+        meter_number: item.meter?.meter_number ? `عداد: ${item.meter.meter_number} (متبقي ${item.remaining_amount} ر.س)` : `دين #${item.id} (متبقي ${item.remaining_amount} ر.س)`,
+        customer_name: item.customer?.full_name || item.customer?.name || ''
+      }))
+    } catch {
+      return []
+    }
+  }
+
+  /**
+   * Get customers for dropdown.
+   */
+  async getCustomers(): Promise<CustomerOption[]> {
+    try {
+      const response = await apiClient.get<ApiResponse<any[]>>('/customers')
+      const raw = response.data.data || []
+      return raw.map(c => ({
+        id: c.id,
+        name: c.full_name || c.name || `عميل #${c.id}`
+      }))
+    } catch {
+      return []
+    }
+  }
 }
 
 export const invoiceService = new InvoiceService()

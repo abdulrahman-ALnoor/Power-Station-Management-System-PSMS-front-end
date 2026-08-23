@@ -8,6 +8,7 @@ import { ReaderDashboardPage } from '@/pages/reader/dashboard/ReaderDashboardPag
 import { ReaderEquipmentPage } from '@/pages/reader/equipment/ReaderEquipmentPage'
 import { ReaderReadingsPage } from '@/pages/reader/readings/ReaderReadingsPage'
 import { ReaderServiceRequestsPage } from '@/pages/reader/service-requests/ReaderServiceRequestsPage'
+import { ReaderProfilePage } from '@/pages/reader/profile/ReaderProfilePage'
 import { AuthGuard } from './guards/AuthGuard'
 
 export function ReaderRoutes() {
@@ -20,6 +21,7 @@ export function ReaderRoutes() {
  <Route path="equipment" element={<ReaderEquipmentPage />} />
  <Route path="readings" element={<ReaderReadingsPage />} />
  <Route path="service-requests" element={<ReaderServiceRequestsPage />} />
+ <Route path="profile" element={<ReaderProfilePage />} />
 
  {/* Fallback */}
  <Route path="*" element={<Navigate to="dashboard" replace />} />

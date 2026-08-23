@@ -9,7 +9,7 @@ import { MeterReadingStats } from '../../shared/readings/components/MeterReading
 import { MeterReadingToolbar } from '../../shared/readings/components/MeterReadingToolbar'
 import { MeterReadingTable } from '../../shared/readings/components/MeterReadingTable'
 import { MeterReadingDetailsDrawer } from '../../shared/readings/components/MeterReadingDetailsDrawer'
-import { AddMeterReadingModal } from '../../admin/readings/components/AddMeterReadingModal'
+import { AddReadingModal } from '../shared/components/AddReadingModal'
 import { ChangeReadingStatusModal } from '../../admin/readings/components/ChangeReadingStatusModal'
 import { readingService, GetReadingsParams } from '../../../services/shared/readingService'
 import { Pagination } from '@/components/ui/Pagination'
@@ -192,15 +192,14 @@ export function ReaderReadingsPage() {
  onClose={() => setIsDetailsOpen(false)}
  />
 
- {/* Add/Edit Reading Modal */}
- <AddMeterReadingModal
+ {/* Add Reading Modal */}
+ <AddReadingModal
  isOpen={isAddModalOpen}
  onClose={() => {
  setIsAddModalOpen(false)
  setReadingToEdit(undefined)
  }}
- onSaved={handleSavedReading}
- reading={readingToEdit}
+ onSuccess={handleSavedReading}
  />
 
  <ChangeReadingStatusModal

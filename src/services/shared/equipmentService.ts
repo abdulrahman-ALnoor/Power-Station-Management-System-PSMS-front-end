@@ -1,115 +1,116 @@
-import { Equipment, PaginatedResponse, EquipmentStatus } from '../../pages/shared/equipment/types'
-import { mockEquipment, mockUsers } from '../../pages/shared/equipment/data/mockData'
+import apiClient from '../api'
+import type { ApiResponse } from '@/types/api'
+import type { Equipment, PaginatedResponse, EquipmentStatus } from '../../pages/shared/equipment/types'
 
 export interface GetEquipmentParams {
- page?: number
- per_page?: number
- search?: string
- status?: string
+  page?: number
+  per_page?: number
+  search?: string
+  status?: string
 }
 
 class EquipmentService {
- /**
- * Mock API call to get paginated equipment with filtering.
- */
- async getEquipment(params: GetEquipmentParams): Promise<PaginatedResponse<Equipment>> {
- // Simulate network delay
- await new Promise(resolve => setTimeout(resolve, 800))
+  async getEquipment(params: GetEquipmentParams): Promise<PaginatedResponse<Equipment>> {
+    const queryParams: Record<string, any> = {
+      page: params.page || 1,
+      per_page: params.per_page || 10,
+    }
 
- let filtered = [...mockEquipment]
+    if (params.search) queryParams.search = params.search
+    if (params.status && params.status !== 'all') queryParams.status = params.status
 
- // Filter by search
- if (params.search) {
- const q = params.search.toLowerCase()
- filtered = filtered.filter(
- item =>
- item.equipment_name.toLowerCase().includes(q) ||
- (item.serial_number && item.serial_number.toLowerCase().includes(q))
- )
- }
+    let response
+    try {
+      response = await apiClient.get<ApiResponse<any>>('/reader/equipment', { params: queryParams })
+    } catch {
+      response = await apiClient.get<ApiResponse<any>>('/equipment', { params: queryParams })
+    }
 
- // Filter by status
- if (params.status && params.status !== 'all') {
- filtered = filtered.filter(item => item.status === params.status)
- }
+    const raw = response.data.data
 
- // Pagination
- const page = params.page || 1
- const perPage = params.per_page || 10
- const total = filtered.length
- const lastPage = Math.ceil(total / perPage)
- const from = (page - 1) * perPage
- const to = from + perPage
+    let rawList: any[] = []
+    let currentPage = 1
+    let lastPage = 1
+    let perPage = params.per_page || 10
+    let total = 0
 
- const paginatedData = filtered.slice(from, to)
+    if (Array.isArray(raw)) {
+      rawList = raw
+      total = rawList.length
+    } else if (raw && Array.isArray(raw.data)) {
+      rawList = raw.data
+      currentPage = raw.current_page || 1
+      lastPage = raw.last_page || 1
+      perPage = raw.per_page || 10
+      total = raw.total || rawList.length
+    }
 
- return {
- data: paginatedData,
- current_page: page,
- last_page: lastPage,
- per_page: perPage,
- total,
- from: from + 1,
- to: Math.min(to, total),
- }
- }
+    const data: Equipment[] = rawList.map((item) => ({
+      id: item.id,
+      user_id: item.user_id || null,
+      equipment_name: item.equipment_name || item.name || 'معدة',
+      serial_number: item.serial_number || null,
+      status: item.status || 'available',
+      notes: item.notes || null,
+      created_by: item.created_by || 1,
+      created_at: item.created_at,
+      updated_at: item.updated_at || item.created_at,
+      user: item.user ? { id: item.user.id, name: item.user.name } : null,
+      creator: item.creator ? { id: item.creator.id, name: item.creator.name } : { id: 1, name: 'مدير' },
+    }))
 
- async createEquipment(data: Partial<Equipment>): Promise<Equipment> {
- await new Promise(resolve => setTimeout(resolve, 600))
+    return {
+      data,
+      current_page: currentPage,
+      last_page: lastPage,
+      per_page: perPage,
+      total,
+      from: (currentPage - 1) * perPage + 1,
+      to: Math.min(currentPage * perPage, total),
+    }
+  }
 
- // Check for duplicate serial number (if provided)
- if (data.serial_number) {
- const isDuplicate = mockEquipment.some(e => e.serial_number === data.serial_number)
- if (isDuplicate) {
- throw new Error('duplicate_serial')
- }
- }
+  async createEquipment(data: Partial<Equipment>): Promise<Equipment> {
+    const response = await apiClient.post<ApiResponse<any>>('/equipment', data)
+    const item = response.data.data
+    return {
+      id: item.id,
+      user_id: item.user_id || null,
+      equipment_name: item.equipment_name || item.name || '',
+      serial_number: item.serial_number || null,
+      status: item.status || 'available',
+      notes: item.notes || null,
+      created_by: item.created_by || 1,
+      created_at: item.created_at,
+      updated_at: item.updated_at || item.created_at,
+    }
+  }
 
- // Auto-assigned by the backend based on auth
- const creator = { id: 1, name: 'Eng. Ahmed Al-Asiri' }
+  async updateEquipmentStatus(id: number, status: EquipmentStatus): Promise<Equipment> {
+    const response = await apiClient.put<ApiResponse<any>>(`/equipment/${id}`, { status })
+    const item = response.data.data
+    return {
+      id: item.id,
+      user_id: item.user_id || null,
+      equipment_name: item.equipment_name || item.name || '',
+      serial_number: item.serial_number || null,
+      status: item.status || 'available',
+      notes: item.notes || null,
+      created_by: item.created_by || 1,
+      created_at: item.created_at,
+      updated_at: item.updated_at || item.created_at,
+    }
+  }
 
- let assignedUser = null
- if (data.user_id) {
- assignedUser = mockUsers.find(u => u.id === Number(data.user_id)) || null
- }
-
- const newEquipment: Equipment = {
- id: Math.max(...mockEquipment.map(e => e.id), 0) + 1,
- user_id: data.user_id ? Number(data.user_id) : null,
- equipment_name: data.equipment_name!,
- serial_number: data.serial_number || null,
- status: data.status || 'available',
- notes: data.notes || null,
- created_by: creator.id,
- created_at: new Date().toISOString(),
- updated_at: new Date().toISOString(),
- user: assignedUser,
- creator
- }
-
- mockEquipment.unshift(newEquipment) // prepend to mock array
- return newEquipment
- }
-
- async updateEquipmentStatus(id: number, status: EquipmentStatus): Promise<Equipment> {
- await new Promise(resolve => setTimeout(resolve, 600))
-
- const index = mockEquipment.findIndex(e => e.id === id)
- if (index === -1) {
- throw new Error('Equipment not found')
- }
-
- const currentItem = mockEquipment[index]
- const updatedItem = { ...currentItem, status, updated_at: new Date().toISOString() }
-
- mockEquipment[index] = updatedItem
- return updatedItem
- }
-
- async getUsers() {
- await new Promise(resolve => setTimeout(resolve, 300))
- return mockUsers
- }
+  async getUsers() {
+    try {
+      const response = await apiClient.get<ApiResponse<any[]>>('/users')
+      const raw = response.data.data || []
+      return raw.map((u) => ({ id: u.id, name: u.name }))
+    } catch {
+      return []
+    }
+  }
 }
 
 export const equipmentService = new EquipmentService()

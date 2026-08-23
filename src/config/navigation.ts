@@ -124,6 +124,12 @@ export const READER_NAV_GROUPS: NavGroup[] = [
  icon: 'Headset',
  path: '/reader/service-requests',
  },
+ {
+ key: 'profile',
+ labelKey: 'navigation:profile',
+ icon: 'User',
+ path: '/reader/profile',
+ },
  ],
  },
 ]
