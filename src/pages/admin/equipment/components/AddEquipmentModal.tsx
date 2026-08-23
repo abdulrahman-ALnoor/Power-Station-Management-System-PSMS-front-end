@@ -88,27 +88,11 @@ export function AddEquipmentModal({
     return null
   }
 
-const handleBackdropClick = (e: React.MouseEvent) => {
-  if (e.target === e.currentTarget) {
-    onClose()
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
   }
-}
-
-setEmployees(
-  response.data.map(mapEmployee),
-)
-} catch {
-  setEmployees([])
-}
-}
-
-loadEmployees()
-}, [isOpen])
-
-if (!shouldRender) {
-  return null
-}
-
 
   // إضافة المعدة
   const handleSubmit = async (
