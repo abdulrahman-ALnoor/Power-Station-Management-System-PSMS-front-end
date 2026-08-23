@@ -22,15 +22,17 @@ export interface ApiError {
  errors?: Record<string, string[]>
 }
 
-/** Login response placeholder */
+/** Shape returned by the real Laravel /login and /me endpoints */
+export interface LoginUserInfo {
+  id: number
+  name: string
+  email: string
+  role: string
+  permissions: string[]
+}
+
+/** Login response — matches AuthController@login data payload exactly */
 export interface LoginResponse {
- token: string
- token_type: string
- expires_in: number
- user: {
- id: number
- name: string
- email: string
- role: string
- }
+  user_info: LoginUserInfo
+  token: string
 }
