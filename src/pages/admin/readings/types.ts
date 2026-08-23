@@ -59,8 +59,8 @@ export interface CreateReadingPayload {
  *  Only the last reading for a meter can be edited, and only if it has no
  *  linked invoice yet (enforced server-side; surfaced here via API error). */
 export interface UpdateReadingPayload {
-  current_reading: number
-  reading_date: string
+  current_reading?: number
+  reading_date?: string
   reading_method?: ReadingMethod
   notes?: string | null
   status?: ReadingStatus

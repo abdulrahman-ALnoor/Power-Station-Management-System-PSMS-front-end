@@ -3,6 +3,11 @@ import { X, ReceiptText, User, Wallet } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 
 import {
+  showSuccess,
+  showError,
+} from '@/utils/toast'
+
+import {
   updateInvoice,
   type InvoiceApiRecord,
   type UpdateInvoicePayload,
@@ -53,97 +58,109 @@ export function EditInvoiceModal({
     Number(invoice.remaining_balance)
 
   const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault()
+  event: React.FormEvent<HTMLFormElement>,
+) => {
+  event.preventDefault()
 
-    setErrorMessage(null)
+  setErrorMessage(null)
 
-    const numericPaidAmount = Number(paidAmount)
+  const numericPaidAmount = Number(paidAmount)
 
-    if (
-      !Number.isFinite(numericPaidAmount) ||
-      numericPaidAmount <= 0
-    ) {
-      setErrorMessage(
-        'أدخل مبلغًا صحيحًا أكبر من صفر.',
-      )
-      return
-    }
-
-    if (
-      numericPaidAmount >
-      outstandingBeforePayment
-    ) {
-      setErrorMessage(
-        'المبلغ المدفوع لا يمكن أن يكون أكبر من المبلغ المستحق.',
-      )
-      return
-    }
-
-    const remainingBalance =
-      outstandingBeforePayment -
-      numericPaidAmount
-
-    const calculatedStatus =
-      remainingBalance <= 0
-        ? 'paid'
-        : 'partially_paid'
-
-    setIsSubmitting(true)
-
-    try {
-      const payload: UpdateInvoicePayload = {
-        paid_amount: numericPaidAmount,
-        remaining_balance: Math.max(
-          0,
-          remainingBalance,
-        ),
-        status: calculatedStatus,
-        payment_notes:
-          paymentNotes.trim() || undefined,
-      }
-
-      const updatedInvoice =
-        await updateInvoice(
-          invoice.id,
-          payload,
-        )
-
-      onUpdated?.(updatedInvoice)
-
-      window.alert(
-        'تم تعديل الفاتورة بنجاح',
-      )
-
-      onClose()
-    } catch (error) {
-      const apiError = error as {
-        message?: string
-        status?: number
-        errors?: Record<string, string[]>
-      }
-
-      const validationMessage =
-        apiError.errors
-          ? Object.values(apiError.errors)
-              .flat()
-              .join(' ')
-          : undefined
-
-      setErrorMessage(
-        validationMessage ||
-          apiError.message ||
-          `تعذر تعديل الفاتورة${
-            apiError.status
-              ? ` (HTTP ${apiError.status})`
-              : ''
-          }`,
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+  if (
+    !Number.isFinite(numericPaidAmount) ||
+    numericPaidAmount <= 0
+  ) {
+    setErrorMessage(
+      'أدخل مبلغًا صحيحًا أكبر من صفر.',
+    )
+    return
   }
+
+  if (
+    numericPaidAmount >
+    outstandingBeforePayment
+  ) {
+    setErrorMessage(
+      'المبلغ المدفوع لا يمكن أن يكون أكبر من المبلغ المستحق.',
+    )
+    return
+  }
+
+  const remainingBalance =
+    outstandingBeforePayment -
+    numericPaidAmount
+
+  const calculatedStatus =
+    remainingBalance <= 0
+      ? 'paid'
+      : 'partially_paid'
+
+  setIsSubmitting(true)
+
+  try {
+    const payload: UpdateInvoicePayload = {
+      paid_amount: numericPaidAmount,
+
+      remaining_balance: Math.max(
+        0,
+        remainingBalance,
+      ),
+
+      status: calculatedStatus,
+
+      payment_notes:
+        paymentNotes.trim() || undefined,
+    }
+
+    const updatedInvoice =
+      await updateInvoice(
+        invoice.id,
+        payload,
+      )
+
+    onUpdated?.(updatedInvoice)
+
+    // إغلاق نافذة التعديل
+    onClose()
+
+    // رسالة نجاح
+    showSuccess(
+      'تم تعديل بيانات الفاتورة بنجاح.',
+      'تم التعديل بنجاح',
+    )
+
+  } catch (error) {
+    const apiError = error as {
+      message?: string
+      status?: number
+      errors?: Record<string, string[]>
+    }
+
+    const validationMessage =
+      apiError.errors
+        ? Object.values(apiError.errors)
+            .flat()
+            .join(' ')
+        : undefined
+
+    const errorMessage =
+      validationMessage ||
+      apiError.message ||
+      'تعذر تعديل الفاتورة. يرجى المحاولة مرة أخرى.'
+
+    // الاحتفاظ برسالة الخطأ داخل النافذة
+    setErrorMessage(errorMessage)
+
+    // إظهار رسالة الخطأ العامة
+    showError(
+      errorMessage,
+      'فشلت عملية التعديل',
+    )
+
+  } finally {
+    setIsSubmitting(false)
+  }
+}
 
   return (
     <>

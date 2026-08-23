@@ -9,6 +9,11 @@ import type { Employee } from '@/pages/admin/employees/types'
 import type { Meter, MeterStatus, CreateMeterPayload } from '../types'
 import type { ApiError } from '@/types/api'
 
+import {
+  showSuccess,
+  showError,
+} from '@/utils/toast'
+
 interface AddMeterModalProps {
   isOpen: boolean
   onClose: () => void
@@ -39,46 +44,142 @@ export function AddMeterModal({ isOpen, onClose, onSaved, meter }: AddMeterModal
 
  if (!isOpen) return null
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError(null)
+ const handleSubmit = async (
+  e: React.FormEvent<HTMLFormElement>,
+) => {
+  e.preventDefault()
 
-    const formElement : HTMLFormElement = e.currentTarget
-    const form =new FormData(formElement)
-    const customerIdRaw = String(form.get('customer_id') || '')
-    const installedByRaw = String(form.get('installed_by') || '')
+  setError(null)
 
-    const payload: CreateMeterPayload = {
-      customer_id: Number(customerIdRaw),
-      meter_number: String(form.get('meter_number') || ''),
-      installation_date: String(form.get('installation_date') || '') || null,
-      installation_location: String(form.get('installation_location') || '') || null,
-      status: (form.get('status') as MeterStatus) || 'active',
-      installed_by: Number(installedByRaw),
-    }
+  const formElement =
+    e.currentTarget
 
-    setIsSubmitting(true)
-    try {
-      if (isEditMode && meter) {
-        await updateMeter(meter.id, payload)
-      } else {
-        await createMeter(payload)
-      }
-            formElement.reset()
-      window.alert(isEditMode ? 'تم تحديث العداد بنجاح' : 'تم إضافة العداد بنجاح')
-      onSaved?.()
-      onClose()
-    } catch (err) {
-      const apiError = err as ApiError
-      const validationMessage = apiError.errors
-        ? Object.values(apiError.errors).flat().join(' ')
-        : undefined
-      setError(validationMessage || apiError?.message || t('errors.saveFailed'))
+  const form =
+    new FormData(formElement)
 
-    } finally {
-      setIsSubmitting(false)
-    }
+  const customerIdRaw =
+    String(
+      form.get('customer_id') || '',
+    )
+
+  const installedByRaw =
+    String(
+      form.get('installed_by') || '',
+    )
+
+  const payload: CreateMeterPayload = {
+    customer_id:
+      Number(customerIdRaw),
+
+    meter_number:
+      String(
+        form.get('meter_number') || '',
+      ),
+
+    installation_date:
+      String(
+        form.get('installation_date') || '',
+      ) || null,
+
+    installation_location:
+      String(
+        form.get('installation_location') || '',
+      ) || null,
+
+    status:
+      (form.get('status') as MeterStatus)
+      || 'active',
+
+    installed_by:
+      Number(installedByRaw),
   }
+
+  setIsSubmitting(true)
+
+  try {
+
+    // ============================
+    // تعديل العداد
+    // ============================
+
+    if (
+      isEditMode &&
+      meter
+    ) {
+      await updateMeter(
+        meter.id,
+        payload,
+      )
+    }
+
+    // ============================
+    // إضافة عداد جديد
+    // ============================
+
+    else {
+      await createMeter(
+        payload,
+      )
+    }
+
+    // تحديث جدول العدادات
+    onSaved?.()
+
+    // إعادة تعيين النموذج
+    formElement.reset()
+
+    // إغلاق النافذة
+    onClose()
+
+    // رسالة النجاح
+    showSuccess(
+      isEditMode
+        ? 'تم تحديث بيانات العداد بنجاح.'
+        : 'تم إضافة العداد بنجاح.',
+
+      isEditMode
+        ? 'تم التعديل بنجاح'
+        : 'تمت الإضافة بنجاح',
+    )
+
+  } catch (err) {
+
+    const apiError =
+      err as ApiError
+
+    const validationMessage =
+      apiError.errors
+        ? Object.values(
+            apiError.errors,
+          )
+            .flat()
+            .join(' ')
+        : undefined
+
+    const errorMessage =
+      validationMessage ||
+      apiError?.message ||
+      t('errors.saveFailed')
+
+    // إظهار الخطأ داخل النموذج
+    setError(errorMessage)
+
+    // رسالة الخطأ العامة
+    showError(
+      errorMessage,
+      isEditMode
+        ? 'فشل تعديل العداد'
+        : 'فشل إضافة العداد',
+    )
+
+  } finally {
+
+    setIsSubmitting(false)
+
+  }
+}
+
+
 
   return createPortal(
     <>
