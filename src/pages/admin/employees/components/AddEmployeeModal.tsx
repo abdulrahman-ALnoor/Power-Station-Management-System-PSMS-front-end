@@ -17,7 +17,7 @@ export function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmployeeModa
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (!isOpen) return null
+ if (!isOpen) return null
 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -32,8 +32,8 @@ export function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmployeeModa
         reader: 'قارئ',
         accountant: 'محاسب'
       }
-  
-  
+
+
     const password = String(form.get('password') || '')
     const passwordConfirmation = String(form.get('password_confirmation') || '')
 
@@ -59,8 +59,8 @@ export function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmployeeModa
     try {
       await createEmployee(payload)
       formElement.reset()
-      
-      showSuccess(roleNames[role] || 'الموظف')  
+
+      showSuccess(roleNames[role] || 'الموظف')
       //window.alert('✅ تم حفظ الموظف بنجاح')
       onCreated?.()
       onClose()

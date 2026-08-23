@@ -10,8 +10,8 @@ import { fetchEquipmentById, mapEquipment } from '@/services/equipment.service'
 import type { Equipment } from './types'
 
 export function EquipmentManagementPage() {
-  const { t } = useTranslation('equipment')
-  const { isRTL } = useLanguage()
+ const { t } = useTranslation('equipment')
+ const { isRTL } = useLanguage()
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
@@ -33,28 +33,21 @@ export function EquipmentManagementPage() {
     setRefreshKey((k) => k + 1)
   }
 
-  return (
-    <>
-      <div className="space-y-6">
+ return (
+ <>
+ <div className="space-y-6">
 
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="text-start">
-            <h1 className="font-headline-md text-headline-md font-bold text-primary dark:text-on-dark">
-              {t('pageTitle')}
-            </h1>
+ {/* Header Section */}
+ <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+ <div className="text-start">
+ <h1 className="font-headline-md text-headline-md font-bold text-primary ">
+ {t('pageTitle')}
+ </h1>
+ </div>
+ </div>
 
-            <nav
-              className="flex gap-2 text-label-sm text-outline mt-1"
-              dir={isRTL ? 'rtl' : 'ltr'}
-              aria-label={t('breadcrumb.equipment')}
-            >
-              <span>{t('breadcrumb.home')}</span>
-              <span>/</span>
-              <span>{t('breadcrumb.equipment')}</span>
-            </nav>
-          </div>
-        </div>
+ {/* Statistics */}
+ <EquipmentStats />
 
         {/* Statistics */}
         <EquipmentStats key={`stats-${refreshKey}`} />

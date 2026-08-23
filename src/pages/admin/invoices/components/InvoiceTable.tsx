@@ -224,7 +224,7 @@ export function InvoiceTable({
                       <Eye size={20} />
                     </button>
 
-                    
+
 
                     {/* تعديل */}
                     <button

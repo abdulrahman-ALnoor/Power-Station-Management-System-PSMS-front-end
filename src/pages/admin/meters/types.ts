@@ -46,10 +46,10 @@ export interface CreateMeterPayload {
 export type UpdateMeterPayload = Partial<CreateMeterPayload>
 
 export interface ServiceRequest {
-  id: string
-  titleKey: string
-  date: string
-  statusKey: string
+ id: string
+ titleKey: string
+ date: string
+ statusKey: string
 }
 
 export interface MeterStat {

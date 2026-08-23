@@ -456,8 +456,8 @@ export function InvoicesManagementPage() {
           stats={stats}
         />
 
-        {/* Charts */}
-        <InvoiceCharts />
+ {/* Charts */}
+ <InvoiceCharts />
 
         {/* Toolbar */}
        {/* Toolbar */}

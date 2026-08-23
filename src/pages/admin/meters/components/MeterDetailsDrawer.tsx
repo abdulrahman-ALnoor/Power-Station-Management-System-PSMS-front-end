@@ -6,36 +6,36 @@ import { Meter } from '../types'
 import { cn } from '@/utils/cn'
 
 interface MeterDetailsDrawerProps {
-  meter: Meter | null
-  isOpen: boolean
-  onClose: () => void
+ meter: Meter | null
+ isOpen: boolean
+ onClose: () => void
 }
 
 export function MeterDetailsDrawer({ meter, isOpen, onClose }: MeterDetailsDrawerProps) {
-  const { t } = useTranslation('meters')
-  const { isRTL } = useLanguage()
-  const [shouldRender, setShouldRender] = useState(false)
+ const { t } = useTranslation('meters')
+ const { isRTL } = useLanguage()
+ const [shouldRender, setShouldRender] = useState(false)
 
-  // Delay unmount for animation
-  useEffect(() => {
-    if (isOpen) setShouldRender(true)
-    else {
-      const timer = setTimeout(() => setShouldRender(false), 300)
-      return () => clearTimeout(timer)
-    }
-  }, [isOpen])
+ // Delay unmount for animation
+ useEffect(() => {
+ if (isOpen) setShouldRender(true)
+ else {
+ const timer = setTimeout(() => setShouldRender(false), 300)
+ return () => clearTimeout(timer)
+ }
+ }, [isOpen])
 
-  if (!shouldRender || !meter) return null
+ if (!shouldRender || !meter) return null
 
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-      case 'maintenance': return 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-      case 'damaged': return 'bg-error/10 text-error dark:bg-error/20 dark:text-red-400'
-      case 'disconnected': return 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-      default: return 'bg-surface-dim text-on-surface-variant'
-    }
-  }
+ const getStatusStyle = (status: string) => {
+ switch (status) {
+ case 'active': return 'bg-green-50 text-green-700 '
+ case 'maintenance': return 'bg-blue-50 text-blue-700 '
+ case 'damaged': return 'bg-error/10 text-error '
+ case 'disconnected': return 'bg-amber-50 text-amber-700 '
+ default: return 'bg-surface-dim text-text-primary-variant'
+ }
+ }
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
@@ -154,18 +154,18 @@ export function MeterDetailsDrawer({ meter, isOpen, onClose }: MeterDetailsDrawe
             </div>
           </div>
 
-        </div>
+ </div>
 
-        {/* Footer Actions */}
-        <div className="p-6 border-t border-surface-container-high dark:border-border-muted grid grid-cols-2 gap-4 bg-surface-container-lowest dark:bg-surface-container">
-          <button className="px-4 py-3 bg-surface-container-high dark:bg-surface text-on-surface dark:text-on-dark font-bold rounded-xl hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all flex items-center justify-center gap-2">
-            <Printer size={20} /> <span className="truncate">{t('drawer.printReport')}</span>
-          </button>
-          <button className="px-4 py-3 bg-primary dark:bg-primary-fixed dark:text-primary text-surface-white font-bold rounded-xl hover:bg-primary-container dark:hover:bg-primary dark:hover:text-white transition-all flex items-center justify-center gap-2 shadow-md">
-            <FileText size={20} /> <span className="truncate">{t('drawer.viewInvoices')}</span>
-          </button>
-        </div>
-      </div>
-    </>
-  )
+ {/* Footer Actions */}
+ <div className="p-6 border-t border-surface-container-high grid grid-cols-2 gap-4 bg-surface-low ">
+ <button className="px-4 py-3 bg-surface-container-high text-text-primary font-bold rounded-xl hover:bg-surface-container-highest :bg-surface-container-high transition-all flex items-center justify-center gap-2">
+ <Printer size={20} /> <span className="truncate">{t('drawer.printReport')}</span>
+ </button>
+ <button className="px-4 py-3 bg-primary text-surface-white font-bold rounded-xl hover:bg-primary-container :bg-primary :text-white transition-all flex items-center justify-center gap-2 shadow-md">
+ <FileText size={20} /> <span className="truncate">{t('drawer.viewInvoices')}</span>
+ </button>
+ </div>
+ </div>
+ </>
+ )
 }

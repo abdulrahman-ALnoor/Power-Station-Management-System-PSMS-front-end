@@ -4,30 +4,33 @@
 // ============================================================
 
 import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useEffect,
-  type ReactNode,
+ createContext,
+ useContext,
+ useState,
+ useCallback,
+ type ReactNode,
+ useEffect,
+
+
 } from 'react'
 import { STORAGE_KEYS } from '@/config/constants'
 import { getMeRequest, logoutRequest } from '@/services/auth.service'
 import type { AuthUser } from '@/types/common'
 
 interface AuthContextValue {
-  user: AuthUser | null
-  token: string | null
-  isAuthenticated: boolean
-  isLoading: boolean
-  login: (token: string, user: AuthUser) => void
-  logout: () => void
+ user: AuthUser | null
+ token: string | null
+ isAuthenticated: boolean
+ isLoading: boolean
+ /** Placeholder — will call auth.service.ts in Step 2 */
+ login: (token: string, user: AuthUser) => void
+ logout: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 interface AuthProviderProps {
-  children: ReactNode
+ children: ReactNode
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -39,11 +42,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // server (GET /me) before deciding whether the user is really logged in.
   const [isLoading, setIsLoading] = useState(true)
 
-  const login = useCallback((newToken: string, newUser: AuthUser) => {
-    localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, newToken)
-    setToken(newToken)
-    setUser(newUser)
-  }, [])
+ const login = useCallback((newToken: string, newUser: AuthUser) => {
+ localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, newToken)
+ setToken(newToken)
+ setUser(newUser)
+ }, [])
 
   const logout = useCallback(() => {
     // Fire-and-forget: revoke the token server-side, but clear local state

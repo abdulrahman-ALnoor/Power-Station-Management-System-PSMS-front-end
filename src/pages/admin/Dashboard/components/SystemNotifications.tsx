@@ -78,6 +78,6 @@ export function SystemNotifications() {
         </div>
       </div>
 
-    </div>
-  )
+ </div>
+ )
 }

@@ -24,7 +24,7 @@ export function AddEquipmentModal({ isOpen, onClose, onCreated }: AddEquipmentMo
   const [employees, setEmployees] = useState<Employee[]>([])
 
   useEffect(() => {
-    
+
     if (isOpen) setShouldRender(true)
     else {
       const timer = setTimeout(() => setShouldRender(false), 300)
@@ -41,17 +41,17 @@ export function AddEquipmentModal({ isOpen, onClose, onCreated }: AddEquipmentMo
 
   if (!shouldRender) return null
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose()
-    }
-  }
+ const handleBackdropClick = (e: React.MouseEvent) => {
+ if (e.target === e.currentTarget) {
+ onClose()
+ }
+ }
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
 
-    
+
     const formElement : HTMLFormElement = e.currentTarget
     const form = new FormData(formElement)
     const userIdRaw = String(form.get('user_id') || '')

@@ -28,7 +28,7 @@ import { DebugBoundary } from '@/DebugBoundary'
 // ============================================================
 
 const AdminPlaceholder = lazy(
-  () => import('@/pages/admin/AdminPlaceholder'),
+ () => import('@/pages/admin/AdminPlaceholder'),
 )
 
 const DashboardPage = lazy(
@@ -122,7 +122,7 @@ export function AdminRoutes() {
           {/* =========================
               Dashboard
           ========================= */}
-   
+
 
           <Route
             path="dashboard"

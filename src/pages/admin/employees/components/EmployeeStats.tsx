@@ -13,7 +13,7 @@ export function EmployeeStats() {
 
   useEffect(() => {
     let cancelled = false
-    
+
     setIsLoading(true)
     fetchEmployeeStats()
       .then((res) => {
@@ -36,16 +36,16 @@ export function EmployeeStats() {
     { id: 's5', labelKey: 'stats.accountants.label', value: (data?.by_role?.accountant ?? 0).toString(), subtextKey: 'stats.accountants.subtext', icon: Landmark, variant: 'primary-container' },
   ]
 
-  const getVariantStyles = (variant: EmployeeStat['variant']) => {
-    switch (variant) {
-      case 'primary': return 'border-primary text-primary bg-primary/10'
-      case 'steel-blue': return 'border-steel-blue text-steel-blue bg-steel-blue/10'
-      case 'bright-gold': return 'border-bright-gold text-amber-500 bg-bright-gold/10'
-      case 'secondary-container': return 'border-secondary-container text-yellow-700 bg-secondary-container/10'
-      case 'primary-container': return 'border-primary-container text-primary-container bg-primary-container/10'
-      default: return 'border-outline text-outline bg-surface-container'
-    }
-  }
+ const getVariantStyles = (variant: EmployeeStat['variant']) => {
+ switch (variant) {
+ case 'primary': return 'border-primary text-primary bg-primary/10'
+ case 'steel-blue': return 'border-steel-blue text-steel-blue bg-steel-blue/10'
+ case 'bright-gold': return 'border-bright-gold text-amber-500 bg-bright-gold/10'
+ case 'secondary-container': return 'border-secondary-container text-yellow-700 bg-secondary-container/10'
+ case 'primary-container': return 'border-primary-container text-primary-container bg-primary-container/10'
+ default: return 'border-border text-text-muted bg-surface-container'
+ }
+ }
 
   if (error) {
     return <div className="p-4 rounded-xl bg-error/10 text-error text-label-sm">{error}</div>

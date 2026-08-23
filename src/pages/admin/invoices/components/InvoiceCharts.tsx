@@ -26,8 +26,8 @@ import {
 import { formatCurrency } from '@/utils/currency'
 
 export function InvoiceCharts() {
-  const { t } = useTranslation('invoices')
-  const { isRTL } = useLanguage()
+ const { t } = useTranslation('invoices')
+ const { isRTL } = useLanguage()
 
   // =========================
   // بيانات الرسم الشهري

@@ -80,15 +80,15 @@ export function MeterTable({ onRowClick, onEditClick, search, status, refreshKey
     }
   }
 
-  const getStatusIndicator = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-600'
-      case 'maintenance': return 'bg-blue-600'
-      case 'damaged': return 'bg-error'
-      case 'disconnected': return 'bg-amber-600'
-      default: return 'bg-outline'
-    }
-  }
+ const getStatusIndicator = (status: string) => {
+ switch (status) {
+ case 'active': return 'bg-green-600'
+ case 'maintenance': return 'bg-blue-600'
+ case 'damaged': return 'bg-error'
+ case 'disconnected': return 'bg-amber-600'
+ default: return 'bg-outline'
+ }
+ }
 
   return (
     <div className="bg-surface-white dark:bg-surface-container-low rounded-b-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] overflow-hidden">

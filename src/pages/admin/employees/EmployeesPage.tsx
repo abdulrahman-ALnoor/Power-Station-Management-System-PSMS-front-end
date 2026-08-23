@@ -12,11 +12,11 @@ import { fetchEmployee, mapEmployee } from '@/services/employees.service'
 import { Employee } from './types'
 
 export default function EmployeesPage() {
-  const { t } = useTranslation('employees')
-  const { isRTL } = useLanguage()
+ const { t } = useTranslation('employees')
+ const { isRTL } = useLanguage()
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
+ const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+ const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
 
   const [search, setSearch] = useState('')
   const [role, setRole] = useState('')
@@ -78,7 +78,7 @@ export default function EmployeesPage() {
 
         <PermissionsOverview />
 
-      </div>
+ </div>
 
       <AddEmployeeModal
         isOpen={isAddModalOpen}
@@ -92,6 +92,6 @@ export default function EmployeesPage() {
         onClose={() => setSelectedEmployee(null)}
       />
 
-    </div>
-  )
+ </div>
+ )
 }

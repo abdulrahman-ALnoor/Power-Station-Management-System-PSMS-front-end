@@ -162,7 +162,7 @@ export function AddInvoiceModal({
     }
   }
 
-  if (!isOpen) return null
+ if (!isOpen) return null
 
   return (
     <>

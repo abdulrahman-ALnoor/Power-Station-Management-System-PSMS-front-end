@@ -37,7 +37,7 @@ export function AddMeterModal({ isOpen, onClose, onSaved, meter }: AddMeterModal
       .catch(() => setEmployees([]))
   }, [isOpen])
 
-  if (!isOpen) return null
+ if (!isOpen) return null
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
