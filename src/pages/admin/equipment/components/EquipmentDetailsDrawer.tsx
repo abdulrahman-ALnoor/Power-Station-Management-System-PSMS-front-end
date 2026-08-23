@@ -6,9 +6,9 @@ import { Equipment } from '../types'
 import { cn } from '@/utils/cn'
 
 interface EquipmentDetailsDrawerProps {
-  equipment: Equipment | null
-  isOpen: boolean
-  onClose: () => void
+ equipment: Equipment | null
+ isOpen: boolean
+ onClose: () => void
 }
 
 export function EquipmentDetailsDrawer({

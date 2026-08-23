@@ -7,8 +7,8 @@ import apiClient from './api'
 import type { ApiResponse, LoginResponse, LoginUserInfo } from '@/types/api'
 
 interface LoginCredentials {
-  email: string
-  password: string
+ email: string
+ password: string
 }
 
 /**
@@ -16,7 +16,7 @@ interface LoginCredentials {
  * Backend route: POST /api/login (public, no auth required)
  */
 export async function loginRequest(
-  credentials: LoginCredentials,
+ credentials: LoginCredentials,
 ): Promise<LoginResponse> {
   const response = await apiClient.post<ApiResponse<LoginResponse>>(
     '/login',

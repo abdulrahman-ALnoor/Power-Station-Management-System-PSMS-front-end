@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X, Plus, Edit2 } from 'lucide-react'
 
@@ -29,6 +30,9 @@ import type {
 
 import type { ApiError } from '@/types/api'
 
+// Components
+import { MeterQrScanner } from '../../../shared/readings/components/MeterQrScanner'
+import { parseMeterQrData } from '../../../shared/readings/utils/qrMeterParser'
 
 interface AddMeterReadingModalProps {
   isOpen: boolean
@@ -69,6 +73,20 @@ export function AddMeterReadingModal({
   // ==============================
   // تحميل العدادات عند الإضافة
   // ==============================
+
+  // Form states
+  const [meterId, setMeterId] = useState('')
+  const [previousReading, setPreviousReading] = useState<number | ''>('')
+  const [currentReading, setCurrentReading] = useState<number | ''>('')
+  const [pricePerKwh, setPricePerKwh] = useState<number>(250)
+  const [readingDate, setReadingDate] = useState(() => new Date().toISOString().split('T')[0])
+  const [method, setMethod] = useState<ReadingMethod>('manual')
+  const [notes, setNotes] = useState('')
+
+  // QR Scanner states
+  const [selectionMethod, setSelectionMethod] = useState<'manual' | 'qr_scan'>('manual')
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
+  const [qrError, setQrError] = useState<string | null>(null)
 
   useEffect(() => {
 
@@ -220,18 +238,29 @@ export function AddMeterReadingModal({
         )
       }
 
+// ==============================
+// إعادة النموذج
+// ==============================
 
-      // ==============================
-      // إعادة النموذج
-      // ==============================
+formElement.reset()
 
-      formElement.reset()
+// ==============================
+// رسالة النجاح
+// ==============================
 
+showSuccess(
+  isEditMode
+    ? (isRTL
+        ? 'تم تحديث القراءة بنجاح'
+        : 'Reading updated successfully')
+    : (isRTL
+        ? 'تم إضافة القراءة بنجاح'
+        : 'Reading added successfully'),
+)
 
-      // ==============================
-      // تحديث البيانات
-      // ==============================
-
+// ==============================
+// تحديث البيانات
+//
       onSaved?.()
 
 
@@ -303,21 +332,20 @@ export function AddMeterReadingModal({
     }
   }
 
+  if (!isOpen) return null
 
-  return (
-    <>
-      {/* الخلفية */}
-
+  return createPortal(
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+      {/* BACKDROP */}
       <div
-        className="fixed inset-0 z-40 bg-black/45 transition-opacity"
         onClick={onClose}
+        style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 0 }}
       />
 
-
-      {/* النافذة */}
-
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      {/* MODAL */}
+      <aside
+        className="absolute inset-0 flex items-center justify-center p-4 sm:p-6"
+        style={{ zIndex: 1 }}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
 
@@ -430,43 +458,57 @@ export function AddMeterReadingModal({
 
           </div>
 
+{/* المحتوى */}
+<div className="flex-1 overflow-y-auto p-6">
+  <form
+    key={reading?.id ?? 'new'}
+    id="add-reading-form"
+    onSubmit={handleSubmit}
+    className="space-y-6"
+  >
+    {/* SECTION: Selection Method */}
+    {!isEditMode && (
+      <div className="space-y-3 mb-6">
+        <label className="block text-sm font-medium text-on-surface dark:text-on-dark text-center">
+          {isRTL ? 'طريقة اختيار العداد' : 'Meter Selection Method'}
+        </label>
 
-          {/* المحتوى */}
-
-          <div
-            className="
-              flex-1
-              overflow-y-auto
-              p-6
-            "
+        <div className="flex bg-surface-container-lowest dark:bg-surface-container/30 p-1 rounded-xl border border-outline/20 dark:border-outline/10">
+          <button
+            type="button"
+            onClick={() => setSelectionMethod('manual')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+              selectionMethod === 'manual'
+                ? 'bg-white dark:bg-surface-container shadow-sm text-primary'
+                : 'text-outline hover:text-on-surface dark:hover:text-on-dark'
+            }`}
           >
+            <Search size={18} />
+            {isRTL ? 'البحث عن العداد' : 'Search Meter'}
+          </button>
 
-            <form
-              key={
-                reading?.id
-                ?? 'new'
-              }
-              id="add-reading-form"
-              onSubmit={handleSubmit}
-              className="space-y-6"
-            >
+          <button
+            type="button"
+            onClick={() => setSelectionMethod('qr_scan')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+              selectionMethod === 'qr_scan'
+                ? 'bg-white dark:bg-surface-container shadow-sm text-primary'
+                : 'text-outline hover:text-on-surface dark:hover:text-on-dark'
+            }`}
+          >
+            <QrCode size={18} />
+            {isRTL ? 'مسح QR' : 'Scan QR'}
+          </button>
+        </div>
+      </div>
+    )}
 
-              {/* رسالة الخطأ */}
-
-              {error && (
-
-                <div
-                  className="
-                    rounded-lg
-                    bg-error/10
-                    p-3
-                    text-sm
-                    text-error
-                  "
-                >
-                  {error}
-                </div>
-
+    {/* رسالة الخطأ */}
+    {error && (
+      <div className="rounded-lg bg-error/10 p-3 text-sm text-error">
+        {error}
+      </div>
+    )}
               )}
 
 
@@ -488,89 +530,33 @@ export function AddMeterReadingModal({
                   }
                 </h3>
 
+{isEditMode ? (
+  <div className="space-y-2">
+    <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
+      {t('table.columns.meterNumber')}
+    </label>
 
-                <div className="space-y-2">
+    <div className="flex min-h-[44px] w-full items-center rounded-lg border border-outline/20 bg-surface-container-lowest px-4 py-2.5 text-sm text-on-surface dark:border-outline/10 dark:bg-surface-container/30 dark:text-on-dark">
+      {reading?.meter?.meter_number}
 
-                  <label
-                    className="
-                      block
-                      text-sm
-                      font-medium
-                      text-on-surface
-                      dark:text-on-dark
-                    "
-                  >
-                    {t(
-                      'table.columns.meterNumber',
-                    )}
+      {reading?.meter?.customerName
+        ? ` — ${reading.meter.customerName}`
+        : ''}
+    </div>
+  </div>
+) : selectionMethod === 'manual' ? (
+  <div className="space-y-2">
+    <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
+      {t('table.columns.meterNumber')}{' '}
+      <span className="text-error">*</span>
+    </label>
 
-                    {' '}
-
-                    <span className="text-error">
-                      *
-                    </span>
-
-                  </label>
-
-
-                  {isEditMode ? (
-
-                    <div
-                      className="
-                        flex
-                        min-h-[44px]
-                        w-full
-                        items-center
-                        rounded-lg
-                        border
-                        border-outline/20
-                        bg-surface-container-lowest
-                        px-4
-                        py-2.5
-                        text-sm
-                        text-on-surface
-                        dark:border-outline/10
-                        dark:bg-surface-container/30
-                        dark:text-on-dark
-                      "
-                    >
-
-                      {reading?.meter?.meter_number}
-
-                      {reading?.meter?.customerName
-                        ? ` — ${reading.meter.customerName}`
-                        : ''
-                      }
-
-                    </div>
-
-                  ) : (
-
-                    <select
-                      name="meter_id"
-                      required
-                      defaultValue=""
-                      className="
-                        min-h-[44px]
-                        w-full
-                        min-w-0
-                        cursor-pointer
-                        rounded-lg
-                        border
-                        border-outline/20
-                        bg-surface-container-lowest
-                        px-4
-                        py-2.5
-                        text-sm
-                        text-on-surface
-                        transition-shadow
-                        focus:border-primary
-                        focus:ring-2
-                        focus:ring-primary/20
-                        dark:border-outline/10
-                        dark:bg-surface-container/30
-                        dark:text-on-dark
-                      "
+    <select
+      required
+      value={meterId}
+      onChange={(e) => setMeterId(e.target.value)}
+      className="w-full min-w-0 cursor-pointer rounded-lg border border-outline/20 bg-surface-container-lowest px-4 py-2.5 text-sm text-on-surface min-h-[44px] transition-shadow focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-outline/10 dark:bg-surface-container/30 dark:text-on-dark"
+    >
                     >
 
                       <option
@@ -602,11 +588,79 @@ export function AddMeterReadingModal({
                       ))}
 
                     </select>
-
                   )}
-
                 </div>
+              ) : (
+                <div className="space-y-4 bg-surface-container-lowest dark:bg-surface-container/30 p-6 rounded-xl border border-outline/20 dark:border-outline/10 text-center flex flex-col items-center">
+                  <div className="p-4 bg-primary/10 rounded-full text-primary mb-2">
+                    <QrCode size={32} />
+                  </div>
 
+                  {meterId && method === 'qr_scan' ? (
+                    <div className="w-full flex items-center justify-between p-4 bg-success/10 border border-success/20 rounded-lg">
+                      <span className="font-medium text-success flex flex-col items-start gap-1">
+                        <span className="text-xs opacity-80">
+                          {isRTL
+                            ? 'تم تحديد العداد عبر QR:'
+                            : 'Meter Selected via QR:'}
+                        </span>
+
+                        <span
+                          className="font-bold text-lg"
+                          dir="ltr"
+                        >
+                          {meters.find(
+                            (m) => m.id.toString() === meterId,
+                          )?.meter_number || `ID: ${meterId}`}
+                        </span>
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMeterId('')
+                          setPreviousReading('')
+                          setMethod('manual')
+                        }}
+                        className="text-sm font-medium text-outline hover:text-error transition-colors px-3 py-1.5 rounded bg-white dark:bg-surface-container shadow-sm border border-outline/20 dark:border-outline/10"
+                      >
+                        {isRTL ? 'إلغاء التحديد' : 'Clear'}
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm text-outline dark:text-outline/80">
+                        {isRTL
+                          ? 'استخدم كاميرا الجهاز لمسح رمز QR الخاص بالعداد'
+                          : 'Use your device camera to scan the meter QR code'}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setQrError(null)
+                          setIsScannerOpen(true)
+                        }}
+                        className="mt-4 flex items-center gap-2 px-8 py-3 rounded-xl bg-primary text-on-primary font-semibold hover:bg-primary-dark transition-all shadow-sm hover:shadow-md"
+                      >
+                        <Camera size={20} />
+                        {isRTL
+                          ? 'فتح الكاميرا ومسح QR'
+                          : 'Open Camera & Scan'}
+                      </button>
+
+                      {qrError && (
+                        <div className="mt-4 p-3 rounded-lg bg-error/10 border border-error/20 w-full">
+                          <p className="text-sm text-error font-medium flex items-center justify-center gap-1.5">
+                            <AlertCircle size={16} />
+                            {qrError}
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
               </div>
 
 
@@ -671,15 +725,12 @@ export function AddMeterReadingModal({
 
 
                     <input
-                      name="current_reading"
                       required
                       type="number"
                       step="0.01"
                       min="0"
-                      defaultValue={
-                        reading?.current_reading
-                        ?? ''
-                      }
+                      value={previousReading}
+                      onChange={(e) => setPreviousReading(e.target.value ? Number(e.target.value) : '')}
                       dir="ltr"
                       className="
                         min-h-[44px]
@@ -707,40 +758,74 @@ export function AddMeterReadingModal({
 
 
                   <div className="space-y-2">
+<label className="block text-sm font-medium text-on-surface dark:text-on-dark">
+  {t('table.columns.currentReading')}{' '}
+  <span className="text-error">*</span>
+</label>
 
-                    <label
-                      className="
-                        block
-                        text-sm
-                        font-medium
-                        text-on-surface
-                        dark:text-on-dark
-                      "
-                    >
+<input
+  required
+  type="number"
+  step="0.01"
+  min="0"
+  value={currentReading}
+  onChange={(e) =>
+    setCurrentReading(
+      e.target.value ? Number(e.target.value) : '',
+    )
+  }
+  dir="ltr"
+  className={`w-full bg-surface-container-lowest dark:bg-surface-container/30 border text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 transition-shadow text-start ${
+    error
+      ? 'border-error text-error focus:border-error'
+      : 'border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark focus:border-primary'
+  }`}
+/>
 
-                      {t(
-                        'table.columns.readingDate',
-                      )}
+{error && (
+  <p className="text-xs font-medium text-error flex items-center gap-1 mt-1">
+    <AlertCircle size={12} />
+    {error}
+  </p>
+)}
 
-                      {' '}
+</div>
 
-                      <span className="text-error">
-                        *
-                      </span>
-
-                    </label>
+<div className="space-y-2">
+  <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
+    {t('table.columns.readingDate')}{' '}
+    <span className="text-error">*</span>
+  </label>        </label>
 
 
                     <input
-                      name="reading_date"
                       required
                       type="date"
-                      defaultValue={
-                        reading?.reading_date
-                        ?? new Date()
-                          .toISOString()
-                          .split('T')[0]
-                      }
+<input
+  required
+  type="date"
+  value={readingDate}
+  onChange={(e) => setReadingDate(e.target.value)}
+  dir="ltr"
+  className="w-full bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow text-start"
+/>
+</div>
+
+<div className="space-y-2">
+  <label className="block text-sm font-medium text-on-surface dark:text-on-dark">
+    {t('table.columns.pricePerKwh')}{' '}
+    <span className="text-error">*</span>
+  </label>
+
+  <input
+    required
+    type="number"
+    step="0.01"
+    min="0"
+    value={pricePerKwh}
+    onChange={(e) =>
+      setPricePerKwh(Number(e.target.value))
+    }
                       dir="ltr"
                       className="
                         min-h-[44px]
@@ -790,31 +875,14 @@ export function AddMeterReadingModal({
 
 
                     <select
-                      name="reading_method"
-                      defaultValue={
-                        reading?.reading_method
-                        ?? 'manual'
-                      }
-                      className="
-                        min-h-[44px]
-                        w-full
-                        cursor-pointer
-                        rounded-lg
-                        border
-                        border-outline/20
-                        bg-surface-container-lowest
-                        px-4
-                        py-2.5
-                        text-sm
-                        text-on-surface
-                        transition-shadow
-                        focus:border-primary
-                        focus:ring-2
-                        focus:ring-primary/20
-                        dark:border-outline/10
-                        dark:bg-surface-container/30
-                        dark:text-on-dark
-                      "
+<select
+  name="reading_method"
+  value={method}
+  onChange={(e) =>
+    setMethod(e.target.value as ReadingMethod)
+  }
+  className="w-full bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 text-on-surface dark:text-on-dark text-sm rounded-lg min-h-[44px] py-2.5 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow cursor-pointer"
+>
                     >
 
                       <option value="manual">
@@ -834,49 +902,55 @@ export function AddMeterReadingModal({
                   </div>
 
                 </div>
-
-
-                <p
-                  className="
-                    text-xs
-                    text-outline/70
-                    dark:text-outline/50
-                  "
-                >
-
-                  {isRTL
-                    ? 'سيتم احتساب القراءة السابقة والاستهلاك والتكلفة تلقائياً من الباك اند بعد الحفظ.'
-                    : 'Previous reading, consumption, and cost will be calculated automatically by the backend after saving.'
-                  }
-
-                </p>
-
               </div>
 
+              {/* SECTION 3: Reading Summary */}
+              <div className="space-y-4 pt-6 border-t border-outline/10">
+                <h3 className="text-sm font-semibold text-primary dark:text-primary-light">
+                  {isRTL ? 'ملخص القراءة' : 'Reading Summary'}
+                </h3>
 
-              {/* الملاحظات */}
+<p className="text-xs text-outline/70 dark:text-outline/50">
+  {isRTL
+    ? 'سيتم احتساب القراءة السابقة والاستهلاك والتكلفة تلقائياً من الباك اند بعد الحفظ.'
+    : 'Previous reading, consumption, and cost will be calculated automatically by the backend after saving.'}
+</p>
 
-              <div
-                className="
-                  space-y-4
-                  border-t
-                  border-outline/10
-                  pt-6
-                "
-              >
+{/* Preview */}
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+  <div className="bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 rounded-xl p-4">
+    <p className="text-sm font-medium text-outline mb-2">
+      {t('addModal.preview.consumption')}
+    </p>
 
-                <h3
-                  className="
-                    text-sm
-                    font-semibold
-                    text-primary
-                    dark:text-primary-light
-                  "
-                >
-                  {isRTL
-                    ? 'الملاحظات'
-                    : 'Notes'
-                  }
+    <p
+      className="font-semibold text-lg text-on-surface dark:text-on-dark"
+      dir="ltr"
+    >
+      {formatNumber(consumption)}{' '}
+      <span className="text-sm">kWh</span>
+    </p>
+  </div>
+
+  <div className="bg-surface-container-lowest dark:bg-surface-container/30 border border-outline/20 dark:border-outline/10 rounded-xl p-4">
+    <p className="text-sm font-medium text-outline mb-2">
+      {t('addModal.preview.cost')}
+    </p>
+
+    <p
+      className="font-semibold text-lg text-success"
+      dir="ltr"
+    >
+      {formatCurrency(cost)}
+    </p>
+  </div>
+</div>
+
+{/* الملاحظات */}
+<div className="space-y-4 border-t border-outline/10 pt-6">
+  <h3 className="text-sm font-semibold text-primary dark:text-primary-light">
+    {isRTL ? 'الملاحظات' : 'Notes'}
+  </h3>
                 </h3>
 
 
@@ -896,11 +970,9 @@ export function AddMeterReadingModal({
 
 
                   <textarea
-                    name="notes"
-                    defaultValue={
-                      reading?.notes
-                      ?? ''
-                    }
+name="notes"
+value={notes}
+onChange={(e) => setNotes(e.target.value)}> main
                     rows={4}
                     className="
                       min-h-[100px]
@@ -983,24 +1055,22 @@ export function AddMeterReadingModal({
             <button
               type="submit"
               form="add-reading-form"
-              disabled={isSubmitting}
-              className="
-                min-h-[44px]
-                w-full
-                rounded-lg
-                bg-primary
-                px-6
-                py-2.5
-                font-semibold
-                text-on-primary
-                shadow-sm
-                transition-colors
-                hover:bg-primary-dark
-                disabled:cursor-not-allowed
-                disabled:opacity-50
-                sm:w-auto
-              "
-            >
+disabled={isSubmitting || !!error}
+className="
+  min-h-[44px]
+  w-full
+  rounded-lg
+  bg-primary
+  px-6
+  py-2.5
+  font-semibold
+  text-on-primary
+  shadow-sm
+  transition-colors
+  hover:bg-primary-dark
+  disabled:cursor-not-allowed
+  disabled:opacity-50
+  sm:w-auto
 
               {isSubmitting
                 ? t(
@@ -1022,8 +1092,16 @@ export function AddMeterReadingModal({
           </div>
 
         </div>
+      </aside>
 
-      </div>
-    </>
+      {/* QR SCANNER OVERLAY */}
+      <MeterQrScanner
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScanSuccess={handleScanSuccess}
+      />
+    </div>,
+    document.body
+  )
   )
 }

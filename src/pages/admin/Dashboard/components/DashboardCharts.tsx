@@ -112,6 +112,6 @@ export function DashboardCharts({ monthlyRevenueChart, electricityChart }: Dashb
         </div>
       </div>
 
-    </div>
-  )
+ </div>
+ )
 }

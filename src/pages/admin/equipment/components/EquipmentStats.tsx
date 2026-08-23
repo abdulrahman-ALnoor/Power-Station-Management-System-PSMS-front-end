@@ -5,11 +5,11 @@ import { fetchEquipmentStats, type EquipmentStatsResponse } from '@/services/equ
 import type { EquipmentStat } from '../types'
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  'layers': Layers,
-  'check_circle': CheckCircle2,
-  'build': Wrench,
-  'report_problem': AlertTriangle,
-  'search_off': SearchX
+ 'layers': Layers,
+ 'check_circle': CheckCircle2,
+ 'build': Wrench,
+ 'report_problem': AlertTriangle,
+ 'search_off': SearchX
 }
 
 export function EquipmentStats() {
@@ -46,10 +46,10 @@ export function EquipmentStats() {
     return <div className="p-4 rounded-xl bg-error/10 text-error text-label-sm">{error}</div>
   }
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {stats.map((stat) => {
-        const Icon = ICON_MAP[stat.iconKey] || Layers
+ return (
+ <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+ {stats.map((stat) => {
+ const Icon = ICON_MAP[stat.iconKey] || Layers
 
         let colors: { bg: string; iconBg: string; iconText: string; border: string }
 

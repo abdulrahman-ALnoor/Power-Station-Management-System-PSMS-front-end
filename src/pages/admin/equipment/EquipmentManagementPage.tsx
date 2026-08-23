@@ -18,8 +18,8 @@ import {
 import type { Equipment } from './types'
 
 export function EquipmentManagementPage() {
-  const { t } = useTranslation('equipment')
-  const { isRTL } = useLanguage()
+ const { t } = useTranslation('equipment')
+ const { isRTL } = useLanguage()
 
   // نافذة الإضافة
   const [isAddModalOpen, setIsAddModalOpen] =
@@ -141,39 +141,37 @@ export function EquipmentManagementPage() {
     setSelectedEquipment(null)
   }
 
-  return (
-    <>
-      <div className="space-y-6">
+ return (
+ <>
+ <div className="space-y-6">
 
-        {/* Header */}
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+{/* Header */}
+<div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+  <div className="text-start">
+    <h1 className="font-headline-md text-headline-md font-bold text-primary dark:text-on-dark">
+      {t('pageTitle')}
+    </h1>
 
-          <div className="text-start">
+    <nav
+      className="mt-1 flex gap-2 text-label-sm text-outline"
+      dir={isRTL ? 'rtl' : 'ltr'}
+      aria-label={t('breadcrumb.equipment')}
+    >
+      <span>
+        {t('breadcrumb.home')}
+      </span>
 
-            <h1 className="font-headline-md text-headline-md font-bold text-primary dark:text-on-dark">
-              {t('pageTitle')}
-            </h1>
+      <span>/</span>
 
-            <nav
-              className="mt-1 flex gap-2 text-label-sm text-outline"
-              dir={isRTL ? 'rtl' : 'ltr'}
-              aria-label={t('breadcrumb.equipment')}
-            >
-              <span>
-                {t('breadcrumb.home')}
-              </span>
+      <span>
+        {t('breadcrumb.equipment')}
+      </span>
+    </nav>
+  </div>
+</div>
 
-              <span>/</span>
-
-              <span>
-                {t('breadcrumb.equipment')}
-              </span>
-
-            </nav>
-
-          </div>
-
-        </div>
+{/* Statistics */}
+<EquipmentStats />
 
         {/* الإحصائيات */}
         <EquipmentStats

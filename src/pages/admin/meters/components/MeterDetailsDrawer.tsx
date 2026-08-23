@@ -17,74 +17,36 @@ import { cn } from '@/utils/cn'
 
 
 interface MeterDetailsDrawerProps {
-  meter: Meter | null
-  isOpen: boolean
-  onClose: () => void
+ meter: Meter | null
+ isOpen: boolean
+ onClose: () => void
 }
 
+export function MeterDetailsDrawer({ meter, isOpen, onClose }: MeterDetailsDrawerProps) {
+ const { t } = useTranslation('meters')
+ const { isRTL } = useLanguage()
+ const [shouldRender, setShouldRender] = useState(false)
 
-export function MeterDetailsDrawer({
-  meter,
-  isOpen,
-  onClose,
-}: MeterDetailsDrawerProps) {
+ // Delay unmount for animation
+ useEffect(() => {
+ if (isOpen) setShouldRender(true)
+ else {
+ const timer = setTimeout(() => setShouldRender(false), 300)
+ return () => clearTimeout(timer)
+ }
+ }, [isOpen])
 
-  const { t } = useTranslation('meters')
+ if (!shouldRender || !meter) return null
 
-  const { isRTL } =
-    useLanguage()
-
-  const [shouldRender, setShouldRender] =
-    useState(false)
-
-
-  // إبقاء النافذة موجودة قليلًا عند الإغلاق
-  useEffect(() => {
-
-    if (isOpen) {
-      setShouldRender(true)
-    } else {
-
-      const timer =
-        setTimeout(
-          () => setShouldRender(false),
-          300,
-        )
-
-      return () =>
-        clearTimeout(timer)
-    }
-
-  }, [isOpen])
-
-
-  if (!shouldRender || !meter) {
-    return null
-  }
-
-
-  const getStatusStyle = (
-    status: string,
-  ) => {
-
-    switch (status) {
-
-      case 'active':
-        return 'bg-green-50 text-green-700'
-
-      case 'maintenance':
-        return 'bg-blue-50 text-blue-700'
-
-      case 'damaged':
-        return 'bg-red-50 text-red-700'
-
-      case 'disconnected':
-        return 'bg-amber-50 text-amber-700'
-
-      default:
-        return 'bg-gray-100 text-gray-700'
-    }
-  }
+ const getStatusStyle = (status: string) => {
+ switch (status) {
+ case 'active': return 'bg-green-50 text-green-700 '
+ case 'maintenance': return 'bg-blue-50 text-blue-700 '
+ case 'damaged': return 'bg-error/10 text-error '
+ case 'disconnected': return 'bg-amber-50 text-amber-700 '
+ default: return 'bg-surface-dim text-text-primary-variant'
+ }
+ }
 
 
   const formatDate = (

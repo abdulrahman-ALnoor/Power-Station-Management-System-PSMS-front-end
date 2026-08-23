@@ -12,26 +12,26 @@ import type { ApiError } from '@/types/api'
 import type { UserRole } from '@/types/common'
 
 export interface LoginFormValues {
-  username: string
-  password: string
-  rememberMe: boolean
+ username: string
+ password: string
+ rememberMe: boolean
 }
 
 export interface LoginFormErrors {
-  username?: string
-  password?: string
-  general?: string
+ username?: string
+ password?: string
+ general?: string
 }
 
 interface UseLoginFormReturn {
-  values: LoginFormValues
-  errors: LoginFormErrors
-  isLoading: boolean
-  showPassword: boolean
-  handleChange: (field: keyof LoginFormValues, value: string | boolean) => void
-  handleSubmit: (e: FormEvent) => Promise<void>
-  toggleShowPassword: () => void
-  clearError: (field: keyof LoginFormErrors) => void
+ values: LoginFormValues
+ errors: LoginFormErrors
+ isLoading: boolean
+ showPassword: boolean
+ handleChange: (field: keyof LoginFormValues, value: string | boolean) => void
+ handleSubmit: (e: FormEvent) => Promise<void>
+ toggleShowPassword: () => void
+ clearError: (field: keyof LoginFormErrors) => void
 }
 
 export function useLoginForm(): UseLoginFormReturn {

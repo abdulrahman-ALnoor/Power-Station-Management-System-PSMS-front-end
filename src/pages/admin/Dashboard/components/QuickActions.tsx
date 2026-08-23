@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import {
-  UserPlus,
-  Zap,
-  FileEdit,
-  ReceiptText,
-  BadgePlus,
-  Wrench,
-  Headset,
-  FileText,
+ UserPlus,
+ Zap,
+ FileEdit,
+ ReceiptText,
+ BadgePlus,
+ Wrench,
+ Headset,
+ FileText,
 } from 'lucide-react'
 
 export type QuickActionType =
@@ -21,7 +21,7 @@ export type QuickActionType =
   | 'viewReports'
 
 interface QuickActionsProps {
-  onActionSelect?: (action: QuickActionType) => void
+ onActionSelect?: (action: QuickActionType) => void
 }
 
 export function QuickActions({

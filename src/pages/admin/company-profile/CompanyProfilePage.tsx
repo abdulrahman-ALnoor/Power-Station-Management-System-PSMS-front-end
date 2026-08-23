@@ -10,8 +10,8 @@ import { fetchCompanyProfile, updateCompanyProfile } from '@/services/companyPro
 import type { ApiError } from '@/types/api'
 
 export function CompanyProfilePage() {
-  const { t } = useTranslation('settings')
-  const { isRTL } = useLanguage()
+ const { t } = useTranslation('settings')
+ const { isRTL } = useLanguage()
 
   const [formData, setFormData] = useState<CompanyProfile | null>(null)
   const [originalData, setOriginalData] = useState<CompanyProfile | null>(null)
@@ -63,8 +63,8 @@ export function CompanyProfilePage() {
       return
     }
 
-    setIsSaving(true)
-    setNotification(null)
+ setIsSaving(true)
+ setNotification(null)
 
     try {
       const updated = await updateCompanyProfile(formData.id, {
@@ -97,25 +97,25 @@ export function CompanyProfilePage() {
     setNotification(null)
   }
 
-  // Clear notification after 3 seconds
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => setNotification(null), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [notification])
+ // Clear notification after 3 seconds
+ useEffect(() => {
+ if (notification) {
+ const timer = setTimeout(() => setNotification(null), 3000)
+ return () => clearTimeout(timer)
+ }
+ }, [notification])
 
-  return (
-    <div className="space-y-6 max-w-[1200px] mx-auto pb-12">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="text-start">
-          <h1 className="font-headline-md text-headline-md font-bold text-primary dark:text-on-dark">
-            {t('pageTitle')}
-          </h1>
-          <p className="text-label-md text-outline dark:text-outline/80 mt-1">
-            {t('pageSubtitle')}
-          </p>
+ return (
+ <div className="space-y-6 max-w-[1200px] mx-auto pb-12">
+ {/* Header Section */}
+ <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+ <div className="text-start">
+ <h1 className="font-headline-md text-headline-md font-bold text-primary ">
+ {t('pageTitle')}
+ </h1>
+ <p className="text-label-md text-text-muted mt-1">
+ {t('pageSubtitle')}
+ </p>
 
           <nav
             className="flex gap-2 text-label-sm text-outline/60 dark:text-outline/50 mt-2"

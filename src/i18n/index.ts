@@ -16,27 +16,27 @@ export const DEFAULT_LANGUAGE: SupportedLanguage = 'ar'
 export const DEFAULT_NAMESPACE = 'common'
 
 const resources = {
-  ar: { ...ar },
-  en: { ...en },
+ ar: { ...ar },
+ en: { ...en },
 }
 
 i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: DEFAULT_LANGUAGE,
-    fallbackLng: DEFAULT_LANGUAGE,
-    defaultNS: DEFAULT_NAMESPACE,
-    ns: ['common', 'navigation', 'auth', 'dashboard', 'employees', 'meters', 'equipment'],
-    interpolation: {
-      escapeValue: false, // React already escapes by default
-    },
-    detection: {
-      order: ['localStorage', 'navigator'],
-      lookupLocalStorage: 'psms_language',
-      caches: ['localStorage'],
-    },
-  })
+ .use(LanguageDetector)
+ .use(initReactI18next)
+ .init({
+ resources,
+ lng: DEFAULT_LANGUAGE,
+ fallbackLng: DEFAULT_LANGUAGE,
+ defaultNS: DEFAULT_NAMESPACE,
+ ns: ['common', 'navigation', 'auth', 'dashboard', 'employees', 'meters', 'equipment', 'engineer', 'reader'],
+ interpolation: {
+ escapeValue: false, // React already escapes by default
+ },
+ detection: {
+ order: ['localStorage', 'navigator'],
+ lookupLocalStorage: 'psms_language',
+ caches: ['localStorage'],
+ },
+ })
 
 export default i18n

@@ -26,7 +26,7 @@ export function AddEmployeeModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (!isOpen) return null
+ if (!isOpen) return null
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
@@ -142,6 +142,8 @@ export function AddEmployeeModal({
       |--------------------------------------------------------------------------
       */
 
+      showSuccess(roleNames[role] || 'الموظف')
+      //window.alert('✅ تم حفظ الموظف بنجاح')
       onCreated?.()
 
       onClose()

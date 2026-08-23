@@ -72,6 +72,7 @@ export function AddEquipmentModal({
           per_page: 100,
         })
 
+
         setEmployees(
           response.data.map(mapEmployee),
         )
@@ -86,6 +87,28 @@ export function AddEquipmentModal({
   if (!shouldRender) {
     return null
   }
+
+const handleBackdropClick = (e: React.MouseEvent) => {
+  if (e.target === e.currentTarget) {
+    onClose()
+  }
+}
+
+setEmployees(
+  response.data.map(mapEmployee),
+)
+} catch {
+  setEmployees([])
+}
+}
+
+loadEmployees()
+}, [isOpen])
+
+if (!shouldRender) {
+  return null
+}
+
 
   // إضافة المعدة
   const handleSubmit = async (

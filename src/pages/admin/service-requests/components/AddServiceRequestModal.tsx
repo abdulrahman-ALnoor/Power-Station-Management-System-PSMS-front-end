@@ -12,15 +12,17 @@ import { showSuccess, showError } from '@/utils/toast'
 export interface ServiceRequestData {
   meter_id: string
   customer_id: string
+  assigned_engineer_id?: string
   request_type: 'new_connection' | 'maintenance' | 'disconnection'
   priority: 'low' | 'medium' | 'high' | 'emergency'
+  status: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled'
   description?: string
 }
 
 interface AddServiceRequestModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onAdd?: (data: ServiceRequestData) => void
+ isOpen: boolean
+ onClose: () => void
+ onAdd?: (data: ServiceRequestData) => void
 }
 
 const initialFormData: ServiceRequestData = {
@@ -28,6 +30,7 @@ const initialFormData: ServiceRequestData = {
   customer_id: '',
   request_type: 'new_connection',
   priority: 'medium',
+  status: 'pending',
   description: '',
 }
 
@@ -163,7 +166,7 @@ const filteredMeters = meters.filter(
     onClose()
   }
 
-  if (!isOpen) return null
+ if (!isOpen) return null
 
   return (
     <>

@@ -1,9 +1,11 @@
 export default {
   title: 'Meter Management',
+
   breadcrumb: {
     home: 'Home',
     meters: 'Meter Management'
   },
+
   stats: {
     total: {
       label: 'Total Meters',
@@ -26,12 +28,14 @@ export default {
       subtext: 'Needs replacement'
     }
   },
+
   toolbar: {
-    searchPlaceholder: 'Search by meter number...',
+    searchPlaceholder: 'Search by meter number or QR code...',
     status: 'Status',
     addMeter: 'Add Meter',
     refresh: 'Refresh'
   },
+
   table: {
     id: '#',
     meterNumber: 'Meter Number',
@@ -48,28 +52,37 @@ export default {
     edit: 'Edit',
     delete: 'Delete'
   },
+
   status: {
     active: 'Active',
     disconnected: 'Disconnected',
     maintenance: 'Maintenance',
     damaged: 'Damaged'
   },
+
   emptyState: {
     title: 'No meters registered yet',
-    description: 'Please add new meters or adjust search filters to show desired results in this table.'
+    description:
+      'Please add new meters or adjust search filters to show desired results in this table.'
   },
+
   loading: 'Loading...',
+
   errors: {
-    loadFailed: 'Failed to load meters. Make sure the backend server is running.',
+    loadFailed:
+      'Failed to load meters. Make sure the backend server is running.',
     statsFailed: 'Failed to load meter statistics.',
     deleteFailed: 'Failed to delete meter.',
     saveFailed: 'Failed to save meter.',
     loadDetailsFailed: 'Failed to load meter details.'
   },
+
   deleteConfirm: 'Are you sure you want to delete this meter?',
+
   pagination: {
     showing: 'Showing {{count}} of {{total}} meters'
   },
+
   modal: {
     addTitle: 'Add New Meter',
     editTitle: 'Edit Meter',
@@ -79,18 +92,27 @@ export default {
     sectionStatus: 'Meter Status',
     meterNumber: 'Meter Number',
     qrCode: 'QR Code',
+
     searchCustomer: 'Customer',
+    searchCustomerPlaceholder: 'Search for customer...',
     selectCustomerPlaceholder: 'Select a customer...',
+
     installationDate: 'Installation Date',
     installationLocation: 'Installation Location',
+
     installedBy: 'Installed By',
-    selectInstalledByPlaceholder: 'Select the responsible technician...',
+    installedByPlaceholder: 'Search for employee...',
+    selectInstalledByPlaceholder:
+      'Select the responsible technician...',
+
     status: 'Meter Status',
+
     cancel: 'Cancel',
     confirmAdd: 'Save Meter',
     confirmEdit: 'Update Meter',
     saving: 'Saving...'
   },
+
   drawer: {
     title: 'Meter Details',
     close: 'Close',
@@ -108,6 +130,7 @@ export default {
     createdAt: 'Created At',
     qrImage: 'QR Code Image'
   },
+
   months: {
     1: 'Jan',
     2: 'Feb',
@@ -116,6 +139,7 @@ export default {
     5: 'May',
     6: 'Jun'
   },
+
   requests: {
     periodicInspection: 'Periodic Meter Inspection',
     replacePanel: 'Replace Control Panel',

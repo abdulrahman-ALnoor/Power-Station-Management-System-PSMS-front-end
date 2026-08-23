@@ -12,7 +12,7 @@ export function MeterStats() {
 
   useEffect(() => {
     let cancelled = false
-    
+
     setIsLoading(true)
     setError(null)
     fetchMeterStats()

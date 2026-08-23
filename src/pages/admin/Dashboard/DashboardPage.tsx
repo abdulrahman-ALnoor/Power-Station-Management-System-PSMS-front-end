@@ -21,8 +21,8 @@ import { AddServiceRequestModal } from '../service-requests/components/AddServic
 import { AddInvoiceModal } from '../invoices/components/AddInvoiceModal'
 
 export default function DashboardPage() {
-  const { t } = useTranslation('dashboard')
-  const navigate = useNavigate()
+ const { t } = useTranslation('dashboard')
+ const navigate = useNavigate()
 
   const [activeAction, setActiveAction] = useState<QuickActionType | null>(null)
   const [data, setData] = useState<DashboardData | null>(null)
@@ -31,13 +31,13 @@ export default function DashboardPage() {
   // Bumped after a quick-action creates something, to refresh the dashboard snapshot
   const [refreshKey, setRefreshKey] = useState(0)
 
-  useEffect(() => {
-    document.title = `${t('title')} | PSMS`
-  }, [t])
+ useEffect(() => {
+ document.title = `${t('title')} | PSMS`
+ }, [t])
 
   useEffect(() => {
     let cancelled = false
-    
+
     setIsLoading(true)
     setError(null)
     fetchDashboard()
@@ -62,9 +62,9 @@ export default function DashboardPage() {
     setActiveAction(action)
   }
 
-  const handleCloseModal = () => {
-    setActiveAction(null)
-  }
+ const handleCloseModal = () => {
+ setActiveAction(null)
+ }
 
   const handleCreated = () => {
     setActiveAction(null)

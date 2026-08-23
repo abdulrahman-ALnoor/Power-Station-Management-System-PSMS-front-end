@@ -29,9 +29,9 @@ export interface CustomerData {
 
 
 interface AddCustomerModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onAdd?: (data: CustomerData) => void
+ isOpen: boolean
+ onClose: () => void
+ onAdd?: (data: CustomerData) => void
 }
 
 

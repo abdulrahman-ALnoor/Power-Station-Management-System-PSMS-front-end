@@ -20,8 +20,8 @@ import {
 import type { Employee } from './types'
 
 export default function EmployeesPage() {
-  const { t } = useTranslation('employees')
-  const { isRTL } = useLanguage()
+ const { t } = useTranslation('employees')
+ const { isRTL } = useLanguage()
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
@@ -157,7 +157,7 @@ export default function EmployeesPage() {
 
         <PermissionsOverview />
 
-      </div>
+ </div>
 
       {/* نافذة إضافة موظف */}
       <AddEmployeeModal

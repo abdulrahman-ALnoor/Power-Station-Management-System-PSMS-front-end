@@ -471,8 +471,8 @@ const handleDelete = (
           stats={stats}
         />
 
-        {/* Charts */}
-        <InvoiceCharts />
+ {/* Charts */}
+ <InvoiceCharts />
 
         {/* Toolbar */}
        {/* Toolbar */}
