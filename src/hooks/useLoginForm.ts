@@ -108,6 +108,7 @@ export function useLoginForm(): UseLoginFormReturn {
  name: values.username,
  email: `${values.username}@psms.com`,
  role: role as any,
+ permissions: [],
  })
 
  if (role === 'reader') {
